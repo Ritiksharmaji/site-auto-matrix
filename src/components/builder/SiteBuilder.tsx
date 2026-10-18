@@ -2,12 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { markEnquiryRead, saveSections, saveSettings, saveTheme, setPublished } from "@/app/actions/site";
+import { saveAutomation, saveSections, saveSettings, saveTheme, setPublished } from "@/app/actions/site";
+import RecentEnquiries, { type RecentEnquiry } from "@/components/crm/RecentEnquiries";
+import type { AutomationSettings } from "@/lib/automation";
 import { FONTS, HERO_LAYOUTS, RADIUS_OPTIONS, STYLE_OPTIONS } from "@/modules/shared";
 import type { Brand, ModuleDef, SectionContent, Theme } from "@/modules/types";
 import ContentEditor from "./ContentEditor";
 
-type Enquiry = { id: string; formType: string; name: string; email: string | null; phone: string | null; message: string | null; isRead: boolean; createdAt: string };
 
 type Props = {
   site: { id: string; name: string; slug: string; customDomain: string | null; status: "DRAFT" | "PUBLISHED"; url: string };
@@ -16,7 +17,8 @@ type Props = {
   theme: Theme;
   brand: Brand;
   sections: Record<string, SectionContent>;
-  enquiries: Enquiry[];
+  enquiries: RecentEnquiry[];
+  automation: AutomationSettings;
   canPublish: boolean;
 };
 
@@ -24,6 +26,7 @@ const TABS = [
   { key: "sections", label: "Sections" },
   { key: "design", label: "Design" },
   { key: "content", label: "Content" },
+  { key: "automation", label: "Automation" },
   { key: "settings", label: "Settings" },
   { key: "enquiries", label: "Enquiries" },
 ] as const;
@@ -35,7 +38,7 @@ export default function SiteBuilder(props: Props) {
   const [tab, setTab] = useState<Tab>("sections");
   const [previewKey, setPreviewKey] = useState(0);
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
-  const unread = props.enquiries.filter((e) => !e.isRead).length;
+  const unread = props.enquiries.filter((e) => e.status === "NEW").length;
 
   function refreshPreview() {
     setPreviewKey((k) => k + 1);
@@ -71,7 +74,8 @@ export default function SiteBuilder(props: Props) {
           />
         )}
         {tab === "settings" && <SettingsTab {...props} onSaved={refreshPreview} />}
-        {tab === "enquiries" && <EnquiriesTab enquiries={props.enquiries} module={module} />}
+        {tab === "automation" && <AutomationTab {...props} />}
+        {tab === "enquiries" && <RecentEnquiries enquiries={props.enquiries} basePath="/admin/enquiries" siteId={site.id} />}
       </div>
 
       <div className="min-w-0">
@@ -89,7 +93,7 @@ export default function SiteBuilder(props: Props) {
         <div className="flex justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-200 xl:sticky xl:top-20">
           <iframe
             key={previewKey}
-            src={`/sites/${site.slug}`}
+            src={`/sites/${site.slug}?preview=1`}
             title="Website preview"
             className="h-[75vh] bg-white transition-all"
             style={{ width: device === "mobile" ? 390 : "100%" }}
@@ -298,34 +302,55 @@ function SettingsTab({ site, canPublish, onSaved }: Props & { onSaved: () => voi
   );
 }
 
-function EnquiriesTab({ enquiries, module }: { enquiries: Enquiry[]; module: ModuleDef }) {
-  const router = useRouter();
-  if (enquiries.length === 0) return <p className="card text-sm text-slate-500">No enquiries yet. Form submissions from the website will appear here.</p>;
+function AutomationTab({ site, automation }: Props) {
+  const [a, setA] = useState<AutomationSettings>(automation);
+  const { saving, msg, run } = useSaver();
+  const toggle = (k: "notifyClient" | "notifyOwner" | "whatsappNotify" | "autoReply", label: string, hint: string) => (
+    <label className="flex cursor-pointer items-start gap-3">
+      <input type="checkbox" checked={a[k]} onChange={(e) => setA({ ...a, [k]: e.target.checked })} className="mt-0.5 h-4 w-4" />
+      <span>
+        <span className="block text-sm font-medium text-slate-900">{label}</span>
+        <span className="block text-xs text-slate-500">{hint}</span>
+      </span>
+    </label>
+  );
+
   return (
-    <ul className="space-y-3">
-      {enquiries.map((e) => (
-        <li key={e.id} className={`card !p-4 ${e.isRead ? "opacity-70" : "border-amber-200"}`}>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="font-medium text-slate-900">{e.name}</p>
-              <p className="text-xs text-slate-500">
-                {module.sections.find((s) => s.key === e.formType)?.label ?? e.formType} · {new Date(e.createdAt).toLocaleString("en-IN")}
-              </p>
-            </div>
-            <button
-              className="text-xs text-indigo-600 hover:underline"
-              onClick={async () => {
-                await markEnquiryRead(e.id, !e.isRead);
-                router.refresh();
-              }}
-            >
-              Mark {e.isRead ? "unread" : "read"}
-            </button>
+    <div className="space-y-4">
+      <div className="card space-y-4">
+        <h3 className="font-semibold text-slate-900">When a new enquiry arrives</h3>
+        {toggle("notifyClient", "Email the client", "Sent to every client login of this website.")}
+        {toggle("notifyOwner", "Email the account manager", "The team member who manages this client.")}
+        <div>
+          <label className="label">Also email (comma separated)</label>
+          <input value={a.extraEmails} onChange={(e) => setA({ ...a, extraEmails: e.target.value })} placeholder="office@school.com, principal@school.com" className="input" />
+        </div>
+        {toggle("whatsappNotify", "Send a WhatsApp alert", "Needs WhatsApp Cloud API keys on the server.")}
+        {a.whatsappNotify && (
+          <div>
+            <label className="label">WhatsApp number (with country code)</label>
+            <input value={a.whatsappNumber} onChange={(e) => setA({ ...a, whatsappNumber: e.target.value })} placeholder="919876543210" className="input" />
           </div>
-          <p className="mt-2 text-sm text-slate-700">{[e.phone, e.email].filter(Boolean).join(" · ")}</p>
-          {e.message && <p className="mt-1 whitespace-pre-line text-sm text-slate-600">{e.message}</p>}
-        </li>
-      ))}
-    </ul>
+        )}
+      </div>
+
+      <div className="card space-y-4">
+        {toggle("autoReply", "Auto-reply to the visitor", "A thank-you email, sent if the visitor gave an email address.")}
+        {a.autoReply && (
+          <>
+            <div>
+              <label className="label">Subject</label>
+              <input value={a.autoReplySubject} onChange={(e) => setA({ ...a, autoReplySubject: e.target.value })} className="input" />
+            </div>
+            <div>
+              <label className="label">Message</label>
+              <textarea rows={6} value={a.autoReplyBody} onChange={(e) => setA({ ...a, autoReplyBody: e.target.value })} className="input" />
+              <p className="mt-1 text-xs text-slate-500">Use {"{{name}}"} for the visitor&apos;s name and {"{{site}}"} for the website name.</p>
+            </div>
+          </>
+        )}
+        <SaveBar saving={saving} msg={msg} onSave={() => run(() => saveAutomation(site.id, a), () => {})} />
+      </div>
+    </div>
   );
 }

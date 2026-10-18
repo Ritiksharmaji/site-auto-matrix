@@ -11,7 +11,7 @@ export default async function PortalHome() {
   const sites = await db.site.findMany({
     where: siteScope(user),
     orderBy: { createdAt: "asc" },
-    include: { _count: { select: { enquiries: { where: { isRead: false } } } } },
+    include: { _count: { select: { enquiries: { where: { status: "NEW" } } } } },
   });
   return (
     <div>

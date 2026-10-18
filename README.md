@@ -54,6 +54,14 @@ prisma/schema.prisma  Users, Clients, Sites (JSONB theme/content), Enquiries, Ac
 
 It immediately appears in the "New client" form, the builder and team permissions. Only add a new section *kind* (in `SiteRenderer.tsx`) when no existing one fits.
 
+## Business automation (Phase 2)
+
+- **Enquiry CRM** – `/admin/enquiries` (team) and `/portal/enquiries` (clients): status pipeline New → Contacted → Converted / Lost, notes, assignment, CSV export.
+- **Alerts & auto-reply** – each website's *Automation* tab controls who is emailed / WhatsApp'd on a new enquiry and the visitor's thank-you email. Every message is recorded in the `Notification` table and shown on the enquiry.
+  - Email: set `SMTP_*` in `.env`. Without `SMTP_HOST`, messages are recorded as "not configured" instead of sent.
+  - WhatsApp: set `WHATSAPP_TOKEN` + `WHATSAPP_PHONE_NUMBER_ID` (Meta WhatsApp Cloud API). Use an approved template (`WHATSAPP_TEMPLATE`) for alerts outside the 24-hour window.
+- **Image uploads** – "Upload" button on every image field. PNG/JPG/WEBP/GIF up to 5 MB, stored in `UPLOAD_DIR` (default `storage/uploads`) and served from `/api/uploads/<id>`.
+
 ## Production notes
 
 - Set `PLATFORM_HOST` to your real domain (e.g. `yourplatform.com`) and point a wildcard DNS record `*.yourplatform.com` to the server.

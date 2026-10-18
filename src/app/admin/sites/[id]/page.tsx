@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import SiteBuilder from "@/components/builder/SiteBuilder";
 import { PageHeader, StatusBadge } from "@/components/admin/Shell";
 import { requireStaff } from "@/lib/auth";
+import { resolveAutomation } from "@/lib/automation";
 import { db } from "@/lib/db";
 import { canPublish, siteScope } from "@/lib/permissions";
 import { editorProps, loadEnquiries } from "@/lib/site-editor-data";
@@ -27,7 +28,7 @@ export default async function SiteBuilderPage({ params }: { params: Promise<{ id
           </>
         }
       />
-      <SiteBuilder {...props} enquiries={await loadEnquiries(site.id)} canPublish={canPublish(user)} />
+      <SiteBuilder {...props} enquiries={await loadEnquiries(site.id)} automation={resolveAutomation(site.automation)} canPublish={canPublish(user)} />
     </div>
   );
 }

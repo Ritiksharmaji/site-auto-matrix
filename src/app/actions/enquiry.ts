@@ -1,10 +1,12 @@
 "use server";
 
+import { after } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { runEnquiryAutomation } from "@/lib/enquiry-automation";
 
-// Public form submissions from client websites. These are the hook for
-// Phase 2 automation (email / WhatsApp alerts, CRM sync).
+// Public form submissions from client websites. Each one triggers the
+// site's automation (email / WhatsApp alerts, visitor auto-reply).
 
 const schema = z.object({
   siteId: z.string().min(1),
@@ -29,8 +31,10 @@ export async function submitEnquiry(_prev: EnquiryState, formData: FormData): Pr
   const site = await db.site.findUnique({ where: { id: d.siteId }, select: { id: true } });
   if (!site) return { error: "This site is not available." };
 
-  await db.enquiry.create({
+  const enquiry = await db.enquiry.create({
     data: { siteId: d.siteId, formType: d.formType, name: d.name, email: d.email || null, phone: d.phone || null, message: d.message || null },
   });
+  // Alerts and auto-reply run after the response so the visitor isn't kept waiting.
+  after(() => runEnquiryAutomation(enquiry.id).catch((e) => console.error("Enquiry automation failed", e)));
   return { ok: true };
 }

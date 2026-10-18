@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser, type CurrentUser } from "@/lib/auth";
 import { logActivity } from "@/lib/activity";
 import { db } from "@/lib/db";
+import { DEFAULT_AUTOMATION, parseEmails, type AutomationSettings } from "@/lib/automation";
 import { canPublish, siteScope } from "@/lib/permissions";
 import { FONTS, HERO_LAYOUTS, RADIUS_OPTIONS, STYLE_OPTIONS } from "@/modules/shared";
 import { getModule } from "@/modules/registry";
@@ -145,14 +146,23 @@ export async function setPublished(siteId: string, publish: boolean): Promise<Sa
   });
 }
 
-export async function markEnquiryRead(enquiryId: string, isRead: boolean): Promise<SaveResult> {
+export async function saveAutomation(siteId: string, input: AutomationSettings): Promise<SaveResult> {
   return guarded(async () => {
-    const user = await getCurrentUser();
-    if (!user) throw new Error("Not signed in");
-    const enquiry = await db.enquiry.findFirst({ where: { id: enquiryId, site: siteScope(user) } });
-    if (!enquiry) throw new Error("Not found");
-    await db.enquiry.update({ where: { id: enquiryId }, data: { isRead } });
-    refresh(enquiry.siteId);
+    const { user } = await loadSite(siteId, { staffOnly: true });
+    const clean: AutomationSettings = {
+      notifyClient: !!input.notifyClient,
+      notifyOwner: !!input.notifyOwner,
+      extraEmails: parseEmails(String(input.extraEmails ?? "")).join(", "),
+      whatsappNotify: !!input.whatsappNotify,
+      whatsappNumber: String(input.whatsappNumber ?? "").replace(/[^\d]/g, "").slice(0, 15),
+      autoReply: !!input.autoReply,
+      autoReplySubject: String(input.autoReplySubject ?? "").slice(0, 200) || DEFAULT_AUTOMATION.autoReplySubject,
+      autoReplyBody: String(input.autoReplyBody ?? "").slice(0, 3000) || DEFAULT_AUTOMATION.autoReplyBody,
+    };
+    if (clean.whatsappNotify && clean.whatsappNumber.length < 10) throw new Error("Enter the WhatsApp number with country code, e.g. 919876543210");
+    await db.site.update({ where: { id: siteId }, data: { automation: clean } });
+    await log(user, siteId, "updated automation settings");
+    refresh(siteId);
   });
 }
 

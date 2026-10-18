@@ -3,7 +3,12 @@ import { buildRenderProps, siteUrl } from "./sites";
 
 /** Load enquiries for a site in a client-component-friendly shape. */
 export async function loadEnquiries(siteId: string) {
-  const rows = await db.enquiry.findMany({ where: { siteId }, orderBy: { createdAt: "desc" }, take: 100 });
+  const rows = await db.enquiry.findMany({
+    where: { siteId },
+    orderBy: { createdAt: "desc" },
+    take: 20,
+    select: { id: true, name: true, phone: true, email: true, status: true, createdAt: true },
+  });
   return rows.map((e) => ({ ...e, createdAt: e.createdAt.toISOString() }));
 }
 

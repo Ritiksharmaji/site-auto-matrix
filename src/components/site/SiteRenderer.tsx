@@ -61,6 +61,14 @@ export default function SiteRenderer({ siteId, module, enabledSections, theme, b
               </a>
             ))}
           </nav>
+          <details className="site-mobile-nav md:hidden">
+            <summary aria-label="Open menu">☰</summary>
+            <nav className="site-mobile-menu">
+              {navItems.map((d) => (
+                <a key={d.key} href={`#${d.key}`}>{d.navLabel ?? d.label}</a>
+              ))}
+            </nav>
+          </details>
         </div>
       </header>
 
@@ -83,11 +91,19 @@ export default function SiteRenderer({ siteId, module, enabledSections, theme, b
               return <Gallery key={def.key} id={def.key} c={c} items={items} />;
             case "testimonials":
               return <Testimonials key={def.key} id={def.key} c={c} items={items} />;
+            case "products":
+              return <Products key={def.key} id={def.key} c={c} items={items} whatsapp={whatsappNumber(brand)} />;
             case "contact":
               return <Contact key={def.key} id={def.key} c={c} brand={brand} siteId={siteId} formType={def.key} />;
           }
         })}
       </main>
+
+      {whatsappNumber(brand) && (
+        <a href={`https://wa.me/${whatsappNumber(brand)}`} target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp" className="site-wa-float">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.4 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.4-.7-2.8-1.1-4.6-4-4.8-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.2.5.1.6-.1l.9-1.1c.2-.3.4-.2.7-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.2Z"/></svg>
+        </a>
+      )}
 
       <footer className="site-footer">
         <div className="site-container grid gap-6 py-10 text-sm md:grid-cols-3">
@@ -106,6 +122,50 @@ export default function SiteRenderer({ siteId, module, enabledSections, theme, b
         </div>
       </footer>
     </div>
+  );
+}
+
+/** Digits-only WhatsApp number, or "" when not set. */
+function whatsappNumber(brand: Brand) {
+  return (brand.whatsapp ?? "").replace(/\D/g, "");
+}
+
+function Products({ id, c, items, whatsapp }: { id: string; c: SectionContent; items: SectionItem[]; whatsapp: string }) {
+  const categories = Array.from(new Set(items.map((it) => it.category?.trim() || "")));
+  const orderLabel = (c.orderLabel as string) || "Order now";
+  return (
+    <section id={id} className="site-section site-alt">
+      <div className="site-container">
+        <SectionHeader c={c} />
+        {categories.map((cat) => (
+          <div key={cat || "_"} className="mb-12 last:mb-0">
+            {cat && categories.length > 1 && <h3 className="site-heading mb-5 text-xl font-semibold">{cat}</h3>}
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {items
+                .filter((it) => (it.category?.trim() || "") === cat)
+                .map((it, i) => {
+                  const href = whatsapp
+                    ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hi, I'd like to order: ${it.title}${it.price ? ` (${it.price})` : ""}`)}`
+                    : "#contact";
+                  return (
+                    <article key={i} className="site-card flex flex-col !p-0 overflow-hidden">
+                      <ImageOrPlaceholder src={it.image} alt={it.title} className="aspect-square w-full" />
+                      <div className="flex flex-1 flex-col p-5">
+                        <h4 className="site-heading text-lg font-semibold">{it.title}</h4>
+                        {it.description && <p className="mt-1 text-sm opacity-75">{it.description}</p>}
+                        <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+                          {it.price && <span className="site-price">{it.price}</span>}
+                          <a href={href} target={whatsapp ? "_blank" : undefined} rel="noreferrer" className="site-btn site-btn-sm">{orderLabel}</a>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -312,11 +372,19 @@ function SiteStyles() {
       .site-logo-mark { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius: min(var(--radius), 12px); background: var(--c-primary); color:#fff; font-weight:700; font-family: var(--f-heading); }
       .site-btn { display:inline-block; background: var(--c-primary); color:#fff; padding: 12px 26px; border-radius: var(--radius); font-weight:600; transition: filter .15s; }
       .site-btn:hover { filter: brightness(1.1); }
+      .site-btn-sm { padding: 8px 14px; font-size: 13px; }
+      .site-price { font-family: var(--f-heading); font-weight: 700; font-size: 18px; color: var(--c-primary); }
+      .site-wa-float { position: fixed; right: 20px; bottom: 20px; z-index: 40; width: 56px; height: 56px; border-radius: 999px; background: #25d366; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px -6px rgba(0,0,0,.35); }
+      .site-minimal .site-card.overflow-hidden { border-width: 1px; padding: 0; }
       .site-card { background: var(--c-bg); border: 1px solid color-mix(in srgb, var(--c-text) 12%, transparent); border-radius: min(var(--radius), 24px); padding: 24px; }
       .site-meta { color: var(--c-primary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
       .site-date { color: var(--c-primary); font-weight: 600; font-size: 14px; min-width: 110px; }
       .site-header { position: sticky; top: 0; z-index: 20; background: var(--c-bg); border-bottom: 1px solid color-mix(in srgb, var(--c-text) 10%, transparent); }
       .site-nav-link:hover { color: var(--c-primary); }
+      .site-mobile-nav > summary { list-style: none; cursor: pointer; font-size: 22px; padding: 4px 8px; }
+      .site-mobile-nav > summary::-webkit-details-marker { display: none; }
+      .site-mobile-menu { position: absolute; left: 0; right: 0; top: 100%; background: var(--c-bg); color: var(--c-text); border-bottom: 1px solid color-mix(in srgb, var(--c-text) 12%, transparent); display: flex; flex-direction: column; padding: 8px 20px 16px; }
+      .site-mobile-menu a { padding: 10px 0; font-weight: 500; border-bottom: 1px solid color-mix(in srgb, var(--c-text) 6%, transparent); }
       .site-hero { background: color-mix(in srgb, var(--c-primary) 6%, var(--c-bg)); }
       .site-stats { background: var(--c-primary); color: #fff; }
       .site-footer { background: color-mix(in srgb, var(--c-text) 92%, var(--c-primary)); color: #fff; }

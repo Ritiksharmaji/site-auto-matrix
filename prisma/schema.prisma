@@ -29,6 +29,18 @@ enum EnquiryStatus {
   LOST
 }
 
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  CANCELLED
+}
+
 enum Channel {
   EMAIL
   WHATSAPP
@@ -66,19 +78,25 @@ model User {
 }
 
 model Client {
-  id          String   @id @default(cuid())
-  name        String
-  contactName String
-  email       String
-  phone       String?
-  notes       String?
+  id           String       @id @default(cuid())
+  name         String
+  contactName  String
+  email        String
+  phone        String?
+  notes        String?
+  /// Billing plan (managed by the super admin). Amounts are in paise.
+  planName     String?
+  planAmount   Int?
+  billingCycle BillingCycle @default(MONTHLY)
+  nextDueDate  DateTime?
+  invoices     Invoice[]
   /// The super admin or staff member who manages this client
-  ownerId     String
-  owner       User     @relation("ClientOwner", fields: [ownerId], references: [id])
-  users       User[]   @relation("ClientUsers")
-  sites       Site[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  ownerId      String
+  owner        User         @relation("ClientOwner", fields: [ownerId], references: [id])
+  users        User[]       @relation("ClientUsers")
+  sites        Site[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   @@index([ownerId])
 }
@@ -104,6 +122,7 @@ model Site {
   automation      Json       @default("{}")
   enquiries       Enquiry[]
   assets          Asset[]
+  pageViews       PageView[]
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
@@ -183,4 +202,38 @@ model Activity {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+model Invoice {
+  id             String        @id @default(cuid())
+  number         String        @unique
+  clientId       String
+  client         Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  description    String
+  /// Amount in paise
+  amount         Int
+  periodStart    DateTime?
+  periodEnd      DateTime?
+  dueDate        DateTime
+  status         InvoiceStatus @default(UNPAID)
+  paidAt         DateTime?
+  paymentNote    String?
+  lastReminderAt DateTime?
+  createdAt      DateTime      @default(now())
+
+  @@index([status, dueDate])
+  @@index([clientId])
+}
+
+/// One row per public page view. No IPs are stored; visitorHash is a daily-rotating hash.
+model PageView {
+  id          String   @id @default(cuid())
+  siteId      String
+  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  path        String
+  referrer    String?
+  visitorHash String
+  createdAt   DateTime @default(now())
+
+  @@index([siteId, createdAt])
 }

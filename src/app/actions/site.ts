@@ -86,7 +86,9 @@ function sanitizeContent(mod: ModuleDef, raw: Record<string, unknown>) {
   const str = (v: unknown, max = 5000) => (typeof v === "string" ? v.slice(0, max) : "");
   const brandIn = (raw.brand ?? {}) as Record<string, unknown>;
   const out: Record<string, unknown> = {
-    brand: Object.fromEntries(Object.keys(mod.defaultBrand).map((k) => [k, str(brandIn[k], 300)])),
+    brand: Object.fromEntries(
+      [...new Set([...Object.keys(mod.defaultBrand), "whatsapp", "metaDescription"])].map((k) => [k, str(brandIn[k], 300)]),
+    ),
   };
   for (const s of mod.sections) {
     const src = (raw[s.key] ?? {}) as Record<string, unknown>;

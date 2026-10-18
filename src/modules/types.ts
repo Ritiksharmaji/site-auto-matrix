@@ -23,6 +23,7 @@ export type SectionKind =
   | "list"
   | "gallery"
   | "testimonials"
+  | "products"
   | "contact";
 
 export type SectionDef = {
@@ -79,6 +80,10 @@ export type Brand = {
   email: string;
   address: string;
   footerText: string;
+  /** WhatsApp number with country code; used for "Order on WhatsApp" and a chat button. */
+  whatsapp?: string;
+  /** Search engine description (falls back to the tagline). */
+  metaDescription?: string;
 };
 
 export type SiteContent = { brand: Brand } & Record<string, SectionContent | Brand>;

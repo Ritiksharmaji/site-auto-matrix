@@ -20,6 +20,8 @@ type Props = {
   enquiries: RecentEnquiry[];
   automation: AutomationSettings;
   canPublish: boolean;
+  /** Server-rendered analytics panel. */
+  analytics: React.ReactNode;
 };
 
 const TABS = [
@@ -29,6 +31,7 @@ const TABS = [
   { key: "automation", label: "Automation" },
   { key: "settings", label: "Settings" },
   { key: "enquiries", label: "Enquiries" },
+  { key: "analytics", label: "Analytics" },
 ] as const;
 type Tab = (typeof TABS)[number]["key"];
 
@@ -75,6 +78,7 @@ export default function SiteBuilder(props: Props) {
         )}
         {tab === "settings" && <SettingsTab {...props} onSaved={refreshPreview} />}
         {tab === "automation" && <AutomationTab {...props} />}
+        {tab === "analytics" && props.analytics}
         {tab === "enquiries" && <RecentEnquiries enquiries={props.enquiries} basePath="/admin/enquiries" siteId={site.id} />}
       </div>
 

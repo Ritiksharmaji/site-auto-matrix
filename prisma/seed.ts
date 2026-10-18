@@ -1,5 +1,5 @@
-// Seeds local development data: one super admin, one staff member,
-// two clients (a school and a company) each with a site and a client login.
+// Seeds local development data: one super admin, one staff member and four
+// demo clients (school, company, university, shop), each with a site and a client login.
 // All accounts use SEED_PASSWORD from .env.
 import { PrismaClient, Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
@@ -34,6 +34,8 @@ async function main() {
   const demos = [
     { slug: "greenvalley", module: "school", preset: "academic-blue", client: "Green Valley Public School", contact: "Anita Sharma", email: "school@siteplatform.test", owner: admin.id },
     { slug: "nexora", module: "company", preset: "startup-violet", client: "Nexora Solutions", contact: "Arjun Kapoor", email: "company@siteplatform.test", owner: staff.id },
+    { slug: "horizon", module: "university", preset: "scholar-navy", client: "Horizon University", contact: "Registrar Office", email: "university@siteplatform.test", owner: admin.id },
+    { slug: "urbanthreads", module: "shop", preset: "boutique-rose", client: "Urban Threads", contact: "Meena Gupta", email: "shop@siteplatform.test", owner: staff.id },
   ];
 
   for (const d of demos) {
@@ -61,7 +63,7 @@ async function main() {
     });
   }
 
-  console.log("Seeded. Logins: admin@, staff@, school@, company@siteplatform.test (password = SEED_PASSWORD in .env)");
+  console.log("Seeded. Logins: admin@, staff@, school@, company@, university@, shop@siteplatform.test (password = SEED_PASSWORD in .env)");
 }
 
 main()

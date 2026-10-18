@@ -7,6 +7,7 @@ export default async function PortalLayout({ children }: { children: React.React
     <Shell user={user} nav={[
         { href: "/portal", label: "My websites" },
         { href: "/portal/enquiries", label: "Enquiries" },
+        { href: "/portal/billing", label: "Billing" },
       ]} navTitle="Client portal">
       {children}
     </Shell>

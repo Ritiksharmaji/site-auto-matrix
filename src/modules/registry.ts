@@ -1,9 +1,11 @@
 import { companyModule } from "./company";
 import { schoolModule } from "./school";
+import { shopModule } from "./shop";
+import { universityModule } from "./university";
 import type { Brand, ModuleDef, SectionContent, Theme } from "./types";
 
 /** All available industry modules. Register new modules here. */
-export const MODULES: ModuleDef[] = [schoolModule, companyModule];
+export const MODULES: ModuleDef[] = [schoolModule, universityModule, companyModule, shopModule];
 
 export function getModule(key: string): ModuleDef | undefined {
   return MODULES.find((m) => m.key === key);
@@ -35,7 +37,7 @@ export function resolveTheme(mod: ModuleDef, stored: unknown): Theme {
 
 export function resolveContent(mod: ModuleDef, stored: unknown) {
   const raw = (stored ?? {}) as Record<string, unknown>;
-  const brand = { ...mod.defaultBrand, ...((raw.brand as Partial<Brand>) ?? {}) };
+  const brand: Brand = { whatsapp: "", metaDescription: "", ...mod.defaultBrand, ...((raw.brand as Partial<Brand>) ?? {}) };
   const sections: Record<string, SectionContent> = {};
   for (const s of mod.sections) {
     sections[s.key] = { ...s.defaults, ...((raw[s.key] as SectionContent) ?? {}) };

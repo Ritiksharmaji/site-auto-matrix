@@ -10,11 +10,12 @@ export default async function Dashboard() {
   const isOwner = user.role === "SUPER_ADMIN";
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-  const [clientCount, siteCount, liveCount, enquiryCount, recentSites, byModule] = await Promise.all([
+  const [clientCount, siteCount, liveCount, enquiryCount, viewCount, recentSites, byModule] = await Promise.all([
     db.client.count({ where: clientScope(user) }),
     db.site.count({ where: siteScope(user) }),
     db.site.count({ where: { ...siteScope(user), status: "PUBLISHED" } }),
     db.enquiry.count({ where: { site: siteScope(user), createdAt: { gte: since } } }),
+    db.pageView.count({ where: { site: siteScope(user), createdAt: { gte: since } } }),
     db.site.findMany({
       where: siteScope(user),
       orderBy: { updatedAt: "desc" },
@@ -29,6 +30,7 @@ export default async function Dashboard() {
     { label: "Websites", value: siteCount },
     { label: "Live websites", value: liveCount },
     { label: "Enquiries (30 days)", value: enquiryCount },
+    { label: "Page views (30 days)", value: viewCount },
   ];
 
   return (
@@ -39,7 +41,7 @@ export default async function Dashboard() {
         actions={<Link href="/admin/clients/new" className="btn-primary">+ New client</Link>}
       />
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         {stats.map((s) => (
           <div key={s.label} className="card">
             <p className="text-sm text-slate-500">{s.label}</p>

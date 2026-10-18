@@ -31,3 +31,10 @@ export function siteUrl(site: { slug: string; customDomain: string | null }) {
   const proto = host.startsWith("localhost") ? "http" : "https";
   return `${proto}://${site.slug}.${host}`;
 }
+
+/** Origin the visitor used (subdomain or custom domain), for absolute URLs in sitemaps. */
+export function publicOrigin(req: Request) {
+  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "";
+  const proto = req.headers.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
+  return `${proto}://${host}`;
+}

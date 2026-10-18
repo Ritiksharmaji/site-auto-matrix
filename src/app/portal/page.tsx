@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageHeader, StatusBadge } from "@/components/admin/Shell";
+import { viewsBySite } from "@/lib/analytics";
 import { requireClient } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { siteScope } from "@/lib/permissions";
@@ -13,6 +14,7 @@ export default async function PortalHome() {
     orderBy: { createdAt: "asc" },
     include: { _count: { select: { enquiries: { where: { status: "NEW" } } } } },
   });
+  const views = await viewsBySite(sites.map((s) => s.id));
   return (
     <div>
       <PageHeader title="My websites" description="Update your website content and see enquiries from visitors." />
@@ -24,6 +26,7 @@ export default async function PortalHome() {
               <StatusBadge status={s.status} />
             </div>
             <p className="mt-1 text-xs text-slate-500">{getModule(s.moduleKey)?.name} website</p>
+            <p className="mt-2 text-sm text-slate-600">{views.get(s.id) ?? 0} page views in the last 30 days</p>
             {s._count.enquiries > 0 && <p className="mt-2 text-sm font-medium text-amber-700">{s._count.enquiries} new enquiries</p>}
             <div className="mt-4 flex gap-2">
               <Link href={`/portal/sites/${s.id}`} className="btn-primary">Edit content</Link>

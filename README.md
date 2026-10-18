@@ -2,6 +2,8 @@
 
 One Next.js app that creates and hosts many websites (schools, companies, …) from reusable **modules**, with an admin panel for you and your team and a portal for clients.
 
+📘 **Step-by-step guide to how everything works:** [docs/APPLICATION_FLOW.md](docs/APPLICATION_FLOW.md)
+
 ## Run locally
 
 ```bash

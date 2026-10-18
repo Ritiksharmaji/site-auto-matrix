@@ -13,8 +13,10 @@ const BRAND_FIELDS: FieldDef[] = [
   { key: "logo", label: "Logo image URL", type: "image" },
   { key: "phone", label: "Phone", type: "text" },
   { key: "email", label: "Email", type: "text" },
+  { key: "whatsapp", label: "WhatsApp number (with country code)", type: "text", placeholder: "919876543210" },
   { key: "address", label: "Address", type: "textarea" },
   { key: "footerText", label: "Footer text", type: "text" },
+  { key: "metaDescription", label: "Google search description", type: "textarea", placeholder: "Shown under your site name in search results (about 150 characters)" },
 ];
 
 type Props = {

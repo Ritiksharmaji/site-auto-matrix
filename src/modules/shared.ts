@@ -50,6 +50,14 @@ export const galleryItemFields: FieldDef[] = [
   { key: "caption", label: "Caption", type: "text" },
 ];
 
+export const productItemFields: FieldDef[] = [
+  { key: "title", label: "Product name", type: "text" },
+  { key: "category", label: "Category", type: "text" },
+  { key: "price", label: "Price", type: "text", placeholder: "₹499" },
+  { key: "description", label: "Description", type: "textarea" },
+  { key: "image", label: "Image URL", type: "image" },
+];
+
 export const testimonialItemFields: FieldDef[] = [
   { key: "quote", label: "Quote", type: "textarea" },
   { key: "name", label: "Name", type: "text" },

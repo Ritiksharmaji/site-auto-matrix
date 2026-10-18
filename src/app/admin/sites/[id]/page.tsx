@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AnalyticsPanel from "@/components/builder/AnalyticsPanel";
 import SiteBuilder from "@/components/builder/SiteBuilder";
 import { PageHeader, StatusBadge } from "@/components/admin/Shell";
+import { siteAnalytics } from "@/lib/analytics";
 import { requireStaff } from "@/lib/auth";
 import { resolveAutomation } from "@/lib/automation";
 import { db } from "@/lib/db";
@@ -28,7 +30,12 @@ export default async function SiteBuilderPage({ params }: { params: Promise<{ id
           </>
         }
       />
-      <SiteBuilder {...props} enquiries={await loadEnquiries(site.id)} automation={resolveAutomation(site.automation)} canPublish={canPublish(user)} />
+      <SiteBuilder
+        {...props}
+        enquiries={await loadEnquiries(site.id)} automation={resolveAutomation(site.automation)}
+        canPublish={canPublish(user)}
+        analytics={<AnalyticsPanel data={await siteAnalytics(site.id)} />}
+      />
     </div>
   );
 }

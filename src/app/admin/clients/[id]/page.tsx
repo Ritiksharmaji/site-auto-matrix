@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createSiteForClient, deleteClient, reassignClient, setClientLogin, updateClient } from "@/app/actions/admin";
+import { createInvoice, saveClientPlan } from "@/app/actions/billing";
 import ActionForm from "@/components/admin/ActionForm";
+import InvoiceTable from "@/components/billing/InvoiceTable";
 import ConfirmButton from "@/components/admin/ConfirmButton";
 import ModulePicker from "@/components/admin/ModulePicker";
 import { PageHeader, StatusBadge } from "@/components/admin/Shell";
 import { requireStaff } from "@/lib/auth";
+import { CYCLE_LABEL } from "@/lib/billing";
 import { db } from "@/lib/db";
 import { moduleOptions } from "@/lib/module-options";
 import { clientScope, staffPermissions } from "@/lib/permissions";
@@ -20,6 +23,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
     include: {
       owner: { select: { id: true, name: true } },
       sites: { orderBy: { createdAt: "asc" }, include: { _count: { select: { enquiries: true } } } },
+      invoices: { orderBy: { dueDate: "desc" }, take: 24 },
       users: { select: { id: true, name: true, email: true, isActive: true } },
     },
   });
@@ -74,6 +78,26 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
             </details>
           </section>
 
+          {isOwner && (
+            <section className="space-y-3">
+              <h2 className="font-semibold text-slate-900">Invoices</h2>
+              <InvoiceTable rows={client.invoices} manage showClient={false} />
+              <details className="rounded-lg border border-dashed border-slate-300 bg-white p-4">
+                <summary className="cursor-pointer text-sm font-medium text-indigo-600">+ Create a one-off invoice</summary>
+                <div className="mt-4">
+                  <ActionForm action={createInvoice} submitLabel="Create invoice">
+                    <input type="hidden" name="clientId" value={client.id} />
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <div className="sm:col-span-3"><label className="label">Description</label><input name="description" required placeholder="e.g. Website setup fee" className="input" /></div>
+                      <div><label className="label">Amount (₹)</label><input name="amount" inputMode="decimal" required className="input" /></div>
+                      <div><label className="label">Due date</label><input name="dueDate" type="date" required className="input" /></div>
+                    </div>
+                  </ActionForm>
+                </div>
+              </details>
+            </section>
+          )}
+
           <section className="card">
             <h2 className="mb-1 font-semibold text-slate-900">Client logins</h2>
             <p className="mb-4 text-sm text-slate-500">These people can sign in and edit content on this client&apos;s websites only.</p>
@@ -117,6 +141,27 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
 
           {isOwner && (
             <section className="card">
+              <h2 className="mb-1 font-semibold text-slate-900">Billing plan</h2>
+              <p className="mb-4 text-xs text-slate-500">Invoices are created automatically before each due date.</p>
+              <ActionForm action={saveClientPlan} submitLabel="Save plan">
+                <input type="hidden" name="clientId" value={client.id} />
+                <div><label className="label">Plan name</label><input name="planName" defaultValue={client.planName ?? ""} placeholder="e.g. Website + Automation" className="input" /></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="label">Fee (₹)</label><input name="planAmount" inputMode="decimal" defaultValue={client.planAmount ? String(client.planAmount / 100) : ""} className="input" /></div>
+                  <div>
+                    <label className="label">Cycle</label>
+                    <select name="billingCycle" defaultValue={client.billingCycle} className="input">
+                      {Object.entries(CYCLE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div><label className="label">Next due date</label><input name="nextDueDate" type="date" defaultValue={client.nextDueDate ? toDateInput(client.nextDueDate) : ""} className="input" /></div>
+              </ActionForm>
+            </section>
+          )}
+
+          {isOwner && (
+            <section className="card">
               <h2 className="mb-3 font-semibold text-slate-900">Assigned team member</h2>
               <form action={reassignClient} className="flex gap-2">
                 <input type="hidden" name="id" value={client.id} />
@@ -142,4 +187,8 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
       </div>
     </div>
   );
+}
+
+function toDateInput(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }

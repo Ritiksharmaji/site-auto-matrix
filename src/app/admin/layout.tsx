@@ -10,6 +10,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/enquiries", label: "Enquiries" },
     ...(user.role === "SUPER_ADMIN"
       ? [
+          { href: "/admin/billing", label: "Billing" },
           { href: "/admin/team", label: "Team" },
           { href: "/admin/activity", label: "Activity log" },
         ]

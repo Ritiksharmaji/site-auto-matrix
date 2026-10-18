@@ -1,0 +1,113 @@
+// Site Platform data model.
+// Structured data (users, clients, sites, permissions) lives in tables;
+// flexible per-module data (theme, section content) lives in JSONB columns.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  STAFF
+  CLIENT
+}
+
+enum SiteStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  isActive     Boolean  @default(true)
+  /// Staff limits: { maxClients, canPublish, canDeleteClients, allowedModules }
+  permissions  Json     @default("{}")
+  /// Set for CLIENT users: the business they belong to
+  clientId     String?
+  client       Client?  @relation("ClientUsers", fields: [clientId], references: [id], onDelete: Cascade)
+  createdById  String?
+  createdBy    User?    @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdUsers User[]   @relation("UserCreatedBy")
+  clientsOwned Client[] @relation("ClientOwner")
+  activity     Activity[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Client {
+  id          String   @id @default(cuid())
+  name        String
+  contactName String
+  email       String
+  phone       String?
+  notes       String?
+  /// The super admin or staff member who manages this client
+  ownerId     String
+  owner       User     @relation("ClientOwner", fields: [ownerId], references: [id])
+  users       User[]   @relation("ClientUsers")
+  sites       Site[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([ownerId])
+}
+
+model Site {
+  id              String     @id @default(cuid())
+  clientId        String
+  client          Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  name            String
+  /// Used for the subdomain: <slug>.yourplatform.com
+  slug            String     @unique
+  customDomain    String?    @unique
+  /// Module key from src/modules (e.g. "school", "company")
+  moduleKey       String
+  /// Ordered list of enabled section keys
+  enabledSections Json       @default("[]")
+  theme           Json       @default("{}")
+  /// { brand: {...}, [sectionKey]: {...} }
+  content         Json       @default("{}")
+  status          SiteStatus @default(DRAFT)
+  publishedAt     DateTime?
+  enquiries       Enquiry[]
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([clientId])
+}
+
+/// Form submissions from public sites (admission enquiries, contact leads)
+model Enquiry {
+  id        String   @id @default(cuid())
+  siteId    String
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  formType  String
+  name      String
+  email     String?
+  phone     String?
+  message   String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([siteId, createdAt])
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  details   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}

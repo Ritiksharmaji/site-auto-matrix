@@ -22,25 +22,47 @@ enum SiteStatus {
   PUBLISHED
 }
 
+enum EnquiryStatus {
+  NEW
+  CONTACTED
+  CONVERTED
+  LOST
+}
+
+enum Channel {
+  EMAIL
+  WHATSAPP
+}
+
+enum DeliveryStatus {
+  SENT
+  FAILED
+  /// Channel not configured (e.g. no SMTP in development) — message recorded only
+  LOGGED
+}
+
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  role         Role
-  isActive     Boolean  @default(true)
+  id                String        @id @default(cuid())
+  name              String
+  email             String        @unique
+  passwordHash      String
+  role              Role
+  isActive          Boolean       @default(true)
   /// Staff limits: { maxClients, canPublish, canDeleteClients, allowedModules }
-  permissions  Json     @default("{}")
+  permissions       Json          @default("{}")
   /// Set for CLIENT users: the business they belong to
-  clientId     String?
-  client       Client?  @relation("ClientUsers", fields: [clientId], references: [id], onDelete: Cascade)
-  createdById  String?
-  createdBy    User?    @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  createdUsers User[]   @relation("UserCreatedBy")
-  clientsOwned Client[] @relation("ClientOwner")
-  activity     Activity[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  clientId          String?
+  client            Client?       @relation("ClientUsers", fields: [clientId], references: [id], onDelete: Cascade)
+  createdById       String?
+  createdBy         User?         @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdUsers      User[]        @relation("UserCreatedBy")
+  clientsOwned      Client[]      @relation("ClientOwner")
+  activity          Activity[]
+  assignedEnquiries Enquiry[]     @relation("EnquiryAssignee")
+  enquiryNotes      EnquiryNote[]
+  uploads           Asset[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 }
 
 model Client {
@@ -78,7 +100,10 @@ model Site {
   content         Json       @default("{}")
   status          SiteStatus @default(DRAFT)
   publishedAt     DateTime?
+  /// Notification + auto-reply settings, see src/lib/automation.ts
+  automation      Json       @default("{}")
   enquiries       Enquiry[]
+  assets          Asset[]
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
@@ -87,18 +112,66 @@ model Site {
 
 /// Form submissions from public sites (admission enquiries, contact leads)
 model Enquiry {
-  id        String   @id @default(cuid())
-  siteId    String
-  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  formType  String
-  name      String
-  email     String?
-  phone     String?
-  message   String?
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id            String         @id @default(cuid())
+  siteId        String
+  site          Site           @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  formType      String
+  name          String
+  email         String?
+  phone         String?
+  message       String?
+  status        EnquiryStatus  @default(NEW)
+  assignedToId  String?
+  assignedTo    User?          @relation("EnquiryAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  notes         EnquiryNote[]
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
 
   @@index([siteId, createdAt])
+  @@index([status])
+}
+
+model EnquiryNote {
+  id        String   @id @default(cuid())
+  enquiryId String
+  enquiry   Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  authorId  String?
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([enquiryId])
+}
+
+/// Every automated message the platform sends (or would send, when a channel is not configured)
+model Notification {
+  id        String         @id @default(cuid())
+  enquiryId String?
+  enquiry   Enquiry?       @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  channel   Channel
+  recipient String
+  subject   String?
+  body      String
+  status    DeliveryStatus
+  error     String?
+  createdAt DateTime       @default(now())
+
+  @@index([createdAt])
+}
+
+/// Uploaded images (logos, photos). Files live on disk in UPLOAD_DIR.
+model Asset {
+  id           String   @id @default(cuid())
+  siteId       String?
+  site         Site?    @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  uploadedById String?
+  uploadedBy   User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  filename     String
+  storedName   String   @unique
+  mimeType     String
+  size         Int
+  createdAt    DateTime @default(now())
 }
 
 model Activity {

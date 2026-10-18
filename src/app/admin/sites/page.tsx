@@ -11,7 +11,7 @@ export default async function SitesPage() {
   const sites = await db.site.findMany({
     where: siteScope(user),
     orderBy: { updatedAt: "desc" },
-    include: { client: { select: { id: true, name: true } }, _count: { select: { enquiries: { where: { isRead: false } } } } },
+    include: { client: { select: { id: true, name: true } }, _count: { select: { enquiries: { where: { status: "NEW" } } } } },
   });
   return (
     <div>

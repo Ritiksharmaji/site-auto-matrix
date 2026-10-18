@@ -50,6 +50,7 @@ export default function ContentEditor({ siteId, module, enabledSections, brand: 
     <div className="space-y-3">
       <Panel title="Brand & contact details" isOpen={open === "brand"} onToggle={() => setOpen(open === "brand" ? null : "brand")}>
         <Fields
+          siteId={siteId}
           fields={BRAND_FIELDS}
           values={brand}
           onChange={(k, v) => {
@@ -64,7 +65,7 @@ export default function ContentEditor({ siteId, module, enabledSections, brand: 
         const items = (c.items as SectionItem[] | undefined) ?? [];
         return (
           <Panel key={def.key} title={def.label} isOpen={open === def.key} onToggle={() => setOpen(open === def.key ? null : def.key)}>
-            <Fields fields={def.fields} values={c as Record<string, string>} onChange={(k, v) => updateSection(def.key, { ...c, [k]: v })} />
+            <Fields siteId={siteId} fields={def.fields} values={c as Record<string, string>} onChange={(k, v) => updateSection(def.key, { ...c, [k]: v })} />
             {def.itemFields && (
               <div className="mt-4 space-y-3">
                 {items.map((item, i) => (
@@ -78,6 +79,7 @@ export default function ContentEditor({ siteId, module, enabledSections, brand: 
                       </div>
                     </div>
                     <Fields
+                      siteId={siteId}
                       fields={def.itemFields!}
                       values={item}
                       onChange={(k, v) => updateSection(def.key, { ...c, items: items.map((it, j) => (j === i ? { ...it, [k]: v } : it)) })}
@@ -143,7 +145,7 @@ function IconBtn({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonEl
   );
 }
 
-function Fields({ fields, values, onChange }: { fields: FieldDef[]; values: Record<string, unknown>; onChange: (k: string, v: string) => void }) {
+function Fields({ siteId, fields, values, onChange }: { siteId: string; fields: FieldDef[]; values: Record<string, unknown>; onChange: (k: string, v: string) => void }) {
   return (
     <div className="space-y-3">
       {fields.map((f) => {
@@ -166,11 +168,46 @@ function Fields({ fields, values, onChange }: { fields: FieldDef[]; values: Reco
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={v} alt="" className="h-9 w-9 shrink-0 rounded object-cover" />
                 )}
+                {f.type === "image" && <UploadButton siteId={siteId} onUploaded={(url) => onChange(f.key, url)} />}
               </div>
             )}
           </div>
         );
       })}
     </div>
+  );
+}
+
+function UploadButton({ siteId, onUploaded }: { siteId: string; onUploaded: (url: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <label className={`btn-secondary shrink-0 cursor-pointer !px-3 !py-2 ${busy ? "opacity-50" : ""}`} title="Upload image (PNG, JPG, WEBP, GIF · max 5 MB)">
+      {busy ? "…" : "Upload"}
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        className="hidden"
+        disabled={busy}
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (!file) return;
+          setBusy(true);
+          const body = new FormData();
+          body.append("file", file);
+          body.append("siteId", siteId);
+          try {
+            const res = await fetch("/api/uploads", { method: "POST", body });
+            const data = await res.json();
+            if (!res.ok) alert(data.error ?? "Upload failed");
+            else onUploaded(data.url);
+          } catch {
+            alert("Upload failed");
+          } finally {
+            setBusy(false);
+          }
+        }}
+      />
+    </label>
   );
 }

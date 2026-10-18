@@ -14,6 +14,9 @@ export async function middleware(req: NextRequest) {
   const host = (req.headers.get("host") ?? "").toLowerCase();
   const { pathname } = req.nextUrl;
 
+  // API routes (uploads, tracking, exports) are shared by every host.
+  if (pathname.startsWith("/api/")) return NextResponse.next();
+
   if (!PLATFORM_ALIASES.has(host)) {
     // Subdomain of the platform host, or a client's custom domain.
     const siteKey = host.endsWith(`.${PLATFORM_HOST}`)

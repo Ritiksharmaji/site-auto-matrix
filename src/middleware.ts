@@ -1,14 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { platformHost, slugFromHost } from "@/lib/hosts";
 import { SESSION_COOKIE, verifySession } from "@/lib/session";
 
 // One deployment serves the platform and every client website:
-//   localhost:3000/admin            -> platform admin panel
-//   greenvalley.localhost:3000      -> site with slug "greenvalley"
-//   www.greenvalley.edu             -> site whose customDomain matches
+//   sites.onekampus.com/admin   (localhost:3000/admin)       -> platform admin panel
+//   advera.onekampus.com        (advera.localhost:3000)      -> site with slug "advera"
+//   www.greenvalley.edu                                      -> site whose customDomain matches
 // Site requests are rewritten internally to /sites/<slug-or-domain>/...
-
-const PLATFORM_HOST = (process.env.PLATFORM_HOST ?? "localhost:3000").toLowerCase();
-const PLATFORM_ALIASES = new Set([PLATFORM_HOST, "localhost:3000", "127.0.0.1:3000"]);
 
 export async function middleware(req: NextRequest) {
   const host = (req.headers.get("host") ?? "").toLowerCase();
@@ -17,11 +15,10 @@ export async function middleware(req: NextRequest) {
   // API routes (uploads, tracking, exports) are shared by every host.
   if (pathname.startsWith("/api/")) return NextResponse.next();
 
-  if (!PLATFORM_ALIASES.has(host)) {
-    // Subdomain of the platform host, or a client's custom domain.
-    const siteKey = host.endsWith(`.${PLATFORM_HOST}`)
-      ? host.slice(0, -(PLATFORM_HOST.length + 1))
-      : host.replace(/^www\./, "");
+  const platformAliases = new Set([platformHost(), "localhost:3000", "127.0.0.1:3000"]);
+  if (!platformAliases.has(host)) {
+    // Client subdomain (<slug>.SITE_BASE_DOMAIN), or a client's custom domain.
+    const siteKey = slugFromHost(host) ?? host.replace(/^www\./, "");
     const url = req.nextUrl.clone();
     url.pathname = `/sites/${encodeURIComponent(siteKey)}${pathname === "/" ? "" : pathname}`;
     return NextResponse.rewrite(url);

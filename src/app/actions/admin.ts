@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { hashPassword, requireStaff, requireSuperAdmin } from "@/lib/auth";
+import { isReservedSlug } from "@/lib/hosts";
 import { logActivity } from "@/lib/activity";
 import { db } from "@/lib/db";
 import { clientScope, DEFAULT_STAFF_PERMISSIONS, staffPermissions, type StaffPermissions } from "@/lib/permissions";
@@ -13,7 +14,6 @@ import { getModule, initialSiteConfig } from "@/modules/registry";
 export type FormState = { error?: string; ok?: string };
 
 const slugRe = /^[a-z0-9](?:[a-z0-9-]{0,40}[a-z0-9])?$/;
-const RESERVED_SLUGS = new Set(["www", "admin", "api", "app", "portal", "login", "mail"]);
 
 // ---------- Clients ----------
 
@@ -42,7 +42,7 @@ export async function createClient(_prev: FormState, formData: FormData): Promis
   }
   const mod = getModule(d.moduleKey);
   if (!mod || !perms.allowedModules.includes(mod.key)) return { error: "You are not allowed to use this module." };
-  if (RESERVED_SLUGS.has(d.slug)) return { error: "That web address is reserved." };
+  if (isReservedSlug(d.slug)) return { error: "That web address is reserved." };
   if (await db.site.findUnique({ where: { slug: d.slug } })) return { error: "That web address is already taken." };
   if (await db.user.findUnique({ where: { email: d.email } })) return { error: "A login with this email already exists." };
 
@@ -121,7 +121,8 @@ export async function createSiteForClient(_prev: FormState, formData: FormData):
   const mod = getModule(moduleKey);
   if (!mod || !staffPermissions(user).allowedModules.includes(mod.key)) return { error: "You are not allowed to use this module." };
   if (name.length < 2) return { error: "Website name is required." };
-  if (!slugRe.test(slug) || RESERVED_SLUGS.has(slug)) return { error: "Web address: lowercase letters, numbers and dashes only." };
+  if (!slugRe.test(slug)) return { error: "Web address: lowercase letters, numbers and dashes only." };
+  if (isReservedSlug(slug)) return { error: "That web address is reserved." };
   if (await db.site.findUnique({ where: { slug } })) return { error: "That web address is already taken." };
 
   const config = initialSiteConfig(mod, preset, name);

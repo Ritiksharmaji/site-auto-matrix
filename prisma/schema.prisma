@@ -3,7 +3,9 @@
 // flexible per-module data (theme, section content) lives in JSONB columns.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // native = this machine; debian-openssl-3.0.x = the production container (node:22-bookworm-slim)
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {

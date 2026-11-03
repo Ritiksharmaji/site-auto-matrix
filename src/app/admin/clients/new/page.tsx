@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/admin/Shell";
 import { requireStaff } from "@/lib/auth";
+import { siteBaseDomain } from "@/lib/hosts";
 import { moduleOptions } from "@/lib/module-options";
 import { staffPermissions } from "@/lib/permissions";
 import NewClientForm from "./NewClientForm";
@@ -13,7 +14,7 @@ export default async function NewClientPage() {
       {modules.length === 0 ? (
         <p className="card text-sm text-slate-600">You don&apos;t have access to any modules yet. Ask the admin.</p>
       ) : (
-        <NewClientForm modules={modules} platformHost={process.env.PLATFORM_HOST ?? "localhost:3000"} />
+        <NewClientForm modules={modules} platformHost={siteBaseDomain()} />
       )}
     </div>
   );

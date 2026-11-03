@@ -484,6 +484,8 @@ scripts/screenshots.ts      regenerates every image in docs/screenshots
 
 ## 15. Deployment
 
+> **Live setup:** see [DEPLOYMENT.md](./DEPLOYMENT.md) (Lightsail Mumbai, `sites.onekampus.com` + `*.onekampus.com`). The diagram below is the general design.
+
 ```mermaid
 flowchart LR
     U[Visitors / users] --> DNS["DNS<br/>sites.example.com<br/>*.sites.example.com<br/>client custom domains"]

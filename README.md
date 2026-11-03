@@ -6,6 +6,8 @@ One Next.js app that creates and hosts many websites (schools, companies, …) f
 
 🏗️ **Architecture, data model, security and deployment:** [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md)
 
+🚀 **Live on AWS:** admin at https://sites.onekampus.com, client sites at `https://<slug>.onekampus.com`. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) to deploy updates, back up and restore.
+
 📸 **Regenerate the screenshots** (dev server running): `npm run docs:screenshots`
 
 ## Run locally

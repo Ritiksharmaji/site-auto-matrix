@@ -43,3 +43,7 @@ next-env.d.ts
 
 # uploaded files
 /storage
+
+# production build + deploy bundle
+/.next-prod
+/deploy/build

@@ -1,4 +1,5 @@
 import { db } from "./db";
+import { protocolFor, siteBaseDomain } from "./hosts";
 import { getModule, resolveContent, resolveTheme } from "@/modules/registry";
 
 /** Find a site by its slug (subdomain) or its custom domain. */
@@ -27,9 +28,8 @@ export function buildRenderProps(site: Pick<SiteRow, "id" | "moduleKey" | "enabl
 /** URL where a site can be viewed in this environment. */
 export function siteUrl(site: { slug: string; customDomain: string | null }) {
   if (site.customDomain) return `https://${site.customDomain}`;
-  const host = process.env.PLATFORM_HOST ?? "localhost:3000";
-  const proto = host.startsWith("localhost") ? "http" : "https";
-  return `${proto}://${site.slug}.${host}`;
+  const host = `${site.slug}.${siteBaseDomain()}`;
+  return `${protocolFor(host)}://${host}`;
 }
 
 /** Origin the visitor used (subdomain or custom domain), for absolute URLs in sitemaps. */

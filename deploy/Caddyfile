@@ -1,0 +1,23 @@
+# One catch-all site: Caddy gets a Let's Encrypt certificate the first time each
+# host is visited, but only after the app's /api/caddy/ask approves it
+# (platform host, <slug>.onekampus.com of an existing site, or a site's custom domain).
+{
+	on_demand_tls {
+		ask http://app:3000/api/caddy/ask
+	}
+}
+
+https:// {
+	tls {
+		on_demand
+	}
+	encode zstd gzip
+	request_body {
+		max_size 6MB
+	}
+	reverse_proxy app:3000
+}
+
+http:// {
+	redir https://{host}{uri} permanent
+}

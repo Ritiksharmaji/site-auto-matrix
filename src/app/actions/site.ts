@@ -7,6 +7,7 @@ import { logActivity } from "@/lib/activity";
 import { db } from "@/lib/db";
 import { DEFAULT_AUTOMATION, parseEmails, type AutomationSettings } from "@/lib/automation";
 import { canPublish, siteScope } from "@/lib/permissions";
+import { isReservedSlug } from "@/lib/hosts";
 import { FONTS, HERO_LAYOUTS, RADIUS_OPTIONS, STYLE_OPTIONS } from "@/modules/shared";
 import { getModule } from "@/modules/registry";
 import type { ModuleDef, Theme } from "@/modules/types";
@@ -125,6 +126,7 @@ export async function saveSettings(siteId: string, data: { name: string; slug: s
     const customDomain = data.customDomain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "") || null;
     if (name.length < 2) throw new Error("Website name is required");
     if (!slugRe.test(slug)) throw new Error("Web address: lowercase letters, numbers and dashes only");
+    if (isReservedSlug(slug)) throw new Error("That web address is reserved");
     if (customDomain && !domainRe.test(customDomain)) throw new Error("Enter a valid domain, e.g. www.myschool.com");
     const clash = await db.site.findFirst({
       where: { id: { not: siteId }, OR: [{ slug }, ...(customDomain ? [{ customDomain }] : [])] },

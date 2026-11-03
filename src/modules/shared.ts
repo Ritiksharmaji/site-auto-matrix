@@ -38,6 +38,7 @@ export const cardItemFields: FieldDef[] = [
   { key: "meta", label: "Tag / role", type: "text" },
   { key: "description", label: "Description", type: "textarea" },
   { key: "image", label: "Image URL", type: "image" },
+  { key: "icon", label: "Icon (small square image, optional)", type: "image" },
   { key: "link", label: "Button link (optional)", type: "url", placeholder: "https://…" },
   { key: "linkLabel", label: "Button text", type: "text", placeholder: "Visit site" },
 ];

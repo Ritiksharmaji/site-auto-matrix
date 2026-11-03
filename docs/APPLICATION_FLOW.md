@@ -328,7 +328,7 @@ A form is generated automatically from the module definition:
 - **Brand & contact details**: site name, tagline, logo, phone, email, WhatsApp number, address, footer text, Google search description.
 - One panel per enabled section with its fields (title, text, images…).
 - Repeating items (courses, teachers, products, notices, FAQs…) can be **added, removed and re-ordered**.
-- Cards (services, programs…) can have an optional **button link**, for example "Visit site →".
+- Cards (services, programs…) can have a banner **image**, a small square **icon** (good for "Why choose us" points) and an optional **button link**, for example "Visit site →".
 - Image fields accept a URL or an **Upload** button (PNG/JPG/WEBP/GIF, max 5 MB).
 
 On save, the server keeps only the fields the module knows about (anything else is dropped), so stored content always matches the module.

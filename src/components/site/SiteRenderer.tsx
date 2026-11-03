@@ -286,6 +286,10 @@ function Cards({ id, c, items }: { id: string; c: SectionContent; items: Section
             return (
               <article key={i} className="site-card flex flex-col">
                 {it.image && <ImageOrPlaceholder src={it.image} alt={it.title} className="site-rounded mb-4 aspect-video w-full" />}
+                {it.icon && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={it.icon} alt="" className="site-icon mb-4 h-14 w-14" />
+                )}
                 {it.meta && <p className="site-meta">{it.meta}</p>}
                 <h3 className="site-heading mt-1 text-lg font-semibold">{it.title}</h3>
                 {it.description && <p className="mt-2 text-sm leading-relaxed opacity-80">{it.description}</p>}
@@ -450,6 +454,7 @@ function SiteStyles() {
       .site-minimal .site-card.overflow-hidden { border-width: 1px; padding: 0; }
       .site-card { background: var(--c-bg); border: 1px solid color-mix(in srgb, var(--c-text) 12%, transparent); border-radius: min(var(--radius), 24px); padding: 24px; }
       .site-meta { color: var(--c-primary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+      .site-icon { border-radius: min(var(--radius), 14px); object-fit: cover; }
       .site-link { color: var(--c-primary); }
       .site-link:hover { text-decoration: underline; }
       .site-faq summary { list-style: none; display: flex; justify-content: space-between; gap: 16px; }

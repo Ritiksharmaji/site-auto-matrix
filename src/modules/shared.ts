@@ -25,6 +25,7 @@ export const contactFields: FieldDef[] = [
   ...titleFields,
   { key: "formTitle", label: "Form heading", type: "text" },
   { key: "buttonLabel", label: "Submit button text", type: "text" },
+  { key: "messagePlaceholder", label: "Message box hint", type: "text", placeholder: "Message" },
 ];
 
 export const statItemFields: FieldDef[] = [
@@ -37,6 +38,13 @@ export const cardItemFields: FieldDef[] = [
   { key: "meta", label: "Tag / role", type: "text" },
   { key: "description", label: "Description", type: "textarea" },
   { key: "image", label: "Image URL", type: "image" },
+  { key: "link", label: "Button link (optional)", type: "url", placeholder: "https://…" },
+  { key: "linkLabel", label: "Button text", type: "text", placeholder: "Visit site" },
+];
+
+export const faqItemFields: FieldDef[] = [
+  { key: "question", label: "Question", type: "text" },
+  { key: "answer", label: "Answer", type: "textarea" },
 ];
 
 export const listItemFields: FieldDef[] = [

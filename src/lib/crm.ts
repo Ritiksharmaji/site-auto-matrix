@@ -30,6 +30,15 @@ export function formLabel(moduleKey: string, formType: string) {
   return getModule(moduleKey)?.sections.find((s) => s.key === formType)?.label ?? formType;
 }
 
+/** Answers to a form's extra questions, as stored on the enquiry. */
+export type ExtraAnswer = { label: string; value: string };
+
+export function extraAnswers(extra: unknown): ExtraAnswer[] {
+  return Array.isArray(extra)
+    ? extra.filter((x): x is ExtraAnswer => typeof x?.label === "string" && typeof x?.value === "string")
+    : [];
+}
+
 export async function getEnquiryDetail(user: Pick<User, "id" | "role" | "permissions" | "clientId">, id: string) {
   const e = await db.enquiry.findFirst({
     where: { id, site: siteScope(user) },
@@ -47,6 +56,7 @@ export async function getEnquiryDetail(user: Pick<User, "id" | "role" | "permiss
       email: e.email,
       phone: e.phone,
       message: e.message,
+      extra: extraAnswers(e.extra),
       formLabel: formLabel(e.site.moduleKey, e.formType),
       siteName: e.site.name,
       status: e.status,

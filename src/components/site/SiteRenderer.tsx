@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
-import type { Brand, ModuleDef, SectionContent, SectionItem, Theme } from "@/modules/types";
+import type { Brand, FormFieldDef, ModuleDef, SectionContent, SectionItem, Theme } from "@/modules/types";
 import { fontCss, radiusCss } from "@/modules/shared";
-import EnquiryForm from "./EnquiryForm";
+import EnquiryForm, { type ExtraField } from "./EnquiryForm";
 
 // Renders a full client website from: module definition + enabled sections +
 // theme + content. Every visual choice reads from CSS variables set on the root,
@@ -25,7 +25,10 @@ export function googleFontsHref(theme: Theme) {
 }
 
 export default function SiteRenderer({ siteId, module, enabledSections, theme, brand, sections }: Props) {
-  const defs = module.sections.filter((s) => enabledSections.includes(s.key));
+  // Sections render in the site's own saved order.
+  const defs = module.sections
+    .filter((s) => enabledSections.includes(s.key))
+    .sort((a, b) => enabledSections.indexOf(a.key) - enabledSections.indexOf(b.key));
   const navItems = defs.filter((d) => d.kind !== "hero" && d.kind !== "stats");
 
   const vars = {
@@ -93,8 +96,12 @@ export default function SiteRenderer({ siteId, module, enabledSections, theme, b
               return <Testimonials key={def.key} id={def.key} c={c} items={items} />;
             case "products":
               return <Products key={def.key} id={def.key} c={c} items={items} whatsapp={whatsappNumber(brand)} />;
+            case "faq":
+              return <Faq key={def.key} id={def.key} c={c} items={items} />;
             case "contact":
-              return <Contact key={def.key} id={def.key} c={c} brand={brand} siteId={siteId} formType={def.key} />;
+              return (
+                <Contact key={def.key} id={def.key} c={c} brand={brand} siteId={siteId} formType={def.key} extraFields={extraFields(def.formFields, module, sections)} />
+              );
           }
         })}
       </main>
@@ -123,6 +130,22 @@ export default function SiteRenderer({ siteId, module, enabledSections, theme, b
       </footer>
     </div>
   );
+}
+
+/** Resolves a contact section's extra questions, filling select options from another section's item titles. */
+function extraFields(defs: FormFieldDef[] | undefined, module: ModuleDef, sections: Record<string, SectionContent>): ExtraField[] {
+  return (defs ?? []).map((f) => {
+    if (f.type !== "select") return { key: f.key, label: f.label, type: f.type, placeholder: f.placeholder };
+    const source = f.optionsFromSection ? (sections[f.optionsFromSection] ?? module.sections.find((s) => s.key === f.optionsFromSection)?.defaults) : undefined;
+    const options = ((source?.items as SectionItem[] | undefined) ?? []).map((it) => it.title).filter(Boolean);
+    return { key: f.key, label: f.label, type: "select", placeholder: f.placeholder, options: [...options, "Not sure yet"] };
+  });
+}
+
+/** Only allow ordinary web, mail, phone and on-page links in editable content. */
+function safeHref(href: string | undefined) {
+  const h = (href ?? "").trim();
+  return /^(https?:\/\/|mailto:|tel:|#|\/)/i.test(h) ? h : "";
 }
 
 /** Digits-only WhatsApp number, or "" when not set. */
@@ -216,10 +239,12 @@ function Hero({ id, c, layout }: { id: string; c: SectionContent; layout: Theme[
 }
 
 function About({ id, c }: { id: string; c: SectionContent }) {
+  const image = c.image as string;
+  // Without a photo the text gets the full width instead of sitting next to an empty box.
   return (
     <section id={id} className="site-section">
-      <div className="site-container grid items-center gap-12 md:grid-cols-2">
-        <ImageOrPlaceholder src={c.image as string} alt="" className="site-rounded aspect-[4/3] w-full" />
+      <div className={`site-container ${image ? "grid items-center gap-12 md:grid-cols-2" : "max-w-3xl text-center"}`}>
+        {image && <ImageOrPlaceholder src={image} alt="" className="site-rounded aspect-[4/3] w-full" />}
         <div>
           <h2 className="site-heading text-3xl font-bold md:text-4xl">{c.title as string}</h2>
           {String(c.body ?? "")
@@ -254,15 +279,24 @@ function Cards({ id, c, items }: { id: string; c: SectionContent; items: Section
     <section id={id} className="site-section site-alt">
       <div className="site-container">
         <SectionHeader c={c} />
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {items.map((it, i) => (
-            <article key={i} className="site-card flex flex-col">
-              {it.image && <ImageOrPlaceholder src={it.image} alt={it.title} className="site-rounded mb-4 aspect-video w-full" />}
-              {it.meta && <p className="site-meta">{it.meta}</p>}
-              <h3 className="site-heading mt-1 text-lg font-semibold">{it.title}</h3>
-              {it.description && <p className="mt-2 text-sm leading-relaxed opacity-80">{it.description}</p>}
-            </article>
-          ))}
+        {/* 4 across for 4 or 8 items; otherwise 3 across so rows stay balanced (e.g. 5 = 3 + 2). */}
+        <div className={`grid gap-6 sm:grid-cols-2 ${items.length % 4 === 0 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+          {items.map((it, i) => {
+            const link = safeHref(it.link);
+            return (
+              <article key={i} className="site-card flex flex-col">
+                {it.image && <ImageOrPlaceholder src={it.image} alt={it.title} className="site-rounded mb-4 aspect-video w-full" />}
+                {it.meta && <p className="site-meta">{it.meta}</p>}
+                <h3 className="site-heading mt-1 text-lg font-semibold">{it.title}</h3>
+                {it.description && <p className="mt-2 text-sm leading-relaxed opacity-80">{it.description}</p>}
+                {link && (
+                  <a href={link} target={link.startsWith("http") ? "_blank" : undefined} rel="noreferrer" className="site-link mt-auto pt-4 text-sm font-semibold">
+                    {it.linkLabel || "Learn more"} →
+                  </a>
+                )}
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -335,7 +369,39 @@ function Testimonials({ id, c, items }: { id: string; c: SectionContent; items: 
   );
 }
 
-function Contact({ id, c, brand, siteId, formType }: { id: string; c: SectionContent; brand: Brand; siteId: string; formType: string }) {
+function Faq({ id, c, items }: { id: string; c: SectionContent; items: SectionItem[] }) {
+  return (
+    <section id={id} className="site-section">
+      <div className="site-container max-w-3xl">
+        <SectionHeader c={c} />
+        <div className="space-y-3">
+          {items.map((it, i) => (
+            <details key={i} className="site-card site-faq" open={i === 0}>
+              <summary className="site-heading cursor-pointer text-lg font-semibold">{it.question}</summary>
+              <p className="mt-3 leading-relaxed opacity-80">{it.answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Contact({
+  id,
+  c,
+  brand,
+  siteId,
+  formType,
+  extraFields,
+}: {
+  id: string;
+  c: SectionContent;
+  brand: Brand;
+  siteId: string;
+  formType: string;
+  extraFields: ExtraField[];
+}) {
   return (
     <section id={id} className="site-section site-alt">
       <div className="site-container grid gap-12 md:grid-cols-2">
@@ -350,7 +416,13 @@ function Contact({ id, c, brand, siteId, formType }: { id: string; c: SectionCon
         </div>
         <div className="site-card">
           <h3 className="site-heading mb-4 text-xl font-semibold">{(c.formTitle as string) || "Get in touch"}</h3>
-          <EnquiryForm siteId={siteId} formType={formType} buttonLabel={(c.buttonLabel as string) || "Submit"} />
+          <EnquiryForm
+            siteId={siteId}
+            formType={formType}
+            buttonLabel={(c.buttonLabel as string) || "Submit"}
+            messagePlaceholder={(c.messagePlaceholder as string) || "Message"}
+            extraFields={extraFields}
+          />
         </div>
       </div>
     </section>
@@ -378,6 +450,12 @@ function SiteStyles() {
       .site-minimal .site-card.overflow-hidden { border-width: 1px; padding: 0; }
       .site-card { background: var(--c-bg); border: 1px solid color-mix(in srgb, var(--c-text) 12%, transparent); border-radius: min(var(--radius), 24px); padding: 24px; }
       .site-meta { color: var(--c-primary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+      .site-link { color: var(--c-primary); }
+      .site-link:hover { text-decoration: underline; }
+      .site-faq summary { list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+      .site-faq summary::-webkit-details-marker { display: none; }
+      .site-faq summary::after { content: "+"; color: var(--c-primary); font-weight: 400; transition: transform .15s; }
+      .site-faq[open] summary::after { transform: rotate(45deg); }
       .site-date { color: var(--c-primary); font-weight: 600; font-size: 14px; min-width: 110px; }
       .site-header { position: sticky; top: 0; z-index: 20; background: var(--c-bg); border-bottom: 1px solid color-mix(in srgb, var(--c-text) 10%, transparent); }
       .site-nav-link:hover { color: var(--c-primary); }
@@ -388,8 +466,8 @@ function SiteStyles() {
       .site-hero { background: color-mix(in srgb, var(--c-primary) 6%, var(--c-bg)); }
       .site-stats { background: var(--c-primary); color: #fff; }
       .site-footer { background: color-mix(in srgb, var(--c-text) 92%, var(--c-primary)); color: #fff; }
-      .site input, .site textarea { width:100%; border:1px solid color-mix(in srgb, var(--c-text) 20%, transparent); background: var(--c-bg); color: var(--c-text); border-radius: min(var(--radius), 12px); padding: 10px 12px; font-size: 14px; }
-      .site input:focus, .site textarea:focus { outline: 2px solid color-mix(in srgb, var(--c-primary) 40%, transparent); }
+      .site input, .site textarea, .site select { width:100%; border:1px solid color-mix(in srgb, var(--c-text) 20%, transparent); background: var(--c-bg); color: var(--c-text); border-radius: min(var(--radius), 12px); padding: 10px 12px; font-size: 14px; }
+      .site input:focus, .site textarea:focus, .site select:focus { outline: 2px solid color-mix(in srgb, var(--c-primary) 40%, transparent); }
 
       /* Classic: solid primary header bar */
       .site-classic .site-header { background: var(--c-primary); color: #fff; border: 0; }

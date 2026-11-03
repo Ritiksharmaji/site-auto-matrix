@@ -116,8 +116,8 @@
   {
     "file": "02-super-admin/05-client-created.png",
     "title": "New client created (plan, website, logins)",
-    "url": "http://localhost:3000/admin/clients/cmw0ml5ue003ds1rmiy5eeor9",
-    "finalUrl": "http://localhost:3000/admin/clients/cmw0ml5ue003ds1rmiy5eeor9"
+    "url": "http://localhost:3000/admin/clients/cmw0yzvcx000ps163n9pqmeej",
+    "finalUrl": "http://localhost:3000/admin/clients/cmw0yzvcx000ps163n9pqmeej"
   },
   {
     "file": "02-super-admin/06-client-detail.png",
@@ -194,8 +194,8 @@
   {
     "file": "02-super-admin/18-enquiry-detail.png",
     "title": "Enquiry detail – status, assignee, notes, notifications",
-    "url": "http://localhost:3000/admin/enquiries/cmw0ml22u0035s1rmhpbqu9ra",
-    "finalUrl": "http://localhost:3000/admin/enquiries/cmw0ml22u0035s1rmhpbqu9ra"
+    "url": "http://localhost:3000/admin/enquiries/cmw0yzrt4000hs163li9ezzgt",
+    "finalUrl": "http://localhost:3000/admin/enquiries/cmw0yzrt4000hs163li9ezzgt"
   },
   {
     "file": "02-super-admin/19-team.png",
@@ -326,8 +326,8 @@
   {
     "file": "04-client/05-enquiry-detail.png",
     "title": "Client – enquiry detail and notes",
-    "url": "http://localhost:3000/portal/enquiries/cmw0ml22u0035s1rmhpbqu9ra",
-    "finalUrl": "http://localhost:3000/portal/enquiries/cmw0ml22u0035s1rmhpbqu9ra"
+    "url": "http://localhost:3000/portal/enquiries/cmw0yzrt4000hs163li9ezzgt",
+    "finalUrl": "http://localhost:3000/portal/enquiries/cmw0yzrt4000hs163li9ezzgt"
   },
   {
     "file": "04-client/06-billing.png",

@@ -139,6 +139,8 @@ model Enquiry {
   email         String?
   phone         String?
   message       String?
+  /// Answers to a form's extra questions: [{ label, value }]
+  extra         Json?
   status        EnquiryStatus  @default(NEW)
   assignedToId  String?
   assignedTo    User?          @relation("EnquiryAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)

@@ -3,7 +3,22 @@
 import { useActionState } from "react";
 import { submitEnquiry, type EnquiryState } from "@/app/actions/enquiry";
 
-export default function EnquiryForm({ siteId, formType, buttonLabel }: { siteId: string; formType: string; buttonLabel: string }) {
+/** An extra question on the form, resolved by the renderer (select options already filled in). */
+export type ExtraField = { key: string; label: string; type: "text" | "url" | "select"; placeholder?: string; options?: string[] };
+
+export default function EnquiryForm({
+  siteId,
+  formType,
+  buttonLabel,
+  messagePlaceholder = "Message",
+  extraFields = [],
+}: {
+  siteId: string;
+  formType: string;
+  buttonLabel: string;
+  messagePlaceholder?: string;
+  extraFields?: ExtraField[];
+}) {
   const [state, action, pending] = useActionState<EnquiryState, FormData>(submitEnquiry, {});
 
   if (state.ok) {
@@ -20,7 +35,25 @@ export default function EnquiryForm({ siteId, formType, buttonLabel }: { siteId:
         <input name="phone" placeholder="Phone" inputMode="tel" />
         <input name="email" type="email" placeholder="Email" />
       </div>
-      <textarea name="message" rows={4} placeholder="Message" />
+      {extraFields.map((f) =>
+        f.type === "select" ? (
+          <select key={f.key} name={`extra.${f.key}`} aria-label={f.label} defaultValue="">
+            <option value="">{f.placeholder || f.label}</option>
+            {f.options?.map((o) => (
+              <option key={o} value={o}>{o}</option>
+            ))}
+          </select>
+        ) : (
+          <input
+            key={f.key}
+            name={`extra.${f.key}`}
+            aria-label={f.label}
+            placeholder={f.placeholder || f.label}
+            inputMode={f.type === "url" ? "url" : undefined}
+          />
+        ),
+      )}
+      <textarea name="message" rows={4} placeholder={messagePlaceholder} />
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
       <button type="submit" disabled={pending} className="site-btn w-full text-center">
         {pending ? "Sending…" : buttonLabel}

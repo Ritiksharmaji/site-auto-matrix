@@ -34,7 +34,9 @@ export default function ContentEditor({ siteId, module, enabledSections, brand: 
   const [open, setOpen] = useState<string | null>("brand");
   const [status, setStatus] = useState<{ saving?: boolean; error?: string; saved?: boolean; dirty?: boolean }>({});
 
-  const defs = module.sections.filter((s) => enabledSections.includes(s.key));
+  const defs = module.sections
+    .filter((s) => enabledSections.includes(s.key))
+    .sort((a, b) => enabledSections.indexOf(a.key) - enabledSections.indexOf(b.key));
 
   function updateSection(key: string, next: SectionContent) {
     setSections((prev) => ({ ...prev, [key]: next }));

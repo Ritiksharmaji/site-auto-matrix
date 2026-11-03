@@ -3,6 +3,7 @@ import { db } from "./db";
 import { fillTemplate, parseEmails, resolveAutomation } from "./automation";
 import { sendEmail, sendWhatsApp } from "./notify";
 import { getModule } from "@/modules/registry";
+import { extraAnswers } from "./crm";
 
 /** Runs after a public enquiry is saved: team/client alerts + visitor auto-reply. */
 export async function runEnquiryAutomation(enquiryId: string) {
@@ -29,6 +30,7 @@ export async function runEnquiryAutomation(enquiryId: string) {
     `Name: ${enquiry.name}`,
     enquiry.phone && `Phone: ${enquiry.phone}`,
     enquiry.email && `Email: ${enquiry.email}`,
+    ...extraAnswers(enquiry.extra).map((x) => `${x.label}: ${x.value}`),
     enquiry.message && `Message: ${enquiry.message}`,
   ]
     .filter((l): l is string => typeof l === "string")

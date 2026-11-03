@@ -13,6 +13,8 @@ type Props = {
     email: string | null;
     phone: string | null;
     message: string | null;
+    /** Answers to the form's extra questions (business name, website, service…). */
+    extra: { label: string; value: string }[];
     formLabel: string;
     siteName: string;
     status: EnquiryStatus;
@@ -48,6 +50,12 @@ export default function EnquiryDetail({ enquiry: e, notes, notifications, assign
           <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
             <div><dt className="text-slate-500">Phone</dt><dd className="font-medium text-slate-900">{e.phone || "—"}</dd></div>
             <div><dt className="text-slate-500">Email</dt><dd className="font-medium text-slate-900">{e.email || "—"}</dd></div>
+            {e.extra.map((x) => (
+              <div key={x.label}>
+                <dt className="text-slate-500">{x.label}</dt>
+                <dd className="break-words font-medium text-slate-900">{x.value}</dd>
+              </div>
+            ))}
           </dl>
           {e.message && <p className="mt-4 whitespace-pre-line rounded-lg bg-slate-50 p-3 text-sm text-slate-700">{e.message}</p>}
           <div className="mt-4 flex flex-wrap gap-2">

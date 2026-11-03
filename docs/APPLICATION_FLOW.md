@@ -294,13 +294,13 @@ Every website, with its module, status and enquiries:
 *Websites list*
 
 ### Step 1 — Sections
-Switch parts of the website on or off. Each module has its own list, for example:
+Switch parts of the website on or off, and use **↑ ↓** to set the order they appear in. Each website keeps its own order, so one Company site can show Services before About while another shows About first. Each module has its own list, for example:
 
 | Module | Sections |
 |---|---|
 | School | Hero, About, Highlights, Academics, Admissions form, Faculty, Notices, Events, Gallery, Parent testimonials, Contact |
 | University | Hero, About, Key numbers, Departments, Programs, Admissions form, Research, Placements, News & events, Campus gallery, Alumni, Contact |
-| Company | Hero, About, Key numbers, Services, Portfolio, Team, Testimonials, Careers, Contact / quote form |
+| Company | Hero, About, Key numbers, Services, Portfolio, Team, Testimonials, **Why choose us**, **FAQs**, Careers, Contact / quote form |
 | Shop | Hero, Offers, Products, About, Gallery, Customer reviews, Contact |
 
 Sections marked *required* (e.g. Hero, Contact) cannot be switched off.
@@ -327,7 +327,8 @@ The design is saved as a small JSON "theme". The website turns it into CSS varia
 A form is generated automatically from the module definition:
 - **Brand & contact details**: site name, tagline, logo, phone, email, WhatsApp number, address, footer text, Google search description.
 - One panel per enabled section with its fields (title, text, images…).
-- Repeating items (courses, teachers, products, notices…) can be **added, removed and re-ordered**.
+- Repeating items (courses, teachers, products, notices, FAQs…) can be **added, removed and re-ordered**.
+- Cards (services, programs…) can have an optional **button link**, for example "Visit site →".
 - Image fields accept a URL or an **Upload** button (PNG/JPG/WEBP/GIF, max 5 MB).
 
 On save, the server keeps only the fields the module knows about (anything else is dropped), so stored content always matches the module.
@@ -421,7 +422,7 @@ sequenceDiagram
     participant AU as Automation (runs after reply)
     participant E as Email / WhatsApp
 
-    V->>S: Fill name, phone/email, message
+    V->>S: Fill name, phone/email, message<br/>+ the module's extra questions
     S->>A: Submit
     A->>A: Validate (name required, phone or email required)<br/>bot honeypot check
     A->>DB: Save Enquiry (status = NEW)
@@ -437,6 +438,8 @@ sequenceDiagram
 ```
 
 The visitor never waits for emails to be sent — automation runs after the response.
+
+**Extra form questions.** A module can add extra questions to its contact form. The Company module asks for **Business name**, **Website or social media link** and **Service interested in**. The service dropdown is filled automatically from that website's own Services list, so it always matches. The answers are saved with the enquiry, shown on the enquiry page, included in the alert emails and WhatsApp messages, and exported in an **Other details** CSV column.
 
 **Step 1: the visitor fills in the form** (here, the School admissions form).
 
@@ -497,8 +500,8 @@ Step by step:
 CSV export sample ([full file](./screenshots/02-super-admin/enquiries-export-sample.csv)):
 
 ```csv
-Received,Name,Phone,Email,Message,Form,Website,Status,Assigned to
-2026-11-03T11:49:38.886Z,Priya Sharma,'+91 98765 43210,priya.parent@example.com,Admission enquiry for Class 6 for the 2027 session.,Admissions,Green Valley Public School,NEW,
+Received,Name,Phone,Email,Message,Other details,Form,Website,Status,Assigned to
+2026-11-03T17:37:00.809Z,Priya Sharma,'+91 98765 43210,priya.parent@example.com,Admission enquiry for Class 6 for the 2027 session.,,Admissions,Green Valley Public School,NEW,
 ```
 
 Phone numbers starting with `+` are prefixed with `'` so spreadsheets don't treat them as formulas.

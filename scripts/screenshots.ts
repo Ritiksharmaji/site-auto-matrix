@@ -26,15 +26,17 @@ const manifest: { file: string; title: string; url: string; finalUrl: string }[]
 let masks: [string, string][] = [];
 
 async function loadMasks() {
-  const real = await db.enquiry.findMany({
-    where: { NOT: [{ email: { endsWith: "example.com" } }, { email: { endsWith: ".test" } }] },
-    select: { name: true, email: true, phone: true },
-  });
-  masks = real.flatMap((e) => [
-    [e.email ?? "", "visitor@example.com"],
-    [e.phone ?? "", "+91 9XXXX XXXXX"],
-    [e.name, "Demo Visitor"],
-  ]).filter(([from]) => from.length > 2) as [string, string][];
+  const notDemo = { NOT: [{ email: { endsWith: "example.com" } }, { email: { endsWith: ".test" } }] };
+  const [enquiries, clients, users] = await Promise.all([
+    db.enquiry.findMany({ where: notDemo, select: { name: true, email: true, phone: true } }),
+    db.client.findMany({ where: notDemo, select: { contactName: true, email: true, phone: true } }),
+    db.user.findMany({ where: notDemo, select: { name: true, email: true } }),
+  ]);
+  masks = [
+    ...enquiries.flatMap((e) => [[e.email ?? "", "visitor@example.com"], [e.phone ?? "", "+91 9XXXX XXXXX"], [e.name, "Demo Visitor"]]),
+    ...clients.flatMap((c) => [[c.email, "client@example.com"], [c.phone ?? "", "+91 9XXXX XXXXX"], [c.contactName, "Client Contact"]]),
+    ...users.flatMap((u) => [[u.email, "login@example.com"], [u.name, "Client Contact"]]),
+  ].filter(([from]) => from.length > 2) as [string, string][];
 }
 
 async function applyMasks(page: Page) {

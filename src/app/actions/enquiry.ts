@@ -4,6 +4,7 @@ import { after } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { runEnquiryAutomation } from "@/lib/enquiry-automation";
+import { getModule } from "@/modules/registry";
 
 // Public form submissions from client websites. Each one triggers the
 // site's automation (email / WhatsApp alerts, visitor auto-reply).
@@ -23,16 +24,30 @@ export async function submitEnquiry(_prev: EnquiryState, formData: FormData): Pr
   // Simple honeypot against bots.
   if (formData.get("company_website")) return { ok: true };
 
-  const parsed = schema.safeParse(Object.fromEntries(formData));
+  const parsed = schema.safeParse(Object.fromEntries([...formData].filter(([k]) => !k.startsWith("extra."))));
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
   const d = parsed.data;
   if (!d.email && !d.phone) return { error: "Please give an email or phone number." };
 
-  const site = await db.site.findUnique({ where: { id: d.siteId }, select: { id: true } });
+  const site = await db.site.findUnique({ where: { id: d.siteId }, select: { id: true, moduleKey: true } });
   if (!site) return { error: "This site is not available." };
 
+  // Only questions the module defines for this form are kept, with their labels.
+  const formFields = getModule(site.moduleKey)?.sections.find((s) => s.key === d.formType)?.formFields ?? [];
+  const extra = formFields
+    .map((f) => ({ label: f.label, value: String(formData.get(`extra.${f.key}`) ?? "").trim().slice(0, 500) }))
+    .filter((x) => x.value);
+
   const enquiry = await db.enquiry.create({
-    data: { siteId: d.siteId, formType: d.formType, name: d.name, email: d.email || null, phone: d.phone || null, message: d.message || null },
+    data: {
+      siteId: d.siteId,
+      formType: d.formType,
+      name: d.name,
+      email: d.email || null,
+      phone: d.phone || null,
+      message: d.message || null,
+      extra: extra.length ? extra : undefined,
+    },
   });
   // Alerts and auto-reply run after the response so the visitor isn't kept waiting.
   after(() => runEnquiryAutomation(enquiry.id).catch((e) => console.error("Enquiry automation failed", e)));

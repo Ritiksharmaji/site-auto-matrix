@@ -2,7 +2,11 @@
 
 One Next.js app that creates and hosts many websites (schools, companies, …) from reusable **modules**, with an admin panel for you and your team and a portal for clients.
 
-📘 **Step-by-step guide to how everything works:** [docs/APPLICATION_FLOW.md](docs/APPLICATION_FLOW.md)
+📘 **Step-by-step guide to how everything works:** [docs/APPLICATION_FLOW.md](docs/APPLICATION_FLOW.md) (with screenshots for every role)
+
+🏗️ **Architecture, data model, security and deployment:** [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md)
+
+📸 **Regenerate the screenshots** (dev server running): `npm run docs:screenshots`
 
 ## Run locally
 

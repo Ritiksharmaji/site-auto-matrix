@@ -1,0 +1,374 @@
+[
+  {
+    "file": "01-public/01-login.png",
+    "title": "Login page",
+    "url": "http://localhost:3000/login",
+    "finalUrl": "http://localhost:3000/login"
+  },
+  {
+    "file": "01-public/02-login-wrong-password.png",
+    "title": "Login with a wrong password",
+    "url": "http://localhost:3000/login",
+    "finalUrl": "http://localhost:3000/login"
+  },
+  {
+    "file": "01-public/03-login-deactivated.png",
+    "title": "Login with a deactivated account",
+    "url": "http://localhost:3000/login",
+    "finalUrl": "http://localhost:3000/login"
+  },
+  {
+    "file": "01-public/04-anonymous-admin-blocked.png",
+    "title": "Signed-out visitor opening /admin",
+    "url": "http://localhost:3000/admin",
+    "finalUrl": "http://localhost:3000/login"
+  },
+  {
+    "file": "01-public/05-site-greenvalley-desktop.png",
+    "title": "School module – Green Valley Public School (desktop)",
+    "url": "http://greenvalley.localhost:3000/",
+    "finalUrl": "http://greenvalley.localhost:3000/"
+  },
+  {
+    "file": "01-public/06-site-horizon-desktop.png",
+    "title": "University module – Horizon University (desktop)",
+    "url": "http://horizon.localhost:3000/",
+    "finalUrl": "http://horizon.localhost:3000/"
+  },
+  {
+    "file": "01-public/07-site-nexora-desktop.png",
+    "title": "Company module – Nexora Solutions (desktop)",
+    "url": "http://nexora.localhost:3000/",
+    "finalUrl": "http://nexora.localhost:3000/"
+  },
+  {
+    "file": "01-public/08-site-urbanthreads-desktop.png",
+    "title": "Shop module – Urban Threads (desktop)",
+    "url": "http://urbanthreads.localhost:3000/",
+    "finalUrl": "http://urbanthreads.localhost:3000/"
+  },
+  {
+    "file": "01-public/09-site-greenvalley-mobile.png",
+    "title": "School module – Green Valley Public School (mobile)",
+    "url": "http://greenvalley.localhost:3000/",
+    "finalUrl": "http://greenvalley.localhost:3000/"
+  },
+  {
+    "file": "01-public/10-site-horizon-mobile.png",
+    "title": "University module – Horizon University (mobile)",
+    "url": "http://horizon.localhost:3000/",
+    "finalUrl": "http://horizon.localhost:3000/"
+  },
+  {
+    "file": "01-public/11-site-nexora-mobile.png",
+    "title": "Company module – Nexora Solutions (mobile)",
+    "url": "http://nexora.localhost:3000/",
+    "finalUrl": "http://nexora.localhost:3000/"
+  },
+  {
+    "file": "01-public/12-site-urbanthreads-mobile.png",
+    "title": "Shop module – Urban Threads (mobile)",
+    "url": "http://urbanthreads.localhost:3000/",
+    "finalUrl": "http://urbanthreads.localhost:3000/"
+  },
+  {
+    "file": "01-public/13-site-mobile-menu-open.png",
+    "title": "Mobile menu open",
+    "url": "http://greenvalley.localhost:3000/",
+    "finalUrl": "http://greenvalley.localhost:3000/"
+  },
+  {
+    "file": "01-public/14-enquiry-form-filled.png",
+    "title": "Visitor fills the enquiry form",
+    "url": "http://greenvalley.localhost:3000/#admissions",
+    "finalUrl": "http://greenvalley.localhost:3000/#admissions"
+  },
+  {
+    "file": "01-public/15-enquiry-sent.png",
+    "title": "Enquiry sent – thank-you message",
+    "url": "http://greenvalley.localhost:3000/#admissions",
+    "finalUrl": "http://greenvalley.localhost:3000/#admissions"
+  },
+  {
+    "file": "02-super-admin/01-dashboard.png",
+    "title": "Super Admin dashboard",
+    "url": "http://localhost:3000/admin",
+    "finalUrl": "http://localhost:3000/admin"
+  },
+  {
+    "file": "02-super-admin/02-clients.png",
+    "title": "All clients",
+    "url": "http://localhost:3000/admin/clients",
+    "finalUrl": "http://localhost:3000/admin/clients"
+  },
+  {
+    "file": "02-super-admin/03-client-new.png",
+    "title": "Create client – empty form",
+    "url": "http://localhost:3000/admin/clients/new",
+    "finalUrl": "http://localhost:3000/admin/clients/new"
+  },
+  {
+    "file": "02-super-admin/04-client-new-filled.png",
+    "title": "Create client – form filled, module chosen",
+    "url": "http://localhost:3000/admin/clients/new",
+    "finalUrl": "http://localhost:3000/admin/clients/new"
+  },
+  {
+    "file": "02-super-admin/05-client-created.png",
+    "title": "New client created (plan, website, logins)",
+    "url": "http://localhost:3000/admin/clients/cmw0ml5ue003ds1rmiy5eeor9",
+    "finalUrl": "http://localhost:3000/admin/clients/cmw0ml5ue003ds1rmiy5eeor9"
+  },
+  {
+    "file": "02-super-admin/06-client-detail.png",
+    "title": "Client detail – billing plan, invoices, logins, reassign, delete",
+    "url": "http://localhost:3000/admin/clients/cmvdepbnl0004s1fc0ebqd5qu",
+    "finalUrl": "http://localhost:3000/admin/clients/cmvdepbnl0004s1fc0ebqd5qu"
+  },
+  {
+    "file": "02-super-admin/07-sites.png",
+    "title": "All websites",
+    "url": "http://localhost:3000/admin/sites",
+    "finalUrl": "http://localhost:3000/admin/sites"
+  },
+  {
+    "file": "02-super-admin/08-builder-sections.png",
+    "title": "Website builder – Sections tab",
+    "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
+    "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
+  },
+  {
+    "file": "02-super-admin/09-builder-design.png",
+    "title": "Website builder – Design tab",
+    "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
+    "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
+  },
+  {
+    "file": "02-super-admin/10-builder-content.png",
+    "title": "Website builder – Content tab",
+    "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
+    "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
+  },
+  {
+    "file": "02-super-admin/11-builder-automation.png",
+    "title": "Website builder – Automation tab",
+    "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
+    "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
+  },
+  {
+    "file": "02-super-admin/12-builder-settings.png",
+    "title": "Website builder – Settings tab",
+    "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
+    "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
+  },
+  {
+    "file": "02-super-admin/13-builder-enquiries.png",
+    "title": "Website builder – Enquiries tab",
+    "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
+    "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
+  },
+  {
+    "file": "02-super-admin/14-builder-analytics.png",
+    "title": "Website builder – Analytics tab",
+    "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
+    "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
+  },
+  {
+    "file": "02-super-admin/15-builder-mobile-preview.png",
+    "title": "Website builder – mobile preview",
+    "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
+    "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
+  },
+  {
+    "file": "02-super-admin/16-enquiries.png",
+    "title": "All enquiries (CRM)",
+    "url": "http://localhost:3000/admin/enquiries",
+    "finalUrl": "http://localhost:3000/admin/enquiries"
+  },
+  {
+    "file": "02-super-admin/17-enquiries-filter-new.png",
+    "title": "Enquiries filtered by status NEW",
+    "url": "http://localhost:3000/admin/enquiries?status=NEW",
+    "finalUrl": "http://localhost:3000/admin/enquiries?status=NEW"
+  },
+  {
+    "file": "02-super-admin/18-enquiry-detail.png",
+    "title": "Enquiry detail – status, assignee, notes, notifications",
+    "url": "http://localhost:3000/admin/enquiries/cmw0ml22u0035s1rmhpbqu9ra",
+    "finalUrl": "http://localhost:3000/admin/enquiries/cmw0ml22u0035s1rmhpbqu9ra"
+  },
+  {
+    "file": "02-super-admin/19-team.png",
+    "title": "Team members",
+    "url": "http://localhost:3000/admin/team",
+    "finalUrl": "http://localhost:3000/admin/team"
+  },
+  {
+    "file": "02-super-admin/20-team-new.png",
+    "title": "Add team member – limits and permissions",
+    "url": "http://localhost:3000/admin/team/new",
+    "finalUrl": "http://localhost:3000/admin/team/new"
+  },
+  {
+    "file": "02-super-admin/21-team-edit.png",
+    "title": "Edit team member permissions",
+    "url": "http://localhost:3000/admin/team/cmvdepbnf0002s1fcc91vbce0",
+    "finalUrl": "http://localhost:3000/admin/team/cmvdepbnf0002s1fcc91vbce0"
+  },
+  {
+    "file": "02-super-admin/22-activity.png",
+    "title": "Activity log",
+    "url": "http://localhost:3000/admin/activity",
+    "finalUrl": "http://localhost:3000/admin/activity"
+  },
+  {
+    "file": "02-super-admin/23-billing.png",
+    "title": "Billing – all invoices",
+    "url": "http://localhost:3000/admin/billing",
+    "finalUrl": "http://localhost:3000/admin/billing"
+  },
+  {
+    "file": "03-team-member/01-dashboard.png",
+    "title": "Team member dashboard with their limits",
+    "url": "http://localhost:3000/admin",
+    "finalUrl": "http://localhost:3000/admin"
+  },
+  {
+    "file": "03-team-member/02-clients-own-only.png",
+    "title": "Clients – only the ones they own",
+    "url": "http://localhost:3000/admin/clients",
+    "finalUrl": "http://localhost:3000/admin/clients"
+  },
+  {
+    "file": "03-team-member/03-client-new-allowed-modules.png",
+    "title": "Create client – only allowed modules",
+    "url": "http://localhost:3000/admin/clients/new",
+    "finalUrl": "http://localhost:3000/admin/clients/new"
+  },
+  {
+    "file": "03-team-member/04-client-limit-reached.png",
+    "title": "Client limit reached",
+    "url": "http://localhost:3000/admin/clients/new",
+    "finalUrl": "http://localhost:3000/admin/clients/new"
+  },
+  {
+    "file": "03-team-member/05-sites-own-only.png",
+    "title": "Websites – only their clients'",
+    "url": "http://localhost:3000/admin/sites",
+    "finalUrl": "http://localhost:3000/admin/sites"
+  },
+  {
+    "file": "03-team-member/06-builder-no-publish.png",
+    "title": "Builder – Publish disabled (no permission)",
+    "url": "http://localhost:3000/admin/sites/cmvdepbnw000es1fcduu9lh3z",
+    "finalUrl": "http://localhost:3000/admin/sites/cmvdepbnw000es1fcduu9lh3z"
+  },
+  {
+    "file": "03-team-member/07-enquiries-own-only.png",
+    "title": "Enquiries – only their clients'",
+    "url": "http://localhost:3000/admin/enquiries",
+    "finalUrl": "http://localhost:3000/admin/enquiries"
+  },
+  {
+    "file": "03-team-member/08-blocked-team.png",
+    "title": "Team page blocked",
+    "url": "http://localhost:3000/admin/team",
+    "finalUrl": "http://localhost:3000/admin"
+  },
+  {
+    "file": "03-team-member/09-blocked-activity.png",
+    "title": "Activity log blocked",
+    "url": "http://localhost:3000/admin/activity",
+    "finalUrl": "http://localhost:3000/admin"
+  },
+  {
+    "file": "03-team-member/10-blocked-billing.png",
+    "title": "Billing blocked",
+    "url": "http://localhost:3000/admin/billing",
+    "finalUrl": "http://localhost:3000/admin"
+  },
+  {
+    "file": "03-team-member/11-blocked-other-client.png",
+    "title": "Another owner's client – not found",
+    "url": "http://localhost:3000/admin/clients/cmvdepbnl0004s1fc0ebqd5qu",
+    "finalUrl": "http://localhost:3000/admin/clients/cmvdepbnl0004s1fc0ebqd5qu"
+  },
+  {
+    "file": "03-team-member/12-blocked-other-site.png",
+    "title": "Another owner's website – not found",
+    "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
+    "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
+  },
+  {
+    "file": "04-client/01-portal-home.png",
+    "title": "Client portal home",
+    "url": "http://localhost:3000/portal",
+    "finalUrl": "http://localhost:3000/portal"
+  },
+  {
+    "file": "04-client/02-site-editor-content.png",
+    "title": "Client edits their website content",
+    "url": "http://localhost:3000/portal/sites/cmvdepbno0008s1fcvgbi1yi6",
+    "finalUrl": "http://localhost:3000/portal/sites/cmvdepbno0008s1fcvgbi1yi6"
+  },
+  {
+    "file": "04-client/03-site-editor-enquiries.png",
+    "title": "Client – enquiries tab in the editor",
+    "url": "http://localhost:3000/portal/sites/cmvdepbno0008s1fcvgbi1yi6",
+    "finalUrl": "http://localhost:3000/portal/sites/cmvdepbno0008s1fcvgbi1yi6"
+  },
+  {
+    "file": "04-client/04-enquiries.png",
+    "title": "Client – their enquiries",
+    "url": "http://localhost:3000/portal/enquiries",
+    "finalUrl": "http://localhost:3000/portal/enquiries"
+  },
+  {
+    "file": "04-client/05-enquiry-detail.png",
+    "title": "Client – enquiry detail and notes",
+    "url": "http://localhost:3000/portal/enquiries/cmw0ml22u0035s1rmhpbqu9ra",
+    "finalUrl": "http://localhost:3000/portal/enquiries/cmw0ml22u0035s1rmhpbqu9ra"
+  },
+  {
+    "file": "04-client/06-billing.png",
+    "title": "Client – their invoices",
+    "url": "http://localhost:3000/portal/billing",
+    "finalUrl": "http://localhost:3000/portal/billing"
+  },
+  {
+    "file": "04-client/07-blocked-admin.png",
+    "title": "Admin panel blocked",
+    "url": "http://localhost:3000/admin",
+    "finalUrl": "http://localhost:3000/portal"
+  },
+  {
+    "file": "04-client/08-blocked-other-site.png",
+    "title": "Another client's website – not found",
+    "url": "http://localhost:3000/portal/sites/cmvdhwyxv0008s1i0tnz79uy9",
+    "finalUrl": "http://localhost:3000/portal/sites/cmvdhwyxv0008s1i0tnz79uy9"
+  },
+  {
+    "file": "04-client/09-blocked-other-enquiry.png",
+    "title": "Another client's enquiry – not found",
+    "url": "http://localhost:3000/portal/enquiries/cmvdhpsvt0001s1ybcr7v2hly",
+    "finalUrl": "http://localhost:3000/portal/enquiries/cmvdhpsvt0001s1ybcr7v2hly"
+  },
+  {
+    "file": "04-client/10-portal-home-university.png",
+    "title": "Portal home – university@siteplatform.test",
+    "url": "http://localhost:3000/portal",
+    "finalUrl": "http://localhost:3000/portal"
+  },
+  {
+    "file": "04-client/11-portal-home-company.png",
+    "title": "Portal home – company@siteplatform.test",
+    "url": "http://localhost:3000/portal",
+    "finalUrl": "http://localhost:3000/portal"
+  },
+  {
+    "file": "04-client/12-portal-home-shop.png",
+    "title": "Portal home – shop@siteplatform.test",
+    "url": "http://localhost:3000/portal",
+    "finalUrl": "http://localhost:3000/portal"
+  }
+]

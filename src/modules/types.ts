@@ -24,6 +24,7 @@ export type SectionKind =
   | "gallery"
   | "testimonials"
   | "products"
+  | "faq"
   | "contact";
 
 export type SectionDef = {
@@ -42,7 +43,22 @@ export type SectionDef = {
   /** Fields of each repeated item (cards, list rows, gallery images...). */
   itemFields?: FieldDef[];
   itemLabel?: string;
+  /** Contact sections only: extra questions on the enquiry form, saved with the enquiry. */
+  formFields?: FormFieldDef[];
   defaults: SectionContent;
+};
+
+/**
+ * An extra enquiry-form question. A "select" takes its choices from the item
+ * titles of another section on the same site (e.g. the services list), so the
+ * options stay in sync with the content.
+ */
+export type FormFieldDef = {
+  key: string;
+  label: string;
+  type: "text" | "url" | "select";
+  placeholder?: string;
+  optionsFromSection?: string;
 };
 
 export type SectionItem = Record<string, string>;

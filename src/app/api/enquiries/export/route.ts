@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/lib/auth";
-import { enquiryWhere, formLabel } from "@/lib/crm";
+import { enquiryWhere, extraAnswers, formLabel } from "@/lib/crm";
 import { db } from "@/lib/db";
 
 /** CSV download of the enquiries the current user can see, using the same filters as the list. */
@@ -15,9 +15,9 @@ export async function GET(req: Request) {
     include: { site: { select: { name: true, moduleKey: true } }, assignedTo: { select: { name: true } } },
   });
 
-  const header = ["Received", "Name", "Phone", "Email", "Message", "Form", "Website", "Status", "Assigned to"];
+  const header = ["Received", "Name", "Phone", "Email", "Message", "Other details", "Form", "Website", "Status", "Assigned to"];
   const lines = rows.map((r) =>
-    [r.createdAt.toISOString(), r.name, r.phone, r.email, r.message, formLabel(r.site.moduleKey, r.formType), r.site.name, r.status, r.assignedTo?.name]
+    [r.createdAt.toISOString(), r.name, r.phone, r.email, r.message, extraAnswers(r.extra).map((x) => `${x.label}: ${x.value}`).join("; "), formLabel(r.site.moduleKey, r.formType), r.site.name, r.status, r.assignedTo?.name]
       .map(csvCell)
       .join(","),
   );

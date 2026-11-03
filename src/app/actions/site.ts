@@ -41,9 +41,10 @@ async function guarded(fn: () => Promise<void>): Promise<SaveResult> {
 export async function saveSections(siteId: string, keys: string[]): Promise<SaveResult> {
   return guarded(async () => {
     const { user, mod } = await loadSite(siteId, { staffOnly: true });
-    const required = mod.sections.filter((s) => s.required).map((s) => s.key);
-    // Keep module order; always include required sections.
-    const enabled = mod.sections.map((s) => s.key).filter((k) => keys.includes(k) || required.includes(k));
+    const known = new Set(mod.sections.map((s) => s.key));
+    // Keep the order chosen in the builder; required sections are always on.
+    const enabled = Array.from(new Set(keys.filter((k) => known.has(k))));
+    for (const s of mod.sections) if (s.required && !enabled.includes(s.key)) enabled.push(s.key);
     await db.site.update({ where: { id: siteId }, data: { enabledSections: enabled } });
     await log(user, siteId, "updated sections");
     refresh(siteId);

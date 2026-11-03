@@ -133,19 +133,36 @@ function useSaver() {
 }
 
 function SectionsTab({ site, module, enabledSections, onSaved }: Props & { onSaved: () => void }) {
+  // All sections, enabled ones first in the site's order, then the rest in module order.
+  const [rows, setRows] = useState(() => {
+    const byKey = new Map(module.sections.map((s) => [s.key, s]));
+    const enabled = enabledSections.flatMap((k) => byKey.get(k) ?? []);
+    return [...enabled, ...module.sections.filter((s) => !enabledSections.includes(s.key))];
+  });
   const [enabled, setEnabled] = useState<string[]>(enabledSections);
   const { saving, msg, run } = useSaver();
+
+  function move(i: number, dir: -1 | 1) {
+    const j = i + dir;
+    if (j < 0 || j >= rows.length) return;
+    setRows((r) => {
+      const next = [...r];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  }
+
   return (
     <div className="card">
       <p className="mb-4 text-sm text-slate-500">
-        <b>{module.name}</b> module. Turn sections on or off for this website.
+        <b>{module.name}</b> module. Turn sections on or off, and use ↑ ↓ to set the order they appear on the website.
       </p>
       <ul className="space-y-2">
-        {module.sections.map((s) => {
+        {rows.map((s, i) => {
           const on = s.required || enabled.includes(s.key);
           return (
-            <li key={s.key}>
-              <label className={`flex items-start gap-3 rounded-lg border p-3 ${on ? "border-indigo-200 bg-indigo-50/50" : "border-slate-200"} ${s.required ? "opacity-80" : "cursor-pointer"}`}>
+            <li key={s.key} className={`flex items-start gap-2 rounded-lg border p-3 ${on ? "border-indigo-200 bg-indigo-50/50" : "border-slate-200"}`}>
+              <label className={`flex flex-1 items-start gap-3 ${s.required ? "opacity-80" : "cursor-pointer"}`}>
                 <input
                   type="checkbox"
                   className="mt-0.5 h-4 w-4"
@@ -158,11 +175,19 @@ function SectionsTab({ site, module, enabledSections, onSaved }: Props & { onSav
                   <span className="block text-xs text-slate-500">{s.description}</span>
                 </span>
               </label>
+              <div className="flex shrink-0 gap-1">
+                <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label={`Move ${s.label} up`} className="rounded px-1.5 text-slate-500 hover:bg-white disabled:opacity-30">↑</button>
+                <button type="button" onClick={() => move(i, 1)} disabled={i === rows.length - 1} aria-label={`Move ${s.label} down`} className="rounded px-1.5 text-slate-500 hover:bg-white disabled:opacity-30">↓</button>
+              </div>
             </li>
           );
         })}
       </ul>
-      <SaveBar saving={saving} msg={msg} onSave={() => run(() => saveSections(site.id, enabled), onSaved)} />
+      <SaveBar
+        saving={saving}
+        msg={msg}
+        onSave={() => run(() => saveSections(site.id, rows.filter((s) => s.required || enabled.includes(s.key)).map((s) => s.key)), onSaved)}
+      />
     </div>
   );
 }

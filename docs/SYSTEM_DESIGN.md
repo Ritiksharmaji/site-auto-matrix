@@ -243,7 +243,9 @@ flowchart LR
     SR --> HTML[HTML + CSS variables]
 ```
 
-- **Section kinds** (the shared building blocks): `hero`, `about`, `stats`, `cards`, `list`, `gallery`, `testimonials`, `products`, `contact`.
+- **Section kinds** (the shared building blocks): `hero`, `about`, `stats`, `cards`, `list`, `gallery`, `testimonials`, `products`, `faq`, `contact`.
+- **Section order is per site.** `enabledSections` is an ordered list. The renderer and the content editor follow it, and the builder's Sections tab has ↑ ↓ controls.
+- **Extra form questions.** A `contact` section can declare `formFields` (`text`, `url` or `select`). A `select` can take its options from another section's item titles (`optionsFromSection`), which is how the Company form's "Service interested in" list follows the site's own services. Answers are stored in `Enquiry.extra` as `[{label, value}]`. The server only keeps questions defined for that form.
 - **Modules** combine these kinds with their own labels, fields and default text. For example, the University module turns `cards` into "Departments", "Programs" and "Research".
 - **Defaults merge:** content saved in the database overrides the defaults field by field. A new site therefore looks complete immediately, and adding a section later never breaks existing sites.
 - **Theme to CSS variables:** `--primary`, `--secondary`, `--bg`, `--surface`, `--text`, `--radius`, `--heading-font` and `--body-font`. The style (`classic`, `modern` or `minimal`) is a class on the root. Fonts load from Google Fonts. Card and image radius is capped at 24px, so "Pill" never makes photos oval.
@@ -253,7 +255,7 @@ flowchart LR
 |---|---|
 | School | hero, about, highlights, academics, admissions, faculty, notices, events, gallery, testimonials, contact |
 | University | hero, about, stats, departments, programs, admissions, research, placements, events, gallery, testimonials, contact |
-| Company | hero, about, stats, services, portfolio, team, testimonials, careers, contact |
+| Company | hero, about, stats, services, portfolio, team, testimonials, whyus, faq, careers, contact |
 | Shop | hero, offers, products, about, gallery, testimonials, contact |
 
 ---
@@ -311,6 +313,7 @@ erDiagram
         string name
         string phone
         string email
+        json extra "extra form answers"
         EnquiryStatus status "NEW|CONTACTED|CONVERTED|LOST"
         string assignedToId FK
     }
@@ -339,7 +342,7 @@ erDiagram
 - **Money in paise.** Amounts are stored as integers, so there are no floating-point rounding errors.
 - **Indexes** on `ownerId`, `siteId`, `status` and `createdAt` support the scoped list queries.
 
-Migrations live in `prisma/migrations/`: `init`, `phase2_automation_crm_uploads` and `phase3_billing_analytics`.
+Migrations live in `prisma/migrations/`: `init`, `phase2_automation_crm_uploads`, `phase3_billing_analytics` and `enquiry_extra_fields`.
 
 ---
 
@@ -447,6 +450,7 @@ flowchart TD
 | Brute-force or guessed passwords | bcrypt hashing; the error message doesn't say whether the email exists |
 | Malicious uploads | Magic-byte detection, no SVG, 5 MB cap, `nosniff` |
 | CSV formula injection | Cells starting with `= + - @` are prefixed with `'` in the export |
+| Unsafe links in content | Card button links only allow `http(s)`, `mailto:`, `tel:`, `#` and `/` |
 | Enquiry spam | Hidden honeypot field `company_website`; zod length limits; email or phone required |
 | Cron abuse | Bearer `CRON_SECRET` is required |
 | Secrets in git | `.env*` is ignored; only `.env.example` is committed |

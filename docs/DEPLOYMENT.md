@@ -73,6 +73,16 @@ It does the following:
 2. Uploads the bundle and the `deploy/` folder. The server's `.env` and `data/` are never touched.
 3. On the server: builds the small runtime image, runs `prisma migrate deploy`, and restarts the containers.
 
+Before deploying, run the local checks:
+
+```bash
+npx tsc --noEmit && npm run lint && npm run check:blueprints
+```
+
+**Blueprints release (Nov 2026).** This update adds the `20261104120000_saved_blueprints` migration, which only creates a new `SavedBlueprint` table, so existing data isn't touched; `deploy.sh` applies it automatically. It also adds the public `/api/art/*` route, which serves the blueprints' SVG artwork on every client domain (it goes through the same Caddy rule; nothing to configure). Existing websites keep their exact look, because all new design options default to the original layout. Team members only see blueprints for their allowed modules; to give someone the new **Tech / SaaS / DevOps** module, tick it under Team → (member) → Allowed modules.
+
+**Code mode (Phase 2)** is not deployed. It would run each custom site in its own container, which needs a bigger server than the current 1 GB plan. See [SYSTEM_DESIGN.md §18](./SYSTEM_DESIGN.md#18-phase-2-design-code-mode-custom-coded-websites-not-built-yet).
+
 ## 5. Signing in and resetting passwords
 
 Everyone (Super Admin, team members and clients) signs in at **https://sites.onekampus.com/login**. Staff land in `/admin`; clients land in `/portal` with only their own website.

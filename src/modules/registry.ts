@@ -1,11 +1,12 @@
 import { companyModule } from "./company";
 import { schoolModule } from "./school";
 import { shopModule } from "./shop";
+import { techModule } from "./tech";
 import { universityModule } from "./university";
 import type { Brand, ModuleDef, SectionContent, Theme } from "./types";
 
 /** All available industry modules. Register new modules here. */
-export const MODULES: ModuleDef[] = [schoolModule, universityModule, companyModule, shopModule];
+export const MODULES: ModuleDef[] = [schoolModule, universityModule, companyModule, shopModule, techModule];
 
 export function getModule(key: string): ModuleDef | undefined {
   return MODULES.find((m) => m.key === key);

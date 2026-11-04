@@ -8,7 +8,13 @@ One Next.js app that creates and hosts many websites (schools, companies, …) f
 
 🚀 **Live on AWS:** admin at https://sites.onekampus.com, client sites at `https://<slug>.onekampus.com`. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) to deploy updates, back up and restore.
 
-📸 **Regenerate the screenshots** (dev server running): `npm run docs:screenshots`
+🧩 **Blueprints:** 29 ready-made websites in 6 categories (10 Tech / DevOps, 5 Business, 5 Shop, 3 School, 3 University / Coaching, 3 Custom starters). Clone one for a new client and just change the text and images. The standard way (module + starting design) stays the default. See [APPLICATION_FLOW.md §6B](docs/APPLICATION_FLOW.md#6b-starting-from-a-blueprint-ready-made-websites).
+
+🎛️ **Design tab:** besides colours and fonts, choose the header (or no header), footer, spacing, button style and a layout for each section.
+
+🧑‍💻 **Planned (Phase 2, not built):** *Code mode* for fully custom sites written in VS Code and deployed on the same platform. Design: [SYSTEM_DESIGN.md §18](docs/SYSTEM_DESIGN.md#18-phase-2-design-code-mode-custom-coded-websites-not-built-yet).
+
+📸 **Regenerate the screenshots** (dev server running): `npm run docs:screenshots` · **Validate blueprints:** `npm run check:blueprints`
 
 ## Run locally
 
@@ -49,22 +55,30 @@ src/modules/          Module definitions (pure config)
   university.ts       University / College module
   company.ts          Company module
   shop.ts             Shop module (product catalogue, WhatsApp ordering)
+  tech.ts             Tech / SaaS / DevOps module (pricing, code, logos, CTA sections)
+  theme.ts            Theme validation (colours, fonts, header/footer, section layouts)
   registry.ts         Register modules here; defaults/merging helpers
+src/blueprints/       Ready-made websites (tech, business, shop, education, custom)
+src/lib/art.ts        Branded SVG artwork for blueprints (served by /api/art)
 src/components/site/  SiteRenderer: turns module + theme + content into a website
 src/components/builder/ Builder UI (sections, design, content, settings, enquiries)
-src/app/admin/        Admin panel (super admin + team)
+src/app/admin/        Admin panel (super admin + team), incl. Blueprints gallery
 src/app/portal/       Client portal
 src/app/sites/[site]/ Public website route
 src/middleware.ts     Routes <slug>.PLATFORM_HOST and custom domains to /sites/<key>
-prisma/schema.prisma  Users, Clients, Sites (JSONB theme/content), Enquiries, Activity
+prisma/schema.prisma  Users, Clients, Sites (JSONB theme/content), Enquiries, Activity, SavedBlueprint
 ```
 
 ### Adding a new module (e.g. Shop, Hospital)
 
-1. Create `src/modules/<name>.ts` exporting a `ModuleDef` — list its sections using the existing kinds (`hero`, `about`, `stats`, `cards`, `list`, `gallery`, `testimonials`, `products`, `contact`) and 2–3 design presets.
+1. Create `src/modules/<name>.ts` exporting a `ModuleDef` — list its sections using the existing kinds (`hero`, `about`, `stats`, `cards`, `list`, `gallery`, `testimonials`, `products`, `faq`, `pricing`, `code`, `logos`, `cta`, `contact`) and 2–3 design presets.
 2. Add it to `MODULES` in `src/modules/registry.ts`.
 
 It immediately appears in the "New client" form, the builder and team permissions. Only add a new section *kind* (in `SiteRenderer.tsx`) when no existing one fits.
+
+### Adding a blueprint
+
+Add one object to `src/blueprints/<category>.ts` (helpers in `kit.ts`), then run `npm run check:blueprints`. It shows up on the Blueprints page and in the New client picker.
 
 ## Business automation (Phase 2)
 
@@ -76,7 +90,7 @@ It immediately appears in the "New client" form, the builder and team permission
 
 ## Growth features (Phase 3)
 
-- **Modules**: School, University / College, Company, Shop. Shop products have prices, categories and an "Order on WhatsApp" button; any site with a WhatsApp number in Brand settings gets a floating chat button.
+- **Modules**: School, University / College, Company, Shop, Tech / SaaS / DevOps. Shop products have prices, categories and an "Order on WhatsApp" button; any site with a WhatsApp number in Brand settings gets a floating chat button.
 - **SEO**: page title/description, Open Graph + Twitter cards, canonical URL and Organization structured data for every site; `/sitemap.xml` and `/robots.txt` per site (draft sites are `noindex`).
 - **Analytics**: anonymous page views (no cookies, no IP storage, daily-rotating visitor hash) via `/api/track`. See the *Analytics* tab in the builder, totals on the dashboard and in the client portal. Builder previews and bots are not counted.
 - **Billing (super admin only)**: set a plan per client (fee, monthly / quarterly / yearly, next due date) on the client page. `/admin/billing` shows recurring revenue, outstanding and overdue amounts, and lets you mark invoices paid, send reminders or cancel. Clients see their invoices under *Billing* in the portal.

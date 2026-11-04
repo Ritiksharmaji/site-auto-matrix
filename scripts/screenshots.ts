@@ -14,6 +14,7 @@ import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
 import { SESSION_COOKIE, signSession, type SessionPayload } from "../src/lib/session";
+import { BLUEPRINTS } from "../src/blueprints";
 
 const BASE = process.env.SCREENSHOT_BASE ?? "http://localhost:3000";
 const OUT = path.join(process.cwd(), "docs", "screenshots");
@@ -63,7 +64,12 @@ async function shot(page: Page, file: string, title: string, opts: { fullPage?: 
   await mkdir(path.dirname(target), { recursive: true });
   await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
   // Hide the Next.js dev-mode badge.
-  for (const frame of page.frames()) await frame.addStyleTag({ content: "nextjs-portal{display:none!important}" }).catch(() => {});
+  // Lazy iframes that haven't loaded (e.g. off-screen blueprint thumbnails) never answer, so cap each frame at 2s.
+  await Promise.all(
+    page.frames().map((frame) =>
+      Promise.race([frame.addStyleTag({ content: "nextjs-portal{display:none!important}" }).catch(() => {}), new Promise((r) => setTimeout(r, 2000))]),
+    ),
+  );
   await applyMasks(page);
   const fullPage = opts.fullPage ?? true;
   const viewport = page.viewportSize()!;
@@ -128,7 +134,8 @@ async function main() {
   const greenvalley = await siteBySlug("greenvalley");
   const horizon = await siteBySlug("horizon");
   const nexora = await siteBySlug("nexora");
-  const tempEmails = ["inactive.demo@siteplatform.test", "owner@sunrise-demo.test"];
+  const tempEmails = ["inactive.demo@siteplatform.test", "owner@sunrise-demo.test", "owner@blueprint-demo.test"];
+  const tempBlueprintName = "Blueprint Demo Labs design";
   const staffPermsBefore = staff.permissions;
   await loadMasks();
   // One demo enquiry per run: drop the one a previous run left behind.
@@ -270,6 +277,85 @@ async function main() {
       await ctx.close();
     }
 
+    // ----------------------------------------------------------- blueprints
+    console.log("Blueprints");
+    {
+      const ctx = await contextFor(browser, admin.session);
+      const page = await ctx.newPage();
+      const dir = "05-blueprints";
+      let b = 1;
+      const name = (slug: string, ext = "png") => `${dir}/${String(b++).padStart(2, "0")}-${slug}.${ext}`;
+
+      await page.goto(`${BASE}/admin/blueprints`, { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(2500);
+      await shot(page, name("gallery-all"), "Blueprints – gallery (all categories)", { fullPage: false });
+      await page.getByRole("button", { name: /^Tech \/ DevOps/ }).click();
+      await page.waitForTimeout(3000);
+      await shot(page, name("gallery-tech"), "Blueprints – Tech / DevOps category (10)");
+      await page.getByRole("button", { name: /^Custom starters/ }).click();
+      await page.waitForTimeout(2000);
+      await shot(page, name("gallery-custom"), "Blueprints – Custom starters");
+
+      // Every built-in blueprint: the top of its page (JPEG keeps the repo small).
+      for (const bp of BLUEPRINTS) {
+        await page.goto(`${BASE}/blueprint-preview/${bp.key}`, { waitUntil: "domcontentloaded" });
+        await shot(page, name(`preview-${bp.key}`, "jpg"), `Blueprint preview – ${bp.name}`, { fullPage: false });
+      }
+      // A few complete pages, top to bottom.
+      for (const key of ["tech-container-registry", "business-construction", "school-k12"]) {
+        await page.goto(`${BASE}/blueprint-preview/${key}?bare=1`, { waitUntil: "domcontentloaded" });
+        await shot(page, name(`full-${key}`, "jpg"), `Blueprint full page – ${key}`, { fullPage: true });
+      }
+
+      // New client: the standard way is the default; the blueprint way is the second option.
+      await page.goto(`${BASE}/admin/clients/new`, { waitUntil: "domcontentloaded" });
+      await shot(page, name("new-client-standard-default"), "New client – Standard (module + design) is selected by default");
+      await page.goto(`${BASE}/admin/clients/new?blueprint=tech-kubernetes`, { waitUntil: "domcontentloaded" });
+      await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
+      await page.fill("#name", "Blueprint Demo Labs");
+      await page.fill("#contactName", "Demo Owner");
+      await page.fill("#email", tempEmails[2]);
+      await page.fill("#password", randomBytes(12).toString("hex"));
+      await shot(page, name("new-client-from-blueprint"), "New client – from a blueprint (opened from “Use for new client”)");
+      await page.locator("form button[type=submit]").last().click();
+      await page.waitForURL((u) => /\/admin\/clients\/[^/]+$/.test(u.pathname) && !u.pathname.endsWith("/new"));
+      await shot(page, name("client-created-from-blueprint"), "Client created – website cloned from the blueprint");
+      const demoSite = await db.site.findFirstOrThrow({ where: { client: { users: { some: { email: tempEmails[2] } } } } });
+
+      await page.goto(`${BASE}/admin/sites/${demoSite.id}`, { waitUntil: "domcontentloaded" });
+      await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+      await shot(page, name("builder-blueprint-site"), "Builder – a site made from a blueprint, ready to edit");
+      for (let i = 0; i < 5 && !(await page.getByText("Page structure").isVisible()); i++) {
+        await page.getByRole("button", { name: "Design", exact: true }).click();
+        await page.waitForTimeout(800);
+      }
+      await shot(page, name("design-tab-structure-layouts"), "Design tab – presets, colours, page structure and section layouts");
+      await page.locator("label:has-text('Header') + select").selectOption("centered");
+      await page.locator("label:has-text('Spacing') + select").selectOption("airy");
+      await page.getByRole("button", { name: "Save", exact: true }).first().click();
+      await page.getByText("Saved", { exact: true }).waitFor();
+      await page.waitForTimeout(2500);
+      await shot(page, name("design-tab-saved-preview"), "Design tab – header changed to Centered, saved, preview updated", { fullPage: false });
+      await page.getByText("★ Save this website as a blueprint").click();
+      await page.locator("label:has-text('Blueprint name') + input").fill(tempBlueprintName);
+      await page.locator("label:has-text('Short description') + input").fill("Kubernetes-style product page with centered header");
+      await page.getByRole("button", { name: "Save blueprint" }).click();
+      await page.getByText("Saved. Find it under").waitFor();
+      await page.getByText("Saved. Find it under").scrollIntoViewIfNeeded();
+      await shot(page, name("save-as-blueprint"), "Design tab – Save this website as a blueprint");
+
+      await page.goto(`${BASE}/admin/blueprints`, { waitUntil: "domcontentloaded" });
+      await page.getByRole("button", { name: /^Saved by the team/ }).click();
+      await page.waitForTimeout(3000);
+      await shot(page, name("gallery-saved-by-team"), "Blueprints – Saved by the team (with Delete for the person who saved it)");
+
+      // Remove the saved blueprint through the UI.
+      page.once("dialog", (d) => d.accept());
+      await page.getByRole("button", { name: "Delete" }).click();
+      await page.waitForTimeout(2000);
+      await ctx.close();
+    }
+
     // ---------------------------------------------------------- team member
     console.log("Team member");
     {
@@ -300,11 +386,15 @@ async function main() {
 
       await go("/admin/sites", "05-sites-own-only.png", "Websites – only their clients'");
       await page.goto(`${BASE}/admin/sites/${nexora.id}`, { waitUntil: "domcontentloaded" });
-      await page.getByRole("button", { name: "Settings" }).click();
-      await page.waitForTimeout(500);
+      await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+      for (let i = 0; i < 5 && !(await page.getByText("Website name").isVisible()); i++) {
+        await page.getByRole("button", { name: "Settings" }).click({ timeout: 15_000 }).catch(() => {});
+        await page.waitForTimeout(1000);
+      }
       await shot(page, "03-team-member/06-builder-no-publish.png", "Builder – Publish disabled (no permission)");
       await go("/admin/enquiries", "07-enquiries-own-only.png", "Enquiries – only their clients'");
 
+      await go("/admin/blueprints", "13-blueprints-allowed-modules.png", "Blueprints – only those for their allowed modules");
       await blocked(page, "03-team-member/08-blocked-team.png", "Team page blocked", "/admin/team");
       await blocked(page, "03-team-member/09-blocked-activity.png", "Activity log blocked", "/admin/activity");
       await blocked(page, "03-team-member/10-blocked-billing.png", "Billing blocked", "/admin/billing");
@@ -333,6 +423,8 @@ async function main() {
       await go("/portal/billing", "06-billing.png", "Client – their invoices");
 
       await blocked(page, "04-client/07-blocked-admin.png", "Admin panel blocked", "/admin");
+      await blocked(page, "04-client/13-blocked-blueprints.png", "Blueprints page blocked for clients", "/admin/blueprints");
+      await blocked(page, "04-client/14-blocked-blueprint-preview.png", "Blueprint preview blocked for clients", "/blueprint-preview/tech-kubernetes");
       await blocked(page, "04-client/08-blocked-other-site.png", "Another client's website – not found", `/portal/sites/${horizon.id}`);
       const otherEnquiry = await db.enquiry.findFirst({ where: { siteId: nexora.id } });
       if (otherEnquiry) await blocked(page, "04-client/09-blocked-other-enquiry.png", "Another client's enquiry – not found", `/portal/enquiries/${otherEnquiry.id}`);
@@ -351,10 +443,12 @@ async function main() {
     }
   } finally {
     await db.user.update({ where: { id: staff.id }, data: { permissions: staffPermsBefore ?? {} } });
-    const demoClients = await db.client.findMany({ where: { users: { some: { email: tempEmails[1] } } } });
+    const demoClients = await db.client.findMany({ where: { users: { some: { email: { in: tempEmails } } } } });
     await db.client.deleteMany({ where: { id: { in: demoClients.map((c) => c.id) } } });
     await db.user.deleteMany({ where: { email: { in: tempEmails } } });
     await db.activity.deleteMany({ where: { details: { contains: '"Sunrise Demo Academy"' } } });
+    await db.activity.deleteMany({ where: { OR: [{ details: { contains: '"Blueprint Demo Labs"' } }, { details: { contains: tempBlueprintName } }] } });
+    await db.savedBlueprint.deleteMany({ where: { name: tempBlueprintName } });
     await writeFile(path.join(OUT, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
     await browser.close();
     await db.$disconnect();

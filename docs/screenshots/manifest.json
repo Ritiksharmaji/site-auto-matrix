@@ -116,8 +116,8 @@
   {
     "file": "02-super-admin/05-client-created.png",
     "title": "New client created (plan, website, logins)",
-    "url": "http://localhost:3000/admin/clients/cmw0yzvcx000ps163n9pqmeej",
-    "finalUrl": "http://localhost:3000/admin/clients/cmw0yzvcx000ps163n9pqmeej"
+    "url": "http://localhost:3000/admin/clients/cmw2bbhif001ls1eajd8yyp17",
+    "finalUrl": "http://localhost:3000/admin/clients/cmw2bbhif001ls1eajd8yyp17"
   },
   {
     "file": "02-super-admin/06-client-detail.png",
@@ -194,8 +194,8 @@
   {
     "file": "02-super-admin/18-enquiry-detail.png",
     "title": "Enquiry detail – status, assignee, notes, notifications",
-    "url": "http://localhost:3000/admin/enquiries/cmw0yzrt4000hs163li9ezzgt",
-    "finalUrl": "http://localhost:3000/admin/enquiries/cmw0yzrt4000hs163li9ezzgt"
+    "url": "http://localhost:3000/admin/enquiries/cmw2bbanm001ds1ea2dv0w5pw",
+    "finalUrl": "http://localhost:3000/admin/enquiries/cmw2bbanm001ds1ea2dv0w5pw"
   },
   {
     "file": "02-super-admin/19-team.png",
@@ -226,6 +226,264 @@
     "title": "Billing – all invoices",
     "url": "http://localhost:3000/admin/billing",
     "finalUrl": "http://localhost:3000/admin/billing"
+  },
+  {
+    "file": "05-blueprints/01-gallery-all.png",
+    "title": "Blueprints – gallery (all categories)",
+    "url": "http://localhost:3000/admin/blueprints",
+    "finalUrl": "http://localhost:3000/admin/blueprints"
+  },
+  {
+    "file": "05-blueprints/02-gallery-tech.png",
+    "title": "Blueprints – Tech / DevOps category (10)",
+    "url": "http://localhost:3000/admin/blueprints",
+    "finalUrl": "http://localhost:3000/admin/blueprints"
+  },
+  {
+    "file": "05-blueprints/03-gallery-custom.png",
+    "title": "Blueprints – Custom starters",
+    "url": "http://localhost:3000/admin/blueprints",
+    "finalUrl": "http://localhost:3000/admin/blueprints"
+  },
+  {
+    "file": "05-blueprints/04-preview-tech-container-registry.jpg",
+    "title": "Blueprint preview – ShipCrate – Container registry",
+    "url": "http://localhost:3000/blueprint-preview/tech-container-registry",
+    "finalUrl": "http://localhost:3000/blueprint-preview/tech-container-registry"
+  },
+  {
+    "file": "05-blueprints/05-preview-tech-kubernetes.jpg",
+    "title": "Blueprint preview – Helmsman – Kubernetes platform",
+    "url": "http://localhost:3000/blueprint-preview/tech-kubernetes",
+    "finalUrl": "http://localhost:3000/blueprint-preview/tech-kubernetes"
+  },
+  {
+    "file": "05-blueprints/06-preview-tech-cicd.jpg",
+    "title": "Blueprint preview – PipeRocket – CI/CD pipelines",
+    "url": "http://localhost:3000/blueprint-preview/tech-cicd",
+    "finalUrl": "http://localhost:3000/blueprint-preview/tech-cicd"
+  },
+  {
+    "file": "05-blueprints/07-preview-tech-cloud-hosting.jpg",
+    "title": "Blueprint preview – NimbusHost – Cloud & VPS hosting",
+    "url": "http://localhost:3000/blueprint-preview/tech-cloud-hosting",
+    "finalUrl": "http://localhost:3000/blueprint-preview/tech-cloud-hosting"
+  },
+  {
+    "file": "05-blueprints/08-preview-tech-api-platform.jpg",
+    "title": "Blueprint preview – Relay – API platform",
+    "url": "http://localhost:3000/blueprint-preview/tech-api-platform",
+    "finalUrl": "http://localhost:3000/blueprint-preview/tech-api-platform"
+  },
+  {
+    "file": "05-blueprints/09-preview-tech-open-source-cli.jpg",
+    "title": "Blueprint preview – Forgekit – Open-source CLI",
+    "url": "http://localhost:3000/blueprint-preview/tech-open-source-cli",
+    "finalUrl": "http://localhost:3000/blueprint-preview/tech-open-source-cli"
+  },
+  {
+    "file": "05-blueprints/10-preview-tech-monitoring.jpg",
+    "title": "Blueprint preview – Pulsewatch – Monitoring & observability",
+    "url": "http://localhost:3000/blueprint-preview/tech-monitoring",
+    "finalUrl": "http://localhost:3000/blueprint-preview/tech-monitoring"
+  },
+  {
+    "file": "05-blueprints/11-preview-tech-devsecops.jpg",
+    "title": "Blueprint preview – Sentinel Scan – DevSecOps security",
+    "url": "http://localhost:3000/blueprint-preview/tech-devsecops",
+    "finalUrl": "http://localhost:3000/blueprint-preview/tech-devsecops"
+  },
+  {
+    "file": "05-blueprints/12-preview-tech-saas-analytics.jpg",
+    "title": "Blueprint preview – Metricly – SaaS analytics",
+    "url": "http://localhost:3000/blueprint-preview/tech-saas-analytics",
+    "finalUrl": "http://localhost:3000/blueprint-preview/tech-saas-analytics"
+  },
+  {
+    "file": "05-blueprints/13-preview-tech-devops-agency.jpg",
+    "title": "Blueprint preview – OpsCraft – DevOps consultancy",
+    "url": "http://localhost:3000/blueprint-preview/tech-devops-agency",
+    "finalUrl": "http://localhost:3000/blueprint-preview/tech-devops-agency"
+  },
+  {
+    "file": "05-blueprints/14-preview-business-consulting.jpg",
+    "title": "Blueprint preview – Northstar – Strategy consulting",
+    "url": "http://localhost:3000/blueprint-preview/business-consulting",
+    "finalUrl": "http://localhost:3000/blueprint-preview/business-consulting"
+  },
+  {
+    "file": "05-blueprints/15-preview-business-creative-agency.jpg",
+    "title": "Blueprint preview – Pixel & Pine – Creative agency",
+    "url": "http://localhost:3000/blueprint-preview/business-creative-agency",
+    "finalUrl": "http://localhost:3000/blueprint-preview/business-creative-agency"
+  },
+  {
+    "file": "05-blueprints/16-preview-business-law-firm.jpg",
+    "title": "Blueprint preview – Mehta & Associates – Law / CA firm",
+    "url": "http://localhost:3000/blueprint-preview/business-law-firm",
+    "finalUrl": "http://localhost:3000/blueprint-preview/business-law-firm"
+  },
+  {
+    "file": "05-blueprints/17-preview-business-construction.jpg",
+    "title": "Blueprint preview – BuildRight – Construction & interiors",
+    "url": "http://localhost:3000/blueprint-preview/business-construction",
+    "finalUrl": "http://localhost:3000/blueprint-preview/business-construction"
+  },
+  {
+    "file": "05-blueprints/18-preview-business-clinic.jpg",
+    "title": "Blueprint preview – CarePlus – Clinic & healthcare",
+    "url": "http://localhost:3000/blueprint-preview/business-clinic",
+    "finalUrl": "http://localhost:3000/blueprint-preview/business-clinic"
+  },
+  {
+    "file": "05-blueprints/19-preview-shop-fashion.jpg",
+    "title": "Blueprint preview – Loom & Lane – Fashion boutique",
+    "url": "http://localhost:3000/blueprint-preview/shop-fashion",
+    "finalUrl": "http://localhost:3000/blueprint-preview/shop-fashion"
+  },
+  {
+    "file": "05-blueprints/20-preview-shop-grocery.jpg",
+    "title": "Blueprint preview – Daily Fresh – Grocery & kirana",
+    "url": "http://localhost:3000/blueprint-preview/shop-grocery",
+    "finalUrl": "http://localhost:3000/blueprint-preview/shop-grocery"
+  },
+  {
+    "file": "05-blueprints/21-preview-shop-electronics.jpg",
+    "title": "Blueprint preview – Gadget Galaxy – Electronics store",
+    "url": "http://localhost:3000/blueprint-preview/shop-electronics",
+    "finalUrl": "http://localhost:3000/blueprint-preview/shop-electronics"
+  },
+  {
+    "file": "05-blueprints/22-preview-shop-cafe-bakery.jpg",
+    "title": "Blueprint preview – Bean & Brew – Café & bakery",
+    "url": "http://localhost:3000/blueprint-preview/shop-cafe-bakery",
+    "finalUrl": "http://localhost:3000/blueprint-preview/shop-cafe-bakery"
+  },
+  {
+    "file": "05-blueprints/23-preview-shop-gifts-florist.jpg",
+    "title": "Blueprint preview – Bloom – Gifts & florist",
+    "url": "http://localhost:3000/blueprint-preview/shop-gifts-florist",
+    "finalUrl": "http://localhost:3000/blueprint-preview/shop-gifts-florist"
+  },
+  {
+    "file": "05-blueprints/24-preview-school-preschool.jpg",
+    "title": "Blueprint preview – Little Sprouts – Pre-school",
+    "url": "http://localhost:3000/blueprint-preview/school-preschool",
+    "finalUrl": "http://localhost:3000/blueprint-preview/school-preschool"
+  },
+  {
+    "file": "05-blueprints/25-preview-school-k12.jpg",
+    "title": "Blueprint preview – Greenfield – K-12 public school",
+    "url": "http://localhost:3000/blueprint-preview/school-k12",
+    "finalUrl": "http://localhost:3000/blueprint-preview/school-k12"
+  },
+  {
+    "file": "05-blueprints/26-preview-school-heritage.jpg",
+    "title": "Blueprint preview – St. Mary's – Heritage convent school",
+    "url": "http://localhost:3000/blueprint-preview/school-heritage",
+    "finalUrl": "http://localhost:3000/blueprint-preview/school-heritage"
+  },
+  {
+    "file": "05-blueprints/27-preview-university-engineering.jpg",
+    "title": "Blueprint preview – Apex – Engineering college",
+    "url": "http://localhost:3000/blueprint-preview/university-engineering",
+    "finalUrl": "http://localhost:3000/blueprint-preview/university-engineering"
+  },
+  {
+    "file": "05-blueprints/28-preview-university-business-school.jpg",
+    "title": "Blueprint preview – Vidya – Business school (MBA)",
+    "url": "http://localhost:3000/blueprint-preview/university-business-school",
+    "finalUrl": "http://localhost:3000/blueprint-preview/university-business-school"
+  },
+  {
+    "file": "05-blueprints/29-preview-university-coaching.jpg",
+    "title": "Blueprint preview – BrightPath – Coaching institute",
+    "url": "http://localhost:3000/blueprint-preview/university-coaching",
+    "finalUrl": "http://localhost:3000/blueprint-preview/university-coaching"
+  },
+  {
+    "file": "05-blueprints/30-preview-custom-landing.jpg",
+    "title": "Blueprint preview – Blank landing page",
+    "url": "http://localhost:3000/blueprint-preview/custom-landing",
+    "finalUrl": "http://localhost:3000/blueprint-preview/custom-landing"
+  },
+  {
+    "file": "05-blueprints/31-preview-custom-business.jpg",
+    "title": "Blueprint preview – Blank business site",
+    "url": "http://localhost:3000/blueprint-preview/custom-business",
+    "finalUrl": "http://localhost:3000/blueprint-preview/custom-business"
+  },
+  {
+    "file": "05-blueprints/32-preview-custom-no-header.jpg",
+    "title": "Blueprint preview – Single-screen page (no header)",
+    "url": "http://localhost:3000/blueprint-preview/custom-no-header",
+    "finalUrl": "http://localhost:3000/blueprint-preview/custom-no-header"
+  },
+  {
+    "file": "05-blueprints/33-full-tech-container-registry.jpg",
+    "title": "Blueprint full page – tech-container-registry",
+    "url": "http://localhost:3000/blueprint-preview/tech-container-registry?bare=1",
+    "finalUrl": "http://localhost:3000/blueprint-preview/tech-container-registry?bare=1"
+  },
+  {
+    "file": "05-blueprints/34-full-business-construction.jpg",
+    "title": "Blueprint full page – business-construction",
+    "url": "http://localhost:3000/blueprint-preview/business-construction?bare=1",
+    "finalUrl": "http://localhost:3000/blueprint-preview/business-construction?bare=1"
+  },
+  {
+    "file": "05-blueprints/35-full-school-k12.jpg",
+    "title": "Blueprint full page – school-k12",
+    "url": "http://localhost:3000/blueprint-preview/school-k12?bare=1",
+    "finalUrl": "http://localhost:3000/blueprint-preview/school-k12?bare=1"
+  },
+  {
+    "file": "05-blueprints/36-new-client-standard-default.png",
+    "title": "New client – Standard (module + design) is selected by default",
+    "url": "http://localhost:3000/admin/clients/new",
+    "finalUrl": "http://localhost:3000/admin/clients/new"
+  },
+  {
+    "file": "05-blueprints/37-new-client-from-blueprint.png",
+    "title": "New client – from a blueprint (opened from “Use for new client”)",
+    "url": "http://localhost:3000/admin/clients/new?blueprint=tech-kubernetes",
+    "finalUrl": "http://localhost:3000/admin/clients/new?blueprint=tech-kubernetes"
+  },
+  {
+    "file": "05-blueprints/38-client-created-from-blueprint.png",
+    "title": "Client created – website cloned from the blueprint",
+    "url": "http://localhost:3000/admin/clients/cmw2be2tq001ts1eaekee2xk2",
+    "finalUrl": "http://localhost:3000/admin/clients/cmw2be2tq001ts1eaekee2xk2"
+  },
+  {
+    "file": "05-blueprints/39-builder-blueprint-site.png",
+    "title": "Builder – a site made from a blueprint, ready to edit",
+    "url": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n"
+  },
+  {
+    "file": "05-blueprints/40-design-tab-structure-layouts.png",
+    "title": "Design tab – presets, colours, page structure and section layouts",
+    "url": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n"
+  },
+  {
+    "file": "05-blueprints/41-design-tab-saved-preview.png",
+    "title": "Design tab – header changed to Centered, saved, preview updated",
+    "url": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n"
+  },
+  {
+    "file": "05-blueprints/42-save-as-blueprint.png",
+    "title": "Design tab – Save this website as a blueprint",
+    "url": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n"
+  },
+  {
+    "file": "05-blueprints/43-gallery-saved-by-team.png",
+    "title": "Blueprints – Saved by the team (with Delete for the person who saved it)",
+    "url": "http://localhost:3000/admin/blueprints",
+    "finalUrl": "http://localhost:3000/admin/blueprints"
   },
   {
     "file": "03-team-member/01-dashboard.png",
@@ -268,6 +526,12 @@
     "title": "Enquiries – only their clients'",
     "url": "http://localhost:3000/admin/enquiries",
     "finalUrl": "http://localhost:3000/admin/enquiries"
+  },
+  {
+    "file": "03-team-member/13-blueprints-allowed-modules.png",
+    "title": "Blueprints – only those for their allowed modules",
+    "url": "http://localhost:3000/admin/blueprints",
+    "finalUrl": "http://localhost:3000/admin/blueprints"
   },
   {
     "file": "03-team-member/08-blocked-team.png",
@@ -326,8 +590,8 @@
   {
     "file": "04-client/05-enquiry-detail.png",
     "title": "Client – enquiry detail and notes",
-    "url": "http://localhost:3000/portal/enquiries/cmw0yzrt4000hs163li9ezzgt",
-    "finalUrl": "http://localhost:3000/portal/enquiries/cmw0yzrt4000hs163li9ezzgt"
+    "url": "http://localhost:3000/portal/enquiries/cmw2bbanm001ds1ea2dv0w5pw",
+    "finalUrl": "http://localhost:3000/portal/enquiries/cmw2bbanm001ds1ea2dv0w5pw"
   },
   {
     "file": "04-client/06-billing.png",
@@ -339,6 +603,18 @@
     "file": "04-client/07-blocked-admin.png",
     "title": "Admin panel blocked",
     "url": "http://localhost:3000/admin",
+    "finalUrl": "http://localhost:3000/portal"
+  },
+  {
+    "file": "04-client/13-blocked-blueprints.png",
+    "title": "Blueprints page blocked for clients",
+    "url": "http://localhost:3000/admin/blueprints",
+    "finalUrl": "http://localhost:3000/portal"
+  },
+  {
+    "file": "04-client/14-blocked-blueprint-preview.png",
+    "title": "Blueprint preview blocked for clients",
+    "url": "http://localhost:3000/blueprint-preview/tech-kubernetes",
     "finalUrl": "http://localhost:3000/portal"
   },
   {

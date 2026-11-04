@@ -8,9 +8,10 @@ import { db } from "@/lib/db";
 import { DEFAULT_AUTOMATION, parseEmails, type AutomationSettings } from "@/lib/automation";
 import { canPublish, siteScope } from "@/lib/permissions";
 import { isReservedSlug } from "@/lib/hosts";
-import { FONTS, HERO_LAYOUTS, RADIUS_OPTIONS, STYLE_OPTIONS } from "@/modules/shared";
 import { getModule } from "@/modules/registry";
-import type { ModuleDef, Theme } from "@/modules/types";
+import { cleanTheme } from "@/modules/theme";
+import { sanitizeContent } from "@/modules/content";
+import type { Theme } from "@/modules/types";
 
 export type SaveResult = { ok: boolean; error?: string };
 
@@ -52,58 +53,13 @@ export async function saveSections(siteId: string, keys: string[]): Promise<Save
   });
 }
 
-const HEX = /^#[0-9a-f]{6}$/i;
-
 export async function saveTheme(siteId: string, theme: Theme): Promise<SaveResult> {
   return guarded(async () => {
     const { user, mod } = await loadSite(siteId, { staffOnly: true });
-    const colors = ["primary", "secondary", "background", "surface", "text"] as const;
-    for (const c of colors) if (!HEX.test(theme[c])) throw new Error(`Invalid colour for ${c}`);
-    if (!FONTS.some((f) => f.name === theme.headingFont) || !FONTS.some((f) => f.name === theme.bodyFont)) throw new Error("Invalid font");
-    if (!RADIUS_OPTIONS.some((r) => r.value === theme.radius)) throw new Error("Invalid corner style");
-    if (!STYLE_OPTIONS.some((s) => s.value === theme.style)) throw new Error("Invalid style");
-    if (!HERO_LAYOUTS.some((h) => h.value === theme.heroLayout)) throw new Error("Invalid hero layout");
-    const preset = mod.presets.some((p) => p.key === theme.preset) ? theme.preset : "custom";
-    const clean: Theme = {
-      preset,
-      primary: theme.primary,
-      secondary: theme.secondary,
-      background: theme.background,
-      surface: theme.surface,
-      text: theme.text,
-      headingFont: theme.headingFont,
-      bodyFont: theme.bodyFont,
-      radius: theme.radius,
-      style: theme.style,
-      heroLayout: theme.heroLayout,
-    };
-    await db.site.update({ where: { id: siteId }, data: { theme: clean } });
+    await db.site.update({ where: { id: siteId }, data: { theme: cleanTheme(mod, theme) as Prisma.InputJsonValue } });
     await log(user, siteId, "changed the design");
     refresh(siteId);
   });
-}
-
-/** Keep only known sections / fields as plain strings, so stored content always matches the module. */
-function sanitizeContent(mod: ModuleDef, raw: Record<string, unknown>) {
-  const str = (v: unknown, max = 5000) => (typeof v === "string" ? v.slice(0, max) : "");
-  const brandIn = (raw.brand ?? {}) as Record<string, unknown>;
-  const out: Record<string, unknown> = {
-    brand: Object.fromEntries(
-      [...new Set([...Object.keys(mod.defaultBrand), "whatsapp", "metaDescription"])].map((k) => [k, str(brandIn[k], 300)]),
-    ),
-  };
-  for (const s of mod.sections) {
-    const src = (raw[s.key] ?? {}) as Record<string, unknown>;
-    const section: Record<string, unknown> = Object.fromEntries(s.fields.map((f) => [f.key, str(src[f.key])]));
-    if (s.itemFields) {
-      const items = Array.isArray(src.items) ? src.items.slice(0, 50) : [];
-      section.items = items.map((it) =>
-        Object.fromEntries(s.itemFields!.map((f) => [f.key, str((it as Record<string, unknown>)?.[f.key], 2000)])),
-      );
-    }
-    out[s.key] = section;
-  }
-  return out;
 }
 
 export async function saveContent(siteId: string, content: Record<string, unknown>): Promise<SaveResult> {

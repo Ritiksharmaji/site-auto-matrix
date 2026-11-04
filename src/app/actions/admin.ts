@@ -9,7 +9,8 @@ import { isReservedSlug } from "@/lib/hosts";
 import { logActivity } from "@/lib/activity";
 import { db } from "@/lib/db";
 import { clientScope, DEFAULT_STAFF_PERMISSIONS, staffPermissions, type StaffPermissions } from "@/lib/permissions";
-import { getModule, initialSiteConfig } from "@/modules/registry";
+import { getModule } from "@/modules/registry";
+import { resolveSiteStart } from "@/lib/site-start";
 
 export type FormState = { error?: string; ok?: string };
 
@@ -23,8 +24,9 @@ const newClientSchema = z.object({
   email: z.string().trim().toLowerCase().email("Enter a valid email"),
   phone: z.string().trim().optional(),
   password: z.string().min(8, "Client password must be at least 8 characters"),
-  moduleKey: z.string(),
+  moduleKey: z.string().optional(),
   preset: z.string().optional(),
+  blueprint: z.string().optional(),
   slug: z.string().trim().toLowerCase().regex(slugRe, "Web address: lowercase letters, numbers and dashes only"),
 });
 
@@ -40,13 +42,14 @@ export async function createClient(_prev: FormState, formData: FormData): Promis
   if (user.role === "STAFF" && owned >= perms.maxClients) {
     return { error: `You have reached your limit of ${perms.maxClients} clients. Ask the admin to raise it.` };
   }
-  const mod = getModule(d.moduleKey);
-  if (!mod || !perms.allowedModules.includes(mod.key)) return { error: "You are not allowed to use this module." };
   if (isReservedSlug(d.slug)) return { error: "That web address is reserved." };
   if (await db.site.findUnique({ where: { slug: d.slug } })) return { error: "That web address is already taken." };
   if (await db.user.findUnique({ where: { email: d.email } })) return { error: "A login with this email already exists." };
 
-  const config = initialSiteConfig(mod, d.preset, d.name);
+  // Standard module + starting design (default), or a blueprint.
+  const config = await resolveSiteStart(d, perms.allowedModules, d.name);
+  if ("error" in config) return { error: config.error };
+  const mod = config.module;
   const passwordHash = await hashPassword(d.password);
 
   const client = await db.$transaction(async (tx) => {
@@ -70,7 +73,7 @@ export async function createClient(_prev: FormState, formData: FormData): Promis
     return c;
   });
 
-  await logActivity(user.id, "client.create", `${user.name} created client "${d.name}" (${mod.name})`);
+  await logActivity(user.id, "client.create", `${user.name} created client "${d.name}" (${config.label})`);
   revalidatePath("/admin");
   redirect(`/admin/clients/${client.id}`);
 }
@@ -113,19 +116,22 @@ export async function createSiteForClient(_prev: FormState, formData: FormData):
   const clientId = String(formData.get("clientId"));
   const name = String(formData.get("name") ?? "").trim();
   const slug = String(formData.get("slug") ?? "").trim().toLowerCase();
-  const moduleKey = String(formData.get("moduleKey") ?? "");
-  const preset = String(formData.get("preset") ?? "") || undefined;
+  const choice = {
+    moduleKey: String(formData.get("moduleKey") ?? ""),
+    preset: String(formData.get("preset") ?? "") || undefined,
+    blueprint: String(formData.get("blueprint") ?? "") || undefined,
+  };
 
   const client = await db.client.findFirst({ where: { id: clientId, ...clientScope(user) } });
   if (!client) return { error: "Client not found." };
-  const mod = getModule(moduleKey);
-  if (!mod || !staffPermissions(user).allowedModules.includes(mod.key)) return { error: "You are not allowed to use this module." };
   if (name.length < 2) return { error: "Website name is required." };
   if (!slugRe.test(slug)) return { error: "Web address: lowercase letters, numbers and dashes only." };
   if (isReservedSlug(slug)) return { error: "That web address is reserved." };
   if (await db.site.findUnique({ where: { slug } })) return { error: "That web address is already taken." };
 
-  const config = initialSiteConfig(mod, preset, name);
+  const config = await resolveSiteStart(choice, staffPermissions(user).allowedModules, name);
+  if ("error" in config) return { error: config.error };
+  const mod = config.module;
   const site = await db.site.create({
     data: {
       clientId,
@@ -137,7 +143,7 @@ export async function createSiteForClient(_prev: FormState, formData: FormData):
       content: config.content as Prisma.InputJsonValue,
     },
   });
-  await logActivity(user.id, "site.create", `${user.name} created website "${name}" for ${client.name}`);
+  await logActivity(user.id, "site.create", `${user.name} created website "${name}" for ${client.name} (${config.label})`);
   redirect(`/admin/sites/${site.id}`);
 }
 

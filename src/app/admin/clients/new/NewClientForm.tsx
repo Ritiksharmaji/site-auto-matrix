@@ -2,15 +2,23 @@
 
 import { useActionState, useState } from "react";
 import { createClient, type FormState } from "@/app/actions/admin";
-import ModulePicker from "@/components/admin/ModulePicker";
+import type ModulePicker from "@/components/admin/ModulePicker";
+import WebsiteStartPicker from "@/components/admin/WebsiteStartPicker";
+import type { BlueprintOption } from "@/lib/blueprint-options";
 
-type Props = { modules: Parameters<typeof ModulePicker>[0]["modules"]; platformHost: string };
+type Props = {
+  modules: Parameters<typeof ModulePicker>[0]["modules"];
+  platformHost: string;
+  blueprints: BlueprintOption[];
+  categories: { key: string; label: string }[];
+  initialBlueprint?: string;
+};
 
 function toSlug(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
 }
 
-export default function NewClientForm({ modules, platformHost }: Props) {
+export default function NewClientForm({ modules, platformHost, blueprints, categories, initialBlueprint }: Props) {
   const [state, action, pending] = useActionState<FormState, FormData>(createClient, {});
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
@@ -52,7 +60,7 @@ export default function NewClientForm({ modules, platformHost }: Props) {
 
       <section className="card space-y-4">
         <h2 className="font-semibold text-slate-900">3. Website</h2>
-        <ModulePicker modules={modules} />
+        <WebsiteStartPicker modules={modules} blueprints={blueprints} categories={categories} initialBlueprint={initialBlueprint} />
         <div>
           <label className="label" htmlFor="slug">Web address</label>
           <div className="flex items-center">

@@ -25,7 +25,11 @@ export type SectionKind =
   | "testimonials"
   | "products"
   | "faq"
-  | "contact";
+  | "contact"
+  | "pricing"
+  | "code"
+  | "logos"
+  | "cta";
 
 export type SectionDef = {
   key: string;
@@ -69,7 +73,7 @@ export type SectionContent = Record<string, string | SectionItem[]> & {
 export type FontOption = { name: string; css: string };
 
 export type ThemeStyle = "classic" | "modern" | "minimal";
-export type HeroLayout = "centered" | "split";
+export type HeroLayout = "centered" | "split" | "split-reverse" | "background";
 export type Radius = "none" | "sm" | "md" | "lg" | "full";
 
 export type Theme = {
@@ -84,7 +88,25 @@ export type Theme = {
   radius: Radius;
   style: ThemeStyle;
   heroLayout: HeroLayout;
+  // Page structure (all optional; when missing the site looks exactly as before).
+  /** Header bar: "auto" follows the layout style. */
+  header?: HeaderStyle;
+  /** Header stays at the top while scrolling (default true). */
+  headerSticky?: boolean;
+  /** Show a button in the header linking to the contact section. */
+  headerCta?: boolean;
+  footer?: FooterStyle;
+  spacing?: Spacing;
+  /** "auto" follows the layout style. */
+  buttonStyle?: ButtonStyle;
+  /** Per-section layout variant, keyed by section key (see SECTION_VARIANTS). */
+  variants?: Record<string, string>;
 };
+
+export type HeaderStyle = "auto" | "simple" | "centered" | "transparent" | "none";
+export type FooterStyle = "columns" | "simple" | "none";
+export type Spacing = "compact" | "normal" | "airy";
+export type ButtonStyle = "auto" | "solid" | "outline" | "soft";
 
 export type ThemePreset = { key: string; label: string; theme: Omit<Theme, "preset"> };
 

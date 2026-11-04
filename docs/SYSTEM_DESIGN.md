@@ -201,10 +201,13 @@ siteScope(user)  → sites whose client is inside clientScope(user)
 | See all clients | ✅ | ⚠️ only clients they own | ❌ |
 | Create client | ✅ unlimited | ⚠️ up to `maxClients` | ❌ |
 | Choose any module | ✅ | ⚠️ `allowedModules` only | ❌ |
+| Blueprints page, previews, "Use for new client" | ✅ all | ⚠️ blueprints of `allowedModules` only | ❌ redirected |
+| Save a site as a blueprint | ✅ | ✅ own clients' sites | ❌ |
+| Delete a saved blueprint | ✅ any | ⚠️ only ones they saved | ❌ |
 | Reassign a client to another member | ✅ | ❌ | ❌ |
 | Delete client | ✅ | ⚠️ if `canDeleteClients` | ❌ |
 | Create client logins | ✅ | ✅ own clients | ❌ |
-| Website builder: sections, design, automation, settings | ✅ | ✅ own clients | ❌ |
+| Website builder: sections, design (incl. page structure and section layouts), automation, settings | ✅ | ✅ own clients | ❌ |
 | Edit website **content** (text and images) | ✅ | ✅ own clients | ✅ own site |
 | Publish or unpublish | ✅ | ⚠️ if `canPublish` | ❌ |
 | Upload images | ✅ | ✅ own clients' sites | ✅ own site |
@@ -243,11 +246,24 @@ flowchart LR
     SR --> HTML[HTML + CSS variables]
 ```
 
-- **Section kinds** (the shared building blocks): `hero`, `about`, `stats`, `cards`, `list`, `gallery`, `testimonials`, `products`, `faq`, `contact`.
+- **Section kinds** (the shared building blocks): `hero`, `about`, `stats`, `cards`, `list`, `gallery`, `testimonials`, `products`, `faq`, `contact`, plus four added for developer-first sites: `pricing` (plans with a highlighted one), `code` (terminal / editor snippet next to text), `logos` (customer or integration names) and `cta` (closing call-to-action band).
 - **Section order is per site.** `enabledSections` is an ordered list. The renderer and the content editor follow it, and the builder's Sections tab has ↑ ↓ controls.
 - **Extra form questions.** A `contact` section can declare `formFields` (`text`, `url` or `select`). A `select` can take its options from another section's item titles (`optionsFromSection`), which is how the Company form's "Service interested in" list follows the site's own services. Answers are stored in `Enquiry.extra` as `[{label, value}]`. The server only keeps questions defined for that form.
 - **Modules** combine these kinds with their own labels, fields and default text. For example, the University module turns `cards` into "Departments", "Programs" and "Research".
 - **Defaults merge:** content saved in the database overrides the defaults field by field. A new site therefore looks complete immediately, and adding a section later never breaks existing sites.
+- **Page structure lives in the theme too** (all optional, so older sites keep their exact look; verified pixel-for-pixel against the committed demo screenshots):
+
+  | Theme key | Values | Default (original look) |
+  |---|---|---|
+  | `header` | `auto`, `simple`, `centered`, `transparent` (over the hero), `none` | `auto` (follows the style) |
+  | `headerSticky` / `headerCta` | booleans: header stays on top / button to the contact section | `true` / `false` |
+  | `footer` | `columns`, `simple`, `none` | `columns` |
+  | `spacing` | `compact` (52px), `normal` (80px), `airy` (112px) section padding | `normal` |
+  | `buttonStyle` | `auto`, `solid`, `outline`, `soft` | `auto` (follows the style) |
+  | `heroLayout` | `centered`, `split`, `split-reverse`, `background` (full-width image) | module preset |
+  | `variants` | `{ [sectionKey]: variant }` per-section layout, see below | first variant of each kind |
+
+  Section layout variants (`SECTION_VARIANTS` in `src/modules/shared.ts`): about `image-left / image-right / centered`; stats `band / cards`; cards `grid / list / alternating`; list `cards / timeline`; gallery `grid / wide`; testimonials `grid / single`; faq `accordion / two-column`; contact `split / centered`; code `terminal / editor`; logos `row / grid`; cta `band / card`. `cleanTheme()` (`src/modules/theme.ts`) validates every key and drops variants a section kind doesn't support. It's shared by the builder, built-in blueprints and saved blueprints.
 - **Theme to CSS variables:** `--primary`, `--secondary`, `--bg`, `--surface`, `--text`, `--radius`, `--heading-font` and `--body-font`. The style (`classic`, `modern` or `minimal`) is a class on the root. Fonts load from Google Fonts. Card and image radius is capped at 24px, so "Pill" never makes photos oval.
 - **Adding an industry** (e.g. Hospital) means writing one file `src/modules/hospital.ts` and adding it to `registry.ts`. No migration is needed.
 
@@ -257,6 +273,39 @@ flowchart LR
 | University | hero, about, stats, departments, programs, admissions, research, placements, events, gallery, testimonials, contact |
 | Company | hero, about, stats, services, portfolio, team, testimonials, whyus, faq, careers, contact |
 | Shop | hero, offers, products, about, gallery, testimonials, contact |
+| Tech / SaaS / DevOps | hero, logos, features, code, stats, howitworks, integrations, pricing, testimonials, docs, about, changelog, faq, cta, contact |
+
+### 6.1 Blueprints (ready-made websites)
+
+A **blueprint** is a complete website you clone: module + ordered sections + full theme (including page structure and section variants) + finished demo content + artwork. The client only swaps text and images. It sits *on top of* modules, so the standard way (module + preset) is unchanged and remains the default in the "New client" form.
+
+```mermaid
+flowchart LR
+    subgraph Sources
+        BI["Built-in blueprints<br/>src/blueprints/*.ts (29)"]
+        SB[("SavedBlueprint rows<br/>'Save as blueprint'")]
+    end
+    BI & SB --> SRC["BlueprintSource<br/>moduleKey, theme, sections, brand, content"]
+    SRC --> APPLY["blueprintSiteConfig()<br/>module defaults ∪ blueprint<br/>→ cleanTheme + sanitizeContent"]
+    APPLY --> NEW["New Site row<br/>(same shape as any site)"]
+    APPLY --> PREV["/blueprint-preview/[key]<br/>staff-only live preview"]
+```
+
+| Category | Count | Blueprints |
+|---|---|---|
+| Tech / DevOps (`tech` module) | 10 | ShipCrate (container registry), Helmsman (Kubernetes), PipeRocket (CI/CD), NimbusHost (cloud/VPS hosting), Relay (API platform), forgekit (open-source CLI), Pulsewatch (monitoring), Sentinel Scan (DevSecOps), Metricly (SaaS analytics), OpsCraft (DevOps agency) |
+| Business / Agency (`company`) | 5 | Northstar consulting, Pixel & Pine creative agency, Mehta & Associates law/CA, BuildRight construction, CarePlus clinic |
+| Shop / E-commerce (`shop`) | 5 | Loom & Lane fashion, Daily Fresh grocery, Gadget Galaxy electronics, Bean & Brew café, Bloom gifts & florist |
+| School (`school`) | 3 | Little Sprouts pre-school, Greenfield K-12, St. Mary's heritage school |
+| University / Coaching (`university`) | 3 | Apex engineering college, Vidya business school, BrightPath coaching |
+| Custom starters | 3 | Blank landing page, Blank business site, Single-screen page (no header) |
+
+- **Applying** (`src/blueprints/index.ts`): start from `initialSiteConfig(module)`, overlay the blueprint's brand and section content (items replace the default list), keep its section order (required sections are appended), then run the same validation as the builder (`cleanTheme`, `sanitizeContent`). The result is an ordinary `Site`; later edits never touch the blueprint.
+- **Choosing** (`src/lib/site-start.ts`): both "New client" and "Add another website" post either `moduleKey + preset` (standard) or `blueprint` (`tech-…` or `saved:<id>`). `allowedModules` is enforced for both.
+- **Saved blueprints**: the Design tab's *Save this website as a blueprint* copies the saved site's sections, theme and content into `SavedBlueprint`. Brand contact details (phone, email, address, WhatsApp, logo) are cleared so one client's details never leak into another site.
+- **Artwork** (`src/lib/art.ts`, `GET /api/art/{hero|photo|icon|avatar}`): branded SVG illustrations generated from the blueprint's colours (`a`, `b`), a glyph (`g`), a scene and a seed. URLs are relative, so they work on every client domain, are cacheable for a week, and are served with a locked-down CSP. Clients replace them with real photos in the Content tab.
+- **Quality gate**: `npm run check:blueprints` checks every blueprint's module, sections, field names, item fields, theme and variants (anything the builder would silently drop is an error).
+- **Adding a blueprint** = one object in the right `src/blueprints/<category>.ts` file, then `npm run check:blueprints`. No migration.
 
 ---
 
@@ -276,6 +325,7 @@ erDiagram
     Enquiry ||--o{ Notification : triggers
     User ||--o{ Enquiry : "assigned to"
     User ||--o{ Activity : performs
+    User ||--o{ SavedBlueprint : saves
 
     User {
         string id PK
@@ -328,6 +378,15 @@ erDiagram
         InvoiceStatus status
         datetime lastReminderAt
     }
+    SavedBlueprint {
+        string id PK
+        string name
+        string moduleKey
+        json enabledSections
+        json theme
+        json content "contact details cleared"
+        string createdById FK
+    }
     PageView {
         string siteId FK
         string path
@@ -342,7 +401,7 @@ erDiagram
 - **Money in paise.** Amounts are stored as integers, so there are no floating-point rounding errors.
 - **Indexes** on `ownerId`, `siteId`, `status` and `createdAt` support the scoped list queries.
 
-Migrations live in `prisma/migrations/`: `init`, `phase2_automation_crm_uploads`, `phase3_billing_analytics` and `enquiry_extra_fields`.
+Migrations live in `prisma/migrations/`: `init`, `phase2_automation_crm_uploads`, `phase3_billing_analytics`, `enquiry_extra_fields` and `saved_blueprints`.
 
 ---
 
@@ -450,7 +509,9 @@ flowchart TD
 | Brute-force or guessed passwords | bcrypt hashing; the error message doesn't say whether the email exists |
 | Malicious uploads | Magic-byte detection, no SVG, 5 MB cap, `nosniff` |
 | CSV formula injection | Cells starting with `= + - @` are prefixed with `'` in the export |
-| Unsafe links in content | Card button links only allow `http(s)`, `mailto:`, `tel:`, `#` and `/` |
+| Unsafe links in content | Card, hero, pricing, code and CTA button links only allow `http(s)`, `mailto:`, `tel:`, `#` and `/` |
+| Generated artwork | `/api/art` only accepts 6-digit hex colours and known glyph names, draws no user text, and is served with `Content-Security-Policy: default-src 'none'` |
+| Blueprint data leaking between clients | Saved blueprints drop brand contact details; previews and the gallery are staff-only and filtered by `allowedModules` |
 | Enquiry spam | Hidden honeypot field `company_website`; zod length limits; email or phone required |
 | Cron abuse | Bearer `CRON_SECRET` is required |
 | Secrets in git | `.env*` is ignored; only `.env.example` is committed |
@@ -465,19 +526,22 @@ src/
 ├─ middleware.ts            host routing + session gate
 ├─ app/
 │  ├─ login/                sign-in page
-│  ├─ admin/                Super Admin + Team panel
+│  ├─ admin/                Super Admin + Team panel (incl. blueprints/ gallery)
+│  ├─ blueprint-preview/    staff-only full preview of a blueprint
 │  ├─ portal/               Client portal
 │  ├─ sites/[site]/         public website, sitemap.xml, robots.txt
-│  ├─ actions/              server actions (auth, admin, site, enquiry, crm, billing)
-│  └─ api/                  uploads, track, enquiries/export, cron/billing
+│  ├─ actions/              server actions (auth, admin, site, enquiry, crm, billing, blueprints)
+│  └─ api/                  uploads, track, enquiries/export, cron/billing, art, caddy/ask
 ├─ components/
 │  ├─ site/                 SiteRenderer, EnquiryForm, PageViewTracker
 │  ├─ builder/              SiteBuilder, ContentEditor, AnalyticsPanel
 │  ├─ admin/  crm/  billing/
 ├─ lib/                     auth, session, permissions, notify, billing, analytics, uploads …
-└─ modules/                 school, university, company, shop, shared, registry
+├─ modules/                 school, university, company, shop, tech, shared, theme, content, registry
+└─ blueprints/              tech, business, shop, education, custom, kit, index
 prisma/                     schema.prisma, migrations/, seed.ts
 scripts/screenshots.ts      regenerates every image in docs/screenshots
+scripts/check-blueprints.ts validates every blueprint against its module
 ```
 
 ---
@@ -522,4 +586,42 @@ Steps, in order:
 - Each website is a single page; multi-page sites (separate About and Contact pages) are on the roadmap.
 - Email and WhatsApp need real provider credentials before alerts go out. Until then they are **LOGGED**.
 - `submitEnquiry` checks that the site exists but not that it is published. Draft sites aren't public, so this is low risk, but a status check should be added.
-- More modules are planned: Hospital, Restaurant, Coaching institute and Real-estate.
+- More modules are planned: Hospital, Restaurant and Real-estate (coaching institutes are covered by the BrightPath blueprint on the University module).
+- Blueprint artwork is generated illustration, not photography. It looks finished, but real client photos should replace it before launch.
+- **Code mode** (fully custom, hand-coded sites) is designed below but not built. See §18.
+
+---
+
+## 18. Phase 2 design: Code mode (custom-coded websites), not built yet
+
+> **Status: planned, documentation only.** Nothing in this section exists in the code yet. It records the agreed direction so it can be built in a later phase.
+
+**Why.** Some customers want a fully custom website that no module or blueprint can express (custom animations, extra pages, a bespoke design system). The team should be able to **write that site as code in VS Code**, deploy it on the same platform and domain setup, and still give the client the platform's enquiry inbox, automation, analytics and billing.
+
+**Idea.** A site gets a `renderMode`: `config` (today: module/blueprint) or `code`. A code site is a separate small web project (e.g. Next.js, Astro or plain HTML) kept in its own Git repository and built into its own container. Caddy routes its host to that container instead of the shared renderer. The platform stays the system of record for the client, domain, enquiries and billing.
+
+```mermaid
+flowchart LR
+    DEV["Developer in VS Code<br/>repo: site-SLUG"] -->|git push| CI["CI build<br/>(GitHub Actions)"]
+    CI -->|image| REG[(Container registry)]
+    REG --> HOST["Server: docker compose<br/>site-SLUG container"]
+    V[Visitor] --> CADDY[Caddy] -->|"host = SLUG.onekampus.com<br/>renderMode = code"| HOST
+    CADDY -->|renderMode = config| APP[Platform app / SiteRenderer]
+    HOST -->|"POST /api/public/enquiries<br/>(site key)"| APP
+    HOST -->|"POST /api/track"| APP
+    APP --> PG[(PostgreSQL)]
+```
+
+Planned pieces (for the later phase):
+
+| Piece | Plan |
+|---|---|
+| Data | `Site.renderMode` (`config` \| `code`), `Site.codeRepo` (Git URL), `Site.codeImage` (image tag), `Site.publicKey` (for form posts) |
+| Starter kit | `create-onekampus-site` template repo: Next.js + Tailwind, an `<EnquiryForm siteKey>` component and a tracking snippet, so code sites still feed the CRM |
+| Public API | `POST /api/public/enquiries` (site key + honeypot + rate limit) → the same `submitEnquiry` pipeline, so email/WhatsApp alerts and auto-replies work unchanged |
+| Routing | Caddy `ask` stays the same; a generated Caddy snippet maps code-site hosts to `site-<slug>:3000`; everything else falls through to the platform app |
+| Deploy | CI builds an image per push to `main`; a `deploy-site.sh <slug> <tag>` pulls and restarts only that container. Preview URLs per branch are a later extra |
+| Builder | Code sites show only Settings, Automation, Enquiries and Analytics tabs; Sections, Design and Content are replaced by "Edited in code: open repository" |
+| Limits | Each code site costs memory (~100–150 MB per Node container). The current 1 GB server fits only a few; move to a 2–4 GB plan or serve static exports via Caddy before offering this widely |
+
+Until then, the closest option is a **Custom starter** blueprint plus the Design tab (header, sections, layouts, style), which covers most "custom look" requests without code.

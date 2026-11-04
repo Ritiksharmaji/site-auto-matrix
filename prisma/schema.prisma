@@ -56,27 +56,28 @@ enum DeliveryStatus {
 }
 
 model User {
-  id                String        @id @default(cuid())
+  id                String           @id @default(cuid())
   name              String
-  email             String        @unique
+  email             String           @unique
   passwordHash      String
   role              Role
-  isActive          Boolean       @default(true)
+  isActive          Boolean          @default(true)
   /// Staff limits: { maxClients, canPublish, canDeleteClients, allowedModules }
-  permissions       Json          @default("{}")
+  permissions       Json             @default("{}")
   /// Set for CLIENT users: the business they belong to
   clientId          String?
-  client            Client?       @relation("ClientUsers", fields: [clientId], references: [id], onDelete: Cascade)
+  client            Client?          @relation("ClientUsers", fields: [clientId], references: [id], onDelete: Cascade)
   createdById       String?
-  createdBy         User?         @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  createdUsers      User[]        @relation("UserCreatedBy")
-  clientsOwned      Client[]      @relation("ClientOwner")
+  createdBy         User?            @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdUsers      User[]           @relation("UserCreatedBy")
+  clientsOwned      Client[]         @relation("ClientOwner")
   activity          Activity[]
-  assignedEnquiries Enquiry[]     @relation("EnquiryAssignee")
+  assignedEnquiries Enquiry[]        @relation("EnquiryAssignee")
   enquiryNotes      EnquiryNote[]
   uploads           Asset[]
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  savedBlueprints   SavedBlueprint[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 }
 
 model Client {
@@ -240,4 +241,22 @@ model PageView {
   createdAt   DateTime @default(now())
 
   @@index([siteId, createdAt])
+}
+
+/// A website design saved by the team with "Save as blueprint", reusable for new sites.
+model SavedBlueprint {
+  id              String   @id @default(cuid())
+  name            String
+  description     String   @default("")
+  moduleKey       String
+  /// Ordered list of enabled section keys
+  enabledSections Json     @default("[]")
+  theme           Json     @default("{}")
+  /// Section content (brand contact details are not kept)
+  content         Json     @default("{}")
+  createdById     String?
+  createdBy       User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt       DateTime @default(now())
+
+  @@index([moduleKey])
 }

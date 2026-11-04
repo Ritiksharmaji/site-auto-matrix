@@ -5,6 +5,8 @@ This guide explains, step by step, how the platform works: who uses it, what eac
 - Every step has a **real screenshot** of the running app. All screenshots are in [`docs/screenshots/`](./screenshots).
 - For the technical architecture, see [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md).
 - **Roles and permissions, proven screen by screen:** [§17](#17-roles-and-permissions-proven-with-screenshots).
+- **Ready-made websites (blueprints) and the page-structure designer:** [§6B](#6b-starting-from-a-blueprint-ready-made-websites) and [§7 Step 2](#step-2--design).
+- **Planned next phase (Code mode, fully custom sites written in VS Code):** [§19](#19-planned-phase-2-code-mode-not-built-yet).
 
 ---
 
@@ -50,14 +52,21 @@ flowchart LR
 **Key idea:** a website is not code — it is a *configuration* stored in the database:
 
 ```
-Website = module (School / University / Company / Shop)
-        + enabled sections (which parts are switched on)
-        + theme (colours, fonts, layout style)
+Website = module (School / University / Company / Shop / Tech)
+        + enabled sections (which parts are switched on, in order)
+        + theme (colours, fonts, layout style, header/footer, section layouts)
         + content (text, images, lists)
         + automation settings (who gets alerts, auto-reply text)
 ```
 
 The same rendering code reads that configuration and produces a completely different website for each client.
+
+There are **two ways to start a new website**, and both produce the same kind of configuration:
+
+| Way | What you pick | Best for |
+|---|---|---|
+| **Standard** (default, unchanged) | A module + one of its 3 starting designs | Building a site from the module's sample content |
+| **Blueprint** (new) | One of 29 ready-made websites, or one your team saved | "Clone and change the text and images": a finished design per business type |
 
 ---
 
@@ -70,6 +79,8 @@ The same rendering code reads that configuration and produces a completely diffe
 | Dashboard | Platform totals, team performance, activity log | Their own totals + their limits | Their websites, views, new enquiries |
 | Create clients | ✅ unlimited | ✅ up to their **max clients** limit | ❌ |
 | Modules allowed | All | Only modules you allow | — |
+| Blueprints (ready-made sites) | All | Only blueprints of their allowed modules | ❌ |
+| Save a site as a blueprint | ✅ | ✅ (own clients' sites) | ❌ |
 | Sections / design / settings | ✅ | ✅ | ❌ |
 | Edit website content | ✅ | ✅ | ✅ (own sites only) |
 | Publish website | ✅ | Only if you allow **Can publish** | ❌ |
@@ -210,7 +221,7 @@ Done by the Super Admin or a Team Member: **Clients → + New client**. One form
 ```mermaid
 flowchart TD
     A[1. Business details<br/>name, contact person, phone] --> B[2. Client login<br/>email + password]
-    B --> C[3. Website<br/>choose module + starting design + web address]
+    B --> C[3. Website<br/>Standard: module + starting design<br/>or Blueprint: a ready-made site<br/>+ web address]
     C --> D{Checks}
     D -->|Team member over max clients| X1[Error: limit reached]
     D -->|Module not allowed| X2[Error: not allowed]
@@ -219,12 +230,14 @@ flowchart TD
     D -->|All OK| E[Save in one transaction]
     E --> E1[Client record<br/>owner = the person who created it]
     E --> E2[Client login user<br/>role = CLIENT]
-    E --> E3[Website record<br/>status = DRAFT<br/>default sections, preset theme,<br/>module's sample content]
+    E --> E3[Website record<br/>status = DRAFT<br/>Standard: default sections, preset theme, module sample content<br/>Blueprint: its sections, order, design, content and images]
     E1 & E2 & E3 --> F[Activity log entry]
     F --> G[Open the client page]
 ```
 
-The new website already looks complete because each module ships with sample text for every section. It stays a **Draft** (not public) until it is published.
+Part 3 asks **"How do you want to start?"**. **Standard (module + design)** is selected by default and works exactly as before. **From a blueprint** is the second option (see [§6B](#6b-starting-from-a-blueprint-ready-made-websites)).
+
+The new website already looks complete: modules ship with sample text for every section, and blueprints ship with finished text and artwork. It stays a **Draft** (not public) until it is published.
 
 From the client page you can also:
 - **Add another website** for the same client.
@@ -239,7 +252,7 @@ From the client page you can also:
 
 *All clients (Super Admin view)*
 
-**Step 2: New client, empty form.** The Super Admin sees all 4 modules.
+**Step 2: New client, empty form.** "Standard" is selected by default, and the Super Admin sees all 5 modules.
 
 ![New client form](screenshots/02-super-admin/03-client-new.png)
 
@@ -273,6 +286,126 @@ From the client page you can also:
 
 *Once a team member reaches their max-clients limit, creating another client is refused*
 
+
+---
+
+## 6B. Starting from a blueprint (ready-made websites)
+
+A **blueprint** is a complete, finished website for one type of business: design, header, section order, section layouts, text and branded images. Choose one, and the new client's website is a copy of it; then you only change the content and images. The original blueprint never changes.
+
+```mermaid
+flowchart TD
+    G["Blueprints page<br/>(sidebar → Blueprints)"] -->|Preview ↗| P["Full live preview<br/>/blueprint-preview/key"]
+    G -->|Use for new client| N["New client form<br/>blueprint already selected"]
+    NC["New client form"] -->|"How do you want to start?<br/>→ From a blueprint"| N
+    N --> CHK{"Checks<br/>module allowed? address free? email free?"}
+    CHK -->|OK| S["Website created as a copy:<br/>sections + order, design, page structure,<br/>section layouts, text, images.<br/>Site name = the client's name"]
+    S --> B["Builder: change text and images<br/>(Content tab), tweak design (Design tab)"]
+    B --> SAVE["★ Save this website as a blueprint<br/>(optional, for the team)"]
+    SAVE --> G
+```
+
+**29 built-in blueprints in 6 categories** (each has its own look, not just new colours):
+
+| Category | Blueprint | Style | Screenshot |
+|---|---|---|---|
+| Tech / DevOps | ShipCrate – Container registry | Docker, Dark, Pricing | [view](screenshots/05-blueprints/04-preview-tech-container-registry.jpg) |
+| Tech / DevOps | Helmsman – Kubernetes platform | Kubernetes, Light, Timeline | [view](screenshots/05-blueprints/05-preview-tech-kubernetes.jpg) |
+| Tech / DevOps | PipeRocket – CI/CD pipelines | CI/CD, Integrations, Bold | [view](screenshots/05-blueprints/06-preview-tech-cicd.jpg) |
+| Tech / DevOps | NimbusHost – Cloud & VPS hosting | Hosting, VPS, Pricing | [view](screenshots/05-blueprints/07-preview-tech-cloud-hosting.jpg) |
+| Tech / DevOps | Relay – API platform | API, Dark, Docs | [view](screenshots/05-blueprints/08-preview-tech-api-platform.jpg) |
+| Tech / DevOps | Forgekit – Open-source CLI | Open source, Minimal, CLI | [view](screenshots/05-blueprints/09-preview-tech-open-source-cli.jpg) |
+| Tech / DevOps | Pulsewatch – Monitoring & observability | Monitoring, Dashboard, SaaS | [view](screenshots/05-blueprints/10-preview-tech-monitoring.jpg) |
+| Tech / DevOps | Sentinel Scan – DevSecOps security | Security, Dark, Terminal | [view](screenshots/05-blueprints/11-preview-tech-devsecops.jpg) |
+| Tech / DevOps | Metricly – SaaS analytics | SaaS, Startup, Light | [view](screenshots/05-blueprints/12-preview-tech-saas-analytics.jpg) |
+| Tech / DevOps | OpsCraft – DevOps consultancy | Agency, Services, Process | [view](screenshots/05-blueprints/13-preview-tech-devops-agency.jpg) |
+| Business / Agency | Northstar – Strategy consulting | Consulting, Elegant, Serif | [view](screenshots/05-blueprints/14-preview-business-consulting.jpg) |
+| Business / Agency | Pixel & Pine – Creative agency | Agency, Portfolio, Colourful | [view](screenshots/05-blueprints/15-preview-business-creative-agency.jpg) |
+| Business / Agency | Mehta & Associates – Law / CA firm | Legal, Classic, Serif | [view](screenshots/05-blueprints/16-preview-business-law-firm.jpg) |
+| Business / Agency | BuildRight – Construction & interiors | Construction, Projects, Bold | [view](screenshots/05-blueprints/17-preview-business-construction.jpg) |
+| Business / Agency | CarePlus – Clinic & healthcare | Healthcare, Clinic, Soft | [view](screenshots/05-blueprints/18-preview-business-clinic.jpg) |
+| Shop / E-commerce | Loom & Lane – Fashion boutique | Fashion, Boutique, Elegant | [view](screenshots/05-blueprints/19-preview-shop-fashion.jpg) |
+| Shop / E-commerce | Daily Fresh – Grocery & kirana | Grocery, Local, Bright | [view](screenshots/05-blueprints/20-preview-shop-grocery.jpg) |
+| Shop / E-commerce | Gadget Galaxy – Electronics store | Electronics, Dark, Modern | [view](screenshots/05-blueprints/21-preview-shop-electronics.jpg) |
+| Shop / E-commerce | Bean & Brew – Café & bakery | Café, Bakery, Warm | [view](screenshots/05-blueprints/22-preview-shop-cafe-bakery.jpg) |
+| Shop / E-commerce | Bloom – Gifts & florist | Gifts, Flowers, Soft | [view](screenshots/05-blueprints/23-preview-shop-gifts-florist.jpg) |
+| School | Little Sprouts – Pre-school | Pre-school, Playful, Colourful | [view](screenshots/05-blueprints/24-preview-school-preschool.jpg) |
+| School | Greenfield – K-12 public school | K-12, CBSE, Complete | [view](screenshots/05-blueprints/25-preview-school-k12.jpg) |
+| School | St. Mary's – Heritage convent school | Heritage, Serif, Traditional | [view](screenshots/05-blueprints/26-preview-school-heritage.jpg) |
+| University / Coaching | Apex – Engineering college | Engineering, Placements, Research | [view](screenshots/05-blueprints/27-preview-university-engineering.jpg) |
+| University / Coaching | Vidya – Business school (MBA) | MBA, Premium, Serif | [view](screenshots/05-blueprints/28-preview-university-business-school.jpg) |
+| University / Coaching | BrightPath – Coaching institute | Coaching, Results, Bold | [view](screenshots/05-blueprints/29-preview-university-coaching.jpg) |
+| Custom starters | Blank landing page | Blank, One page | [view](screenshots/05-blueprints/30-preview-custom-landing.jpg) |
+| Custom starters | Blank business site | Blank, Business | [view](screenshots/05-blueprints/31-preview-custom-business.jpg) |
+| Custom starters | Single-screen page (no header) | Blank, Campaign | [view](screenshots/05-blueprints/32-preview-custom-no-header.jpg) |
+
+Tech blueprints use the new **Tech / SaaS / DevOps** module. Its developer-first sections are: trusted-by logos, features, **code / terminal quick start**, key numbers, how it works, integrations, **pricing plans**, testimonials, docs links, about, **changelog**, FAQs, a **call-to-action band** and a demo-request form.
+
+**Step 1: Open Blueprints.** Use the category chips to filter. Each card shows a live thumbnail, the colours, the module and tags.
+
+![Blueprints gallery: all categories](screenshots/05-blueprints/01-gallery-all.png)
+
+*Blueprints gallery: all categories*
+
+![Tech / DevOps: 10 blueprints (Docker, Kubernetes, CI/CD, hosting, API, open-source CLI, monitoring, security, SaaS, DevOps agency)](screenshots/05-blueprints/02-gallery-tech.png)
+
+*Tech / DevOps: 10 blueprints (Docker, Kubernetes, CI/CD, hosting, API, open-source CLI, monitoring, security, SaaS, DevOps agency)*
+
+**Step 2: Preview.** "Preview ↗" opens the whole website as a visitor would see it, with a bar on top: **← All blueprints** and **Use for a new client**.
+
+![Preview: ShipCrate container registry](screenshots/05-blueprints/04-preview-tech-container-registry.jpg)
+
+*Preview: ShipCrate container registry*
+
+Complete pages, top to bottom:
+
+| Tech (ShipCrate) | Business (BuildRight) | School (Greenfield) |
+|---|---|---|
+| ![ShipCrate full page](screenshots/05-blueprints/33-full-tech-container-registry.jpg) | ![BuildRight full page](screenshots/05-blueprints/34-full-business-construction.jpg) | ![Greenfield full page](screenshots/05-blueprints/35-full-school-k12.jpg) |
+
+**Custom starters** are bare starting points (neutral colours, few sections) for designing your own layout in the Design tab. One has **no header at all**, for campaign pages.
+
+![Custom starters](screenshots/05-blueprints/03-gallery-custom.png)
+
+*Custom starters*
+
+**Step 3: New client, two ways.** The standard way is still the default:
+
+![New client: Standard (module + design) is selected by default](./screenshots/05-blueprints/36-new-client-standard-default.png)
+
+*New client: Standard (module + design) is selected by default*
+
+Clicking **Use for new client** on a blueprint opens the same form with **From a blueprint** chosen and that blueprint selected. You can also switch to "From a blueprint" yourself and pick by category.
+
+![New client from a blueprint (Helmsman – Kubernetes platform selected)](./screenshots/05-blueprints/37-new-client-from-blueprint.png)
+
+*New client from a blueprint (Helmsman – Kubernetes platform selected)*
+
+**Step 4: Saved.** The client, their login and a **Draft** website copied from the blueprint are created together. The site name in the header and footer becomes the client's business name.
+
+![Client created from a blueprint](./screenshots/05-blueprints/38-client-created-from-blueprint.png)
+
+*Client created from a blueprint*
+
+![Builder: the new site already looks finished; change text and images in Content](./screenshots/05-blueprints/39-builder-blueprint-site.png)
+
+*Builder: the new site already looks finished; change text and images in Content*
+
+**Step 5 (optional): Save your own blueprint.** When a client's site turns out well, open its **Design** tab → **★ Save this website as a blueprint**. The team can then reuse it from **Blueprints → Saved by the team**. The client's phone, email, address, WhatsApp and logo are **not** copied. Only the person who saved it, or the Super Admin, can delete it; sites already made from it are not affected.
+
+![Save this website as a blueprint](./screenshots/05-blueprints/42-save-as-blueprint.png)
+
+*Save this website as a blueprint*
+
+![Saved by the team, with Delete for the person who saved it](./screenshots/05-blueprints/43-gallery-saved-by-team.png)
+
+*Saved by the team, with Delete for the person who saved it*
+
+What is checked on the server:
+- the blueprint's module must be in the team member's **allowed modules** (same rule as the standard way)
+- web address and login email must be free; reserved names are refused
+- the blueprint's design and content go through the same validation as the builder, so a blueprint can never store anything the builder couldn't
+
 ---
 
 ## 7. Building the website (the builder)
@@ -302,6 +435,7 @@ Switch parts of the website on or off, and use **↑ ↓** to set the order they
 | University | Hero, About, Key numbers, Departments, Programs, Admissions form, Research, Placements, News & events, Campus gallery, Alumni, Contact |
 | Company | Hero, About, Key numbers, Services, Portfolio, Team, Testimonials, **Why choose us**, **FAQs**, Careers, Contact / quote form |
 | Shop | Hero, Offers, Products, About, Gallery, Customer reviews, Contact |
+| Tech / SaaS / DevOps | Hero, Trusted by (logos), Features, Code / quick start, Key numbers, How it works, Integrations, Pricing, Testimonials, Docs & resources, About, Changelog, FAQs, Call-to-action band, Contact / demo request |
 
 Sections marked *required* (e.g. Hero, Contact) cannot be switched off.
 
@@ -314,14 +448,50 @@ Sections marked *required* (e.g. Hero, Contact) cannot be switched off.
 - **Colours**: primary, accent, background, section background, text
 - **Fonts**: heading font and body font (10 Google Fonts)
 - **Layout style**: Classic (solid header, bordered cards), Modern (gradient hero, shadows), Minimal (white space, thin lines)
-- **Hero layout**: centered, or text + image side by side
+- **Hero layout**: centered, text + image, image + text, or a **full-width background image**
 - **Corners**: square → pill
 
-The design is saved as a small JSON "theme". The website turns it into CSS variables, so one change restyles the whole site.
+**Page structure** (new; this is how you decide what the website looks like overall):
+
+| Setting | Choices |
+|---|---|
+| Header | Follow layout style · Simple (logo left, menu right) · Centered (logo above menu) · Transparent over the hero · **No header** |
+| Header options | Stays on top while scrolling · Button in the header (goes to the contact form; also shown in the mobile menu) |
+| Footer | Three columns · Single line · No footer |
+| Spacing | Compact · Normal · Airy |
+| Buttons | Follow layout style · Solid · Outline · Soft tint |
+
+**Section layouts** (new): every switched-on section that has more than one arrangement gets a choice, for example:
+
+| Section type | Layouts |
+|---|---|
+| About | Image left · Image right · Centered text |
+| Cards (services, features, team…) | Grid · List rows · Alternating image / text |
+| Key numbers | Coloured band · Cards |
+| Lists (notices, events, changelog…) | Cards · Timeline |
+| Gallery | 3-column grid · 2-column wide |
+| Testimonials | Grid · One big quote per row |
+| FAQs | Accordion · Two columns, always open |
+| Contact | Details + form · Form only, centered |
+| Code (Tech) | Terminal (dark) · Light editor |
+| Logos (Tech) | One row · Grid of tiles |
+| Call to action (Tech) | Full-width band · Card |
+
+Which sections appear, and in what order, is still set in **Sections** (Step 1). All new settings have defaults that reproduce the original look exactly, so websites created before this change look the same until someone changes them.
+
+The design is saved as a small JSON "theme". The website turns it into CSS variables and classes, so one change restyles the whole site.
 
 ![Builder, Design tab: presets, colours, fonts, style, hero layout, corners](screenshots/02-super-admin/09-builder-design.png)
 
 *Builder, Design tab: presets, colours, fonts, style, hero layout, corners*
+
+![Design tab: page structure (header, footer, spacing, buttons) and section layouts, on a site made from a blueprint](./screenshots/05-blueprints/40-design-tab-structure-layouts.png)
+
+*Design tab: page structure (header, footer, spacing, buttons) and section layouts, on a site made from a blueprint*
+
+![Header changed to Centered and spacing to Airy, saved; the preview updates](./screenshots/05-blueprints/41-design-tab-saved-preview.png)
+
+*Header changed to Centered and spacing to Airy, saved; the preview updates*
 
 ### Step 3 — Content
 A form is generated automatically from the module definition:
@@ -614,6 +784,7 @@ erDiagram
     Enquiry ||--o{ Notification : "alerts sent"
     User ||--o{ Enquiry : "assigned"
     User ||--o{ Activity : performed
+    User ||--o{ SavedBlueprint : "saved designs"
 
     User {
         string role "SUPER_ADMIN, STAFF or CLIENT"
@@ -645,7 +816,16 @@ erDiagram
         datetime dueDate
         string status "UNPAID, PAID or CANCELLED"
     }
+    SavedBlueprint {
+        string name
+        string moduleKey
+        json enabledSections
+        json theme
+        json content "without contact details"
+    }
 ```
+
+Built-in blueprints are code (`src/blueprints/`), not database rows; only team-saved ones are stored, in `SavedBlueprint`.
 
 Structured data (users, clients, permissions, invoices) uses normal tables with relations; flexible per-module data (theme, content, automation) is stored as **JSONB** on the `Site` row.
 
@@ -662,6 +842,10 @@ Structured data (users, clients, permissions, invoices) uses normal tables with 
 | Clients, team, client logins | `src/app/admin/clients/`, `src/app/admin/team/`, `src/app/actions/admin.ts` |
 | Builder (sections, design, content, automation, settings) | `src/components/builder/`, `src/app/admin/sites/[id]/`, `src/app/actions/site.ts` |
 | Module definitions | `src/modules/*.ts`, `src/modules/registry.ts` |
+| Theme validation, page structure options, section layouts | `src/modules/theme.ts`, `src/modules/shared.ts` |
+| Blueprints (built-in list, apply, saved) | `src/blueprints/`, `src/lib/site-start.ts`, `src/lib/blueprint-options.ts`, `src/app/actions/blueprints.ts` |
+| Blueprints page, preview, start picker | `src/app/admin/blueprints/`, `src/app/blueprint-preview/[key]/`, `src/components/admin/BlueprintGallery.tsx`, `src/components/admin/WebsiteStartPicker.tsx` |
+| Blueprint artwork (SVG) | `src/lib/art.ts`, `src/app/api/art/[kind]/` |
 | Website rendering | `src/app/sites/[site]/`, `src/components/site/SiteRenderer.tsx` |
 | Public forms + automation | `src/app/actions/enquiry.ts`, `src/lib/enquiry-automation.ts`, `src/lib/notify.ts`, `src/lib/automation.ts` |
 | Enquiry CRM + CSV | `src/app/admin/enquiries/`, `src/app/portal/enquiries/`, `src/components/crm/`, `src/app/actions/crm.ts`, `src/app/api/enquiries/export/` |
@@ -683,6 +867,13 @@ Structured data (users, clients, permissions, invoices) uses normal tables with 
 
 It then appears automatically in **New client**, the builder, team permissions and the content editor — no other changes needed.
 
+**Adding a new blueprint** (e.g. a "Restaurant" blueprint on the Company module):
+1. Add one object to the matching file in `src/blueprints/` (`tech.ts`, `business.ts`, `shop.ts`, `education.ts` or `custom.ts`), using the helpers in `kit.ts`: `theme()`, `feature()`, `plan()`, `art()` for images in the blueprint's colours.
+2. Run `npm run check:blueprints`. It fails on unknown sections, misspelled fields or invalid layouts.
+3. It appears on the Blueprints page and in the New client picker. No migration is needed.
+
+New section kinds used by developer-first sites: `pricing`, `code`, `logos`, `cta`, alongside the existing ones.
+
 ---
 
 ## 17. Roles and permissions, proven with screenshots
@@ -700,6 +891,7 @@ Each check below was performed by signing in as that role and opening the page. 
 | Team management | [19](./screenshots/02-super-admin/19-team.png) · [20](./screenshots/02-super-admin/20-team-new.png) · [21](./screenshots/02-super-admin/21-team-edit.png) |
 | Activity log | [22](./screenshots/02-super-admin/22-activity.png) |
 | Billing | [23](./screenshots/02-super-admin/23-billing.png) |
+| Blueprints: gallery, previews, create from blueprint, save / delete own blueprint | [05-blueprints](./screenshots/05-blueprints/) |
 
 ![Activity log (Super Admin only): who did what and when](screenshots/02-super-admin/22-activity.png)
 
@@ -737,6 +929,10 @@ The demo team member has: **max clients = 10**, **cannot publish**, **cannot del
 
 *Enquiries: only from their clients' websites*
 
+![Blueprints: only those built on their allowed modules (Company and School, plus custom starters on those modules); no Tech, Shop or University blueprints](screenshots/03-team-member/13-blueprints-allowed-modules.png)
+
+*Blueprints: only those built on their allowed modules (Company and School, plus custom starters on those modules); no Tech, Shop or University blueprints*
+
 **Blocked pages for a team member:**
 
 | Tried | Result | Screenshot |
@@ -766,6 +962,8 @@ The demo team member has: **max clients = 10**, **cannot publish**, **cannot del
 | `/admin` | Redirected to `/portal` | [07-blocked-admin](./screenshots/04-client/07-blocked-admin.png) |
 | Another client's website editor (`/portal/sites/<horizon id>`) | 404 Not Found | [08-blocked-other-site](./screenshots/04-client/08-blocked-other-site.png) |
 | Another client's enquiry (`/portal/enquiries/<nexora enquiry id>`) | 404 Not Found | [09-blocked-other-enquiry](./screenshots/04-client/09-blocked-other-enquiry.png) |
+| `/admin/blueprints` | Redirected to `/portal` | [13-blocked-blueprints](./screenshots/04-client/13-blocked-blueprints.png) |
+| `/blueprint-preview/tech-kubernetes` | Redirected to `/portal` | [14-blocked-blueprint-preview](./screenshots/04-client/14-blocked-blueprint-preview.png) |
 
 ![A client opening /admin is sent to their portal](screenshots/04-client/07-blocked-admin.png)
 
@@ -787,7 +985,7 @@ The demo team member has: **max clients = 10**, **cannot publish**, **cannot del
 
 ## 18. Regenerating the screenshots
 
-All 62 images are produced by one script, so they can be refreshed after any UI change:
+All images (the role walkthroughs plus the `05-blueprints` set) are produced by one script, so they can be refreshed after any UI change:
 
 ```bash
 npm run dev                # terminal 1
@@ -799,3 +997,35 @@ The script (`scripts/screenshots.ts`):
 - walks every step in this guide and saves `docs/screenshots/<role>/NN-name.png`, plus a `manifest.json`
 - creates a temporary demo client and a temporary deactivated user, and lowers the team member's limit for the limit-reached demo, then **restores and deletes everything** at the end
 - masks the contact details of any real (non-demo) enquiry, so the images are safe to publish
+- also creates a temporary client from a blueprint and a temporary saved blueprint (deleted through the UI), and saves blueprint previews as JPEG to keep the repository small
+
+To check every blueprint against its module without a browser:
+
+```bash
+npm run check:blueprints
+```
+
+---
+
+## 19. Planned: Phase 2 Code mode (not built yet)
+
+> **Not built yet; recorded here as the plan.** For a customer who wants a website that no module or blueprint can express, the team will write the site **as code in VS Code** and deploy it on the same platform.
+
+| | Config sites (today) | Code mode (planned) |
+|---|---|---|
+| How it's made | Module or blueprint + builder | A small web project in its own Git repo, edited in VS Code |
+| Who edits | Team in the builder, client in the portal | Developers (Git push); the client sees enquiries, analytics and billing in the portal |
+| Domain / HTTPS | `<slug>.onekampus.com` or custom domain | Same (Caddy routes the host to the site's own container) |
+| Enquiries, alerts, auto-reply | Built in | Same pipeline, through a public form API with a site key |
+| Builder tabs | All | Settings, Automation, Enquiries and Analytics only |
+
+```mermaid
+flowchart LR
+    VS["VS Code<br/>site repository"] -->|git push| CI[CI builds an image]
+    CI --> SRV["Server: the site's own container"]
+    VIS[Visitor] --> CADDY[Caddy] -->|code site| SRV
+    CADDY -->|config site| APP[Platform app]
+    SRV -->|forms + page views| APP
+```
+
+The technical design (data fields, public API, routing, deploy script, server sizing) is in [SYSTEM_DESIGN.md §18](./SYSTEM_DESIGN.md#18-phase-2-design-code-mode-custom-coded-websites-not-built-yet). Until it's built, use a **Custom starter** blueprint plus the Design tab for "custom look" requests.

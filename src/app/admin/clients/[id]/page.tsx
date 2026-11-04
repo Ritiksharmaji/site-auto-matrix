@@ -5,7 +5,8 @@ import { createInvoice, saveClientPlan } from "@/app/actions/billing";
 import ActionForm from "@/components/admin/ActionForm";
 import InvoiceTable from "@/components/billing/InvoiceTable";
 import ConfirmButton from "@/components/admin/ConfirmButton";
-import ModulePicker from "@/components/admin/ModulePicker";
+import WebsiteStartPicker from "@/components/admin/WebsiteStartPicker";
+import { blueprintCategories, blueprintOptions } from "@/lib/blueprint-options";
 import { PageHeader, StatusBadge } from "@/components/admin/Shell";
 import { requireStaff } from "@/lib/auth";
 import { CYCLE_LABEL } from "@/lib/billing";
@@ -72,7 +73,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     <div><label className="label">Website name</label><input name="name" required className="input" /></div>
                     <div><label className="label">Web address (slug)</label><input name="slug" required className="input" placeholder="e.g. greenvalley-junior" /></div>
                   </div>
-                  <ModulePicker modules={moduleOptions(perms.allowedModules)} />
+                  <WebsiteStartPicker modules={moduleOptions(perms.allowedModules)} blueprints={await blueprintOptions(user, perms.allowedModules)} categories={blueprintCategories()} />
                 </ActionForm>
               </div>
             </details>

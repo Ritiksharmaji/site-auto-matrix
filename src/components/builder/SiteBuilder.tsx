@@ -5,7 +5,8 @@ import { useState } from "react";
 import { saveAutomation, saveSections, saveSettings, saveTheme, setPublished } from "@/app/actions/site";
 import RecentEnquiries, { type RecentEnquiry } from "@/components/crm/RecentEnquiries";
 import type { AutomationSettings } from "@/lib/automation";
-import { FONTS, HERO_LAYOUTS, RADIUS_OPTIONS, STYLE_OPTIONS } from "@/modules/shared";
+import { saveSiteAsBlueprint } from "@/app/actions/blueprints";
+import { BUTTON_OPTIONS, FONTS, FOOTER_OPTIONS, HEADER_OPTIONS, HERO_LAYOUTS, RADIUS_OPTIONS, SECTION_VARIANTS, SPACING_OPTIONS, STYLE_OPTIONS } from "@/modules/shared";
 import type { Brand, ModuleDef, SectionContent, Theme } from "@/modules/types";
 import ContentEditor from "./ContentEditor";
 
@@ -192,7 +193,7 @@ function SectionsTab({ site, module, enabledSections, onSaved }: Props & { onSav
   );
 }
 
-function DesignTab({ site, module, theme: initial, onSaved }: Props & { onSaved: () => void }) {
+function DesignTab({ site, module, theme: initial, enabledSections, onSaved }: Props & { onSaved: () => void }) {
   const [theme, setTheme] = useState<Theme>(initial);
   const { saving, msg, run } = useSaver();
   const set = <K extends keyof Theme>(k: K, v: Theme[K]) => setTheme((t) => ({ ...t, [k]: v, preset: k === "preset" ? (v as string) : "custom" }));
@@ -280,7 +281,138 @@ function DesignTab({ site, module, theme: initial, onSaved }: Props & { onSaved:
         </div>
       </div>
 
+      <PageStructure theme={theme} set={set} />
+
+      <SectionLayouts module={module} enabledSections={enabledSections} theme={theme} setTheme={setTheme} />
+
       <SaveBar saving={saving} msg={msg} onSave={() => run(() => saveTheme(site.id, theme), onSaved)} />
+
+      <SaveAsBlueprint siteId={site.id} siteName={site.name} />
+    </div>
+  );
+}
+
+type SetTheme = <K extends keyof Theme>(k: K, v: Theme[K]) => void;
+
+/** Header, footer, spacing and buttons. Defaults keep the original look. */
+function PageStructure({ theme, set }: { theme: Theme; set: SetTheme }) {
+  return (
+    <div className="space-y-3 border-t border-slate-100 pt-5">
+      <div>
+        <h3 className="text-sm font-semibold text-slate-900">Page structure</h3>
+        <p className="text-xs text-slate-500">Header, footer, spacing and buttons for the whole site.</p>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="label">Header</label>
+          <select value={theme.header ?? "auto"} onChange={(e) => set("header", e.target.value as Theme["header"])} className="input">
+            {HEADER_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="label">Footer</label>
+          <select value={theme.footer ?? "columns"} onChange={(e) => set("footer", e.target.value as Theme["footer"])} className="input">
+            {FOOTER_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="label">Spacing</label>
+          <select value={theme.spacing ?? "normal"} onChange={(e) => set("spacing", e.target.value as Theme["spacing"])} className="input">
+            {SPACING_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="label">Buttons</label>
+          <select value={theme.buttonStyle ?? "auto"} onChange={(e) => set("buttonStyle", e.target.value as Theme["buttonStyle"])} className="input">
+            {BUTTON_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+      </div>
+      {(theme.header ?? "auto") !== "none" && (
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2">
+            <input type="checkbox" className="h-4 w-4" checked={theme.headerSticky ?? true} disabled={theme.header === "transparent"} onChange={(e) => set("headerSticky", e.target.checked)} />
+            Header stays on top while scrolling
+          </label>
+          <label className="flex items-center gap-2">
+            <input type="checkbox" className="h-4 w-4" checked={!!theme.headerCta} onChange={(e) => set("headerCta", e.target.checked)} />
+            Button in the header
+          </label>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Layout variant per enabled section (only kinds that have variants). */
+function SectionLayouts({ module, enabledSections, theme, setTheme }: { module: Props["module"]; enabledSections: string[]; theme: Theme; setTheme: React.Dispatch<React.SetStateAction<Theme>> }) {
+  const rows = enabledSections
+    .map((k) => module.sections.find((s) => s.key === k))
+    .filter((s): s is NonNullable<typeof s> => !!s && !!SECTION_VARIANTS[s.kind]);
+  if (rows.length === 0) return null;
+  return (
+    <div className="space-y-3 border-t border-slate-100 pt-5">
+      <div>
+        <h3 className="text-sm font-semibold text-slate-900">Section layouts</h3>
+        <p className="text-xs text-slate-500">How each section is arranged. Turn sections on or off and reorder them in the Sections tab.</p>
+      </div>
+      <div className="space-y-2">
+        {rows.map((s) => {
+          const opts = SECTION_VARIANTS[s.kind]!;
+          const value = theme.variants?.[s.key] ?? opts[0].value;
+          return (
+            <div key={s.key} className="flex items-center justify-between gap-3">
+              <span className="text-sm text-slate-700">{s.label}</span>
+              <select
+                value={value}
+                onChange={(e) => setTheme((t) => ({ ...t, preset: "custom", variants: { ...(t.variants ?? {}), [s.key]: e.target.value } }))}
+                className="input !w-56"
+              >
+                {opts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** Save this site's sections, design and content as a reusable team blueprint. */
+function SaveAsBlueprint({ siteId, siteName }: { siteId: string; siteName: string }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState(`${siteName} design`);
+  const [description, setDescription] = useState("");
+  const { saving, msg, run } = useSaver();
+  return (
+    <div className="rounded-lg border border-dashed border-slate-300 p-4">
+      {!open ? (
+        <button onClick={() => setOpen(true)} className="text-sm font-medium text-indigo-600 hover:underline">
+          ★ Save this website as a blueprint
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-sm text-slate-600">
+            Saves the <b>saved</b> version of this site&apos;s sections, design, text and images so the team can start new websites from it. The client&apos;s phone, email and address are not copied.
+          </p>
+          <div>
+            <label className="label">Blueprint name</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} className="input" />
+          </div>
+          <div>
+            <label className="label">Short description (optional)</label>
+            <input value={description} onChange={(e) => setDescription(e.target.value)} className="input" placeholder="e.g. Dark SaaS page with pricing" />
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            {msg.error && <span className="text-sm text-red-600">{msg.error}</span>}
+            {msg.ok && <span className="text-sm text-emerald-600">Saved. Find it under Blueprints → Saved by the team.</span>}
+            <button onClick={() => setOpen(false)} className="btn-secondary">Close</button>
+            <button disabled={saving} onClick={() => run(() => saveSiteAsBlueprint(siteId, name, description), () => {})} className="btn-primary">
+              {saving ? "Saving…" : "Save blueprint"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { art, faq, feature, person, quote, stat, theme } from "./kit";
+import { art, pic, faq, feature, person, quote, stat, theme } from "./kit";
 import type { Blueprint } from "./types";
 
 // Business / agency blueprints on the "company" module.
@@ -20,8 +20,8 @@ const northstar = (() => {
     sections: ["hero", "about", "stats", "services", "whyus", "testimonials", "faq", "contact"],
     brand: { siteName: "Northstar Advisory", tagline: "Strategy for ambitious companies", email: "partners@northstar.in", phone: "+91 22 4000 1234", address: "Nariman Point, Mumbai", footerText: "Northstar Advisory LLP" },
     content: {
-      hero: { headline: "Clarity for your next big decision", subheadline: "Growth strategy, market entry and operating models for founders and boards.", ctaLabel: "Schedule a conversation", ctaLink: "#contact", image: A.hero("showcase", "chart", 2) },
-      about: { title: "Senior advisors, hands-on work", body: "Northstar was founded by former partners of global consulting firms. We take on a small number of clients so a partner leads every engagement.\n\nOur work has guided 60+ companies through fundraising, expansion and turnaround.", image: A.photo("users", 3) },
+      hero: { headline: "Clarity for your next big decision", subheadline: "Growth strategy, market entry and operating models for founders and boards.", ctaLabel: "Schedule a conversation", ctaLink: "#contact", image: pic("b-consult-stairs") },
+      about: { title: "Senior advisors, hands-on work", body: "Northstar was founded by former partners of global consulting firms. We take on a small number of clients so a partner leads every engagement.\n\nOur work has guided 60+ companies through fundraising, expansion and turnaround.", image: pic("b-present") },
       stats: { items: [stat("60+", "Companies advised"), stat("₹4,000 Cr", "Capital raised by clients"), stat("15", "Industries"), stat("92%", "Repeat clients")] },
       services: {
         title: "How we help",
@@ -64,7 +64,7 @@ const pixelpine = (() => {
     sections: ["hero", "services", "portfolio", "stats", "team", "testimonials", "contact"],
     brand: { siteName: "Pixel & Pine", tagline: "Brand, web and social for bold companies", email: "hello@pixelandpine.studio", phone: "+91 90000 12345", address: "Indiranagar, Bengaluru", footerText: "Pixel & Pine Studio" },
     content: {
-      hero: { headline: "We make brands impossible to ignore", subheadline: "Branding, websites and social content for companies that want to stand out.", ctaLabel: "Start a project", ctaLink: "#contact", image: A.hero("showcase", "pen", 3) },
+      hero: { headline: "We make brands impossible to ignore", subheadline: "Branding, websites and social content for companies that want to stand out.", ctaLabel: "Start a project", ctaLink: "#contact", image: pic("b-brainstorm") },
       services: {
         title: "What we do",
         items: [
@@ -77,13 +77,13 @@ const pixelpine = (() => {
       portfolio: {
         title: "Selected work",
         items: [
-          { title: "Chai Point rebrand", meta: "Branding", description: "A warmer identity for 120 cafés, rolled out in 8 weeks.", image: A.photo("coffee", 4) },
-          { title: "FitBox launch", meta: "Website + social", description: "D2C launch that sold out the first batch in 3 days.", image: A.photo("dumbbell", 5) },
-          { title: "Greenleaf annual report", meta: "Editorial", description: "Interactive report read by 40,000 stakeholders.", image: A.photo("leaf", 6) },
+          { title: "Chai Point rebrand", meta: "Branding", description: "A warmer identity for 120 cafés, rolled out in 8 weeks.", image: pic("s-cafe1") },
+          { title: "FitBox launch", meta: "Website + social", description: "D2C launch that sold out the first batch in 3 days.", image: pic("b-agency-imac") },
+          { title: "Greenleaf annual report", meta: "Editorial", description: "Interactive report read by 40,000 stakeholders.", image: pic("b-agency-team") },
         ],
       },
       stats: { items: [stat("140+", "Brands launched"), stat("12", "Awards"), stat("3.2×", "Avg. ROAS"), stat("9", "Years")] },
-      team: { title: "The crew", items: [person(A, 1, "Ria Kapoor", "Creative Director"), person(A, 2, "Dev Malhotra", "Design Lead"), person(A, 3, "Sana Qureshi", "Strategy"), person(A, 4, "Arun Pillai", "Tech Lead")] },
+      team: { title: "The crew", items: [person("p-w3", "Ria Kapoor", "Creative Director"), person("p-m5", "Dev Malhotra", "Design Lead"), person("p-w4", "Sana Qureshi", "Strategy"), person("p-m4", "Arun Pillai", "Tech Lead")] },
       testimonials: { title: "Kind words", items: [quote("They understood our brand better than we did.", "Meghna Rao", "Founder, FitBox"), quote("On time, on budget and genuinely creative.", "Rohan Das", "Marketing Head, Chai Point")] },
       contact: { title: "Got a project?", subtitle: "Tell us about it. We reply within a day.", formTitle: "Start a project" },
     },
@@ -107,8 +107,8 @@ const mehta = (() => {
     sections: ["hero", "about", "services", "team", "stats", "faq", "contact"],
     brand: { siteName: "Mehta & Associates", tagline: "Advocates & Legal Consultants since 1994", email: "office@mehtaassociates.in", phone: "+91 11 2345 6789", address: "Connaught Place, New Delhi", footerText: "Mehta & Associates" },
     content: {
-      hero: { headline: "Sound legal counsel, for three decades", subheadline: "Corporate, property, family and tax matters handled with care and discretion.", ctaLabel: "Book a consultation", ctaLink: "#contact", image: A.hero("showcase", "scale", 4) },
-      about: { title: "About the firm", body: "Founded in 1994 by Sr. Advocate R. K. Mehta, the firm represents individuals and companies before the Supreme Court, High Courts and tribunals.\n\nOur team of 14 advocates and chartered accountants offers legal and tax advice under one roof.", image: A.photo("building", 5) },
+      hero: { headline: "Sound legal counsel, for three decades", subheadline: "Corporate, property, family and tax matters handled with care and discretion.", ctaLabel: "Book a consultation", ctaLink: "#contact", image: pic("b-law-books") },
+      about: { title: "About the firm", body: "Founded in 1994 by Sr. Advocate R. K. Mehta, the firm represents individuals and companies before the Supreme Court, High Courts and tribunals.\n\nOur team of 14 advocates and chartered accountants offers legal and tax advice under one roof.", image: pic("b-contract") },
       services: {
         title: "Practice areas",
         items: [
@@ -118,7 +118,7 @@ const mehta = (() => {
           feature(A, "scale", "Tax & GST", "Advisory, filings and appeals."),
         ],
       },
-      team: { title: "Our advocates", items: [person(A, 1, "R. K. Mehta", "Senior Advocate"), person(A, 2, "Anjali Mehta", "Partner, Corporate"), person(A, 3, "Sanjay Arora", "CA, Tax & GST")] },
+      team: { title: "Our advocates", items: [person("p-m2", "R. K. Mehta", "Senior Advocate"), person("p-w2", "Anjali Mehta", "Partner, Corporate"), person("p-m7", "Sanjay Arora", "CA, Tax & GST")] },
       stats: { items: [stat("30", "Years"), stat("5,000+", "Matters handled"), stat("14", "Advocates & CAs"), stat("3", "Offices")] },
       faq: {
         title: "Common questions",
@@ -151,7 +151,7 @@ const buildright = (() => {
     sections: ["hero", "stats", "services", "portfolio", "whyus", "testimonials", "contact"],
     brand: { siteName: "BuildRight Constructions", tagline: "Homes and offices, built to last", email: "enquiry@buildright.in", phone: "+91 98220 33445", address: "Baner, Pune", footerText: "BuildRight Constructions Pvt Ltd" },
     content: {
-      hero: { headline: "From plan to keys, on time", subheadline: "Turnkey construction and interiors for homes, villas and offices across Pune.", ctaLabel: "Get a free estimate", ctaLink: "#contact", image: A.hero("plain", "home", 5) },
+      hero: { headline: "From plan to keys, on time", subheadline: "Turnkey construction and interiors for homes, villas and offices across Pune.", ctaLabel: "Get a free estimate", ctaLink: "#contact", image: pic("b-construct-frame") },
       stats: { items: [stat("350+", "Projects delivered"), stat("18", "Years"), stat("1.2M", "Sq. ft. built"), stat("100%", "On-time handover")] },
       services: {
         title: "Services",
@@ -165,9 +165,9 @@ const buildright = (() => {
       portfolio: {
         title: "Recent projects",
         items: [
-          { title: "Green Meadows Villas", meta: "Residential · 24 villas", description: "", image: A.photo("home", 6) },
-          { title: "Techpark Office Fit-out", meta: "Commercial · 40,000 sq ft", description: "", image: A.photo("building", 7) },
-          { title: "Lakeview Penthouse", meta: "Interiors", description: "", image: A.photo("pen", 8) },
+          { title: "Green Meadows Villas", meta: "Residential · 24 villas", description: "", image: pic("b-villa1") },
+          { title: "Techpark Office Fit-out", meta: "Commercial · 40,000 sq ft", description: "", image: pic("b-office-tower") },
+          { title: "Lakeview Penthouse", meta: "Interiors", description: "", image: pic("b-living1") },
         ],
       },
       whyus: {
@@ -201,7 +201,7 @@ const careplus = (() => {
     sections: ["hero", "services", "about", "team", "stats", "testimonials", "faq", "contact"],
     brand: { siteName: "CarePlus Clinic", tagline: "Family healthcare, close to home", email: "appointments@careplus.clinic", phone: "+91 80 4000 5678", address: "HSR Layout, Bengaluru", footerText: "CarePlus Multispeciality Clinic", whatsapp: "" },
     content: {
-      hero: { headline: "Caring for your family, every day", subheadline: "General medicine, dental, eye care and diagnostics under one roof. Same-day appointments.", ctaLabel: "Book an appointment", ctaLink: "#contact", image: A.hero("showcase", "heart", 6) },
+      hero: { headline: "Caring for your family, every day", subheadline: "General medicine, dental, eye care and diagnostics under one roof. Same-day appointments.", ctaLabel: "Book an appointment", ctaLink: "#contact", image: pic("b-doctor-consult") },
       services: {
         title: "Our services",
         items: [
@@ -211,8 +211,8 @@ const careplus = (() => {
           feature(A, "flask", "Diagnostics", "Blood tests and reports on your phone the same day."),
         ],
       },
-      about: { title: "A clinic that listens", body: "CarePlus was started by a group of doctors who wanted unhurried, honest care. Every appointment gives you real time with your doctor.", image: A.photo("heart", 3) },
-      team: { title: "Our doctors", items: [person(A, 1, "Dr. Kavita Rao", "MBBS, MD – General Medicine"), person(A, 2, "Dr. Imran Ali", "BDS, MDS – Dental"), person(A, 3, "Dr. Neha Joshi", "MS – Ophthalmology")] },
+      about: { title: "A clinic that listens", body: "CarePlus was started by a group of doctors who wanted unhurried, honest care. Every appointment gives you real time with your doctor.", image: pic("b-doctor-chart") },
+      team: { title: "Our doctors", items: [person("p-w1", "Dr. Kavita Rao", "MBBS, MD – General Medicine"), person("p-m5", "Dr. Imran Ali", "BDS, MDS – Dental"), person("p-w5", "Dr. Neha Joshi", "MS – Ophthalmology")] },
       stats: { items: [stat("25,000+", "Patients"), stat("12", "Specialists"), stat("7 days", "Open a week"), stat("4.8★", "Google rating")] },
       testimonials: { title: "Patient stories", items: [quote("The doctors take time to explain everything. We've been coming for years.", "Sunita M.", "Patient"), quote("Booked in the morning and seen by lunch. Very clean and friendly.", "Arjun P.", "Patient")] },
       faq: { title: "FAQs", items: [faq("Do I need an appointment?", "Walk-ins are welcome, but booking saves waiting time."), faq("Do you accept insurance?", "Yes, most major insurers for diagnostics and procedures.")] },

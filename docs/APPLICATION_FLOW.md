@@ -237,7 +237,7 @@ flowchart TD
 
 Part 3 asks **"How do you want to start?"**. **Standard (module + design)** is selected by default and works exactly as before. **From a blueprint** is the second option (see [§6B](#6b-starting-from-a-blueprint-ready-made-websites)).
 
-The new website already looks complete: modules ship with sample text for every section, and blueprints ship with finished text and artwork. It stays a **Draft** (not public) until it is published.
+The new website already looks complete: modules ship with sample text for every section, and blueprints ship with finished text and real photos. It stays a **Draft** (not public) until it is published.
 
 From the client page you can also:
 - **Add another website** for the same client.
@@ -291,7 +291,7 @@ From the client page you can also:
 
 ## 6B. Starting from a blueprint (ready-made websites)
 
-A **blueprint** is a complete, finished website for one type of business: design, header, section order, section layouts, text and branded images. Choose one, and the new client's website is a copy of it; then you only change the content and images. The original blueprint never changes.
+A **blueprint** is a complete, finished website for one type of business: design, header, section order, section layouts, text and real (stock) photos. Choose one, and the new client's website is a copy of it; then you only change the content and images. The original blueprint never changes.
 
 ```mermaid
 flowchart TD
@@ -845,7 +845,7 @@ Structured data (users, clients, permissions, invoices) uses normal tables with 
 | Theme validation, page structure options, section layouts | `src/modules/theme.ts`, `src/modules/shared.ts` |
 | Blueprints (built-in list, apply, saved) | `src/blueprints/`, `src/lib/site-start.ts`, `src/lib/blueprint-options.ts`, `src/app/actions/blueprints.ts` |
 | Blueprints page, preview, start picker | `src/app/admin/blueprints/`, `src/app/blueprint-preview/[key]/`, `src/components/admin/BlueprintGallery.tsx`, `src/components/admin/WebsiteStartPicker.tsx` |
-| Blueprint artwork (SVG) | `src/lib/art.ts`, `src/app/api/art/[kind]/` |
+| Blueprint photos and icons | `public/blueprints/photos/` (list and Unsplash IDs: `scripts/blueprint-photos.txt`), feature icons: `src/lib/art.ts`, `src/app/api/art/[kind]/` |
 | Website rendering | `src/app/sites/[site]/`, `src/components/site/SiteRenderer.tsx` |
 | Public forms + automation | `src/app/actions/enquiry.ts`, `src/lib/enquiry-automation.ts`, `src/lib/notify.ts`, `src/lib/automation.ts` |
 | Enquiry CRM + CSV | `src/app/admin/enquiries/`, `src/app/portal/enquiries/`, `src/components/crm/`, `src/app/actions/crm.ts`, `src/app/api/enquiries/export/` |
@@ -868,7 +868,7 @@ Structured data (users, clients, permissions, invoices) uses normal tables with 
 It then appears automatically in **New client**, the builder, team permissions and the content editor — no other changes needed.
 
 **Adding a new blueprint** (e.g. a "Restaurant" blueprint on the Company module):
-1. Add one object to the matching file in `src/blueprints/` (`tech.ts`, `business.ts`, `shop.ts`, `education.ts` or `custom.ts`), using the helpers in `kit.ts`: `theme()`, `feature()`, `plan()`, `art()` for images in the blueprint's colours.
+1. Add one object to the matching file in `src/blueprints/` (`tech.ts`, `business.ts`, `shop.ts`, `education.ts` or `custom.ts`), using the helpers in `kit.ts`: `theme()`, `feature()` and `plan()`, `art()` for feature icons in the blueprint's colours, and `pic("name")`, `shot()`, `product()` and `person()` for photos. To add a new photo, add a line to `scripts/blueprint-photos.txt`, then save it as `public/blueprints/photos/<name>.webp` (1280×960, or 960×540 for people).
 2. Run `npm run check:blueprints`. It fails on unknown sections, misspelled fields or invalid layouts.
 3. It appears on the Blueprints page and in the New client picker. No migration is needed.
 

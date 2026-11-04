@@ -1,4 +1,4 @@
-import { art, faq, feature, link, logos, plan, quote, row, stat, theme } from "./kit";
+import { art, pic, faq, feature, link, logos, plan, quote, row, stat, theme } from "./kit";
 import type { Blueprint } from "./types";
 
 // Ten developer-first blueprints on the "tech" module. Each has its own look
@@ -24,7 +24,7 @@ const shipcrate = (() => {
       hero: {
         headline: "Your containers, shipped everywhere",
         subheadline: "A private Docker registry with vulnerability scanning, global replication and pulls that never slow your CI.",
-        ctaLabel: "Start free", ctaLink: "#pricing", image: A.hero("nodes", "box"),
+        ctaLabel: "Start free", ctaLink: "#pricing", image: pic("t-server-cables"),
       },
       logos: { title: "Pulling 3 billion layers a month for", items: logos("Kubeship", "Dockyard", "Nimbus", "Harbor & Co", "CloudNine") },
       features: {
@@ -73,7 +73,6 @@ const shipcrate = (() => {
 })();
 
 const helmsman = (() => {
-  const A = art("326ce5", "7c3aed");
   return {
     key: "tech-kubernetes",
     name: "Helmsman – Kubernetes platform",
@@ -92,15 +91,15 @@ const helmsman = (() => {
       hero: {
         headline: "Kubernetes, finally boring",
         subheadline: "One control plane for every cluster. Deploy, upgrade and secure workloads across clouds from a single dashboard.",
-        ctaLabel: "Book a demo", ctaLink: "#contact", image: A.hero("nodes", "layers", 2),
+        ctaLabel: "Book a demo", ctaLink: "#contact", image: pic("t-server-aisle"),
       },
       logos: { title: "Running 9,000+ clusters for", items: logos("Fleetbase", "Orbital", "Paysure", "Quanta", "Routely") },
       features: {
         title: "Built for platform teams",
         items: [
-          { title: "Multi-cluster in one view", meta: "Fleet", description: "EKS, GKE, AKS and on-prem clusters side by side, with health and cost per namespace.", image: A.photo("layers", 3) },
-          { title: "Safe upgrades", meta: "Lifecycle", description: "Pre-flight checks flag deprecated APIs before you upgrade, then roll nodes with zero downtime.", image: A.photo("check", 4) },
-          { title: "Policy guardrails", meta: "Security", description: "Ship OPA policies to every cluster and block risky deployments automatically.", image: A.photo("shield", 5) },
+          { title: "Multi-cluster in one view", meta: "Fleet", description: "EKS, GKE, AKS and on-prem clusters side by side, with health and cost per namespace.", image: pic("t-monitoring") },
+          { title: "Safe upgrades", meta: "Lifecycle", description: "Pre-flight checks flag deprecated APIs before you upgrade, then roll nodes with zero downtime.", image: pic("t-server-tech") },
+          { title: "Policy guardrails", meta: "Security", description: "Ship OPA policies to every cluster and block risky deployments automatically.", image: pic("t-sec-lock") },
         ],
       },
       howitworks: {
@@ -155,7 +154,7 @@ const piperocket = (() => {
       hero: {
         headline: "Green builds in half the time",
         subheadline: "Parallel pipelines, smart caching and one-click rollbacks. From commit to production in minutes.",
-        ctaLabel: "Try it free", ctaLink: "#pricing", image: A.hero("pipeline", "rocket"),
+        ctaLabel: "Try it free", ctaLink: "#pricing", image: pic("t-office-devs"),
       },
       logos: { title: "Shipping 400k builds a day for", items: logos("Trellis", "Fabrikam", "Hooli", "Vandelay", "Stark Ind.") },
       features: {
@@ -217,7 +216,7 @@ const nimbus = (() => {
       hero: {
         headline: "Cloud servers that just work",
         subheadline: "NVMe VPS in Mumbai, Delhi and Singapore. Deploy in 55 seconds, from ₹399 a month.",
-        ctaLabel: "See plans", ctaLink: "#pricing", image: A.hero("plain", "cloud", 3),
+        ctaLabel: "See plans", ctaLink: "#pricing", image: pic("t-server-fans"),
       },
       features: {
         title: "Everything included",
@@ -278,7 +277,7 @@ const relay = (() => {
       hero: {
         headline: "SMS, WhatsApp and email. One API.",
         subheadline: "Send messages on every channel with a single endpoint, delivery webhooks and SDKs for 7 languages.",
-        ctaLabel: "Get an API key", ctaLink: "#contact", image: A.hero("terminal", "plug"),
+        ctaLabel: "Get an API key", ctaLink: "#contact", image: pic("t-code-js"),
       },
       code: {
         title: "Send your first message", body: "One request. Relay routes it over the cheapest reliable channel and tells you when it lands.",
@@ -408,7 +407,7 @@ const pulsewatch = (() => {
       hero: {
         headline: "See every incident before your customers do",
         subheadline: "Metrics, logs, traces and uptime checks in one place, with alerts that wake the right person.",
-        ctaLabel: "Start 14-day trial", ctaLink: "#pricing", image: A.hero("app", "pulse"),
+        ctaLabel: "Start 14-day trial", ctaLink: "#pricing", image: pic("t-analytics"),
       },
       logos: { title: "Watching production for", items: logos("Zestify", "Payflow", "Quickcart", "Learnly", "Medix") },
       stats: { items: [stat("4.2B", "Events / day"), stat("30s", "Check interval"), stat("18", "Probe locations"), stat("3 min", "Avg. time to alert")] },
@@ -449,7 +448,6 @@ const pulsewatch = (() => {
 })();
 
 const sentinel = (() => {
-  const A = art("10b981", "06b6d4");
   return {
     key: "tech-devsecops",
     name: "Sentinel Scan – DevSecOps security",
@@ -468,7 +466,7 @@ const sentinel = (() => {
       hero: {
         headline: "Find vulnerabilities before attackers do",
         subheadline: "Scan code, dependencies, containers and cloud configs on every commit. Fixes arrive as pull requests.",
-        ctaLabel: "Scan your repo free", ctaLink: "#contact", image: A.hero("terminal", "shield", 4),
+        ctaLabel: "Scan your repo free", ctaLink: "#contact", image: pic("t-sec-person"),
       },
       logos: { title: "Protecting code at", items: logos("Securepay", "Healthstack", "Kredit", "Govtech", "Insurely") },
       code: {
@@ -479,9 +477,9 @@ const sentinel = (() => {
       features: {
         title: "Shift security left",
         items: [
-          { title: "Dependency scanning", meta: "SCA", description: "Known CVEs in 12 package ecosystems, with reachable-code analysis to cut noise.", image: A.photo("layers", 6) },
-          { title: "Secrets detection", meta: "Secrets", description: "Catch keys and tokens before they're pushed, with pre-commit hooks.", image: A.photo("lock", 7) },
-          { title: "Container & IaC", meta: "Cloud", description: "Scan Docker images, Terraform and Kubernetes manifests for misconfigurations.", image: A.photo("box", 8) },
+          { title: "Dependency scanning", meta: "SCA", description: "Known CVEs in 12 package ecosystems, with reachable-code analysis to cut noise.", image: pic("t-code-react") },
+          { title: "Secrets detection", meta: "Secrets", description: "Catch keys and tokens before they're pushed, with pre-commit hooks.", image: pic("t-sec-lock2") },
+          { title: "Container & IaC", meta: "Cloud", description: "Scan Docker images, Terraform and Kubernetes manifests for misconfigurations.", image: pic("t-server-green") },
         ],
       },
       stats: { items: [stat("12", "Ecosystems"), stat("90%", "Less alert noise"), stat("<60s", "Average scan"), stat("SOC 2", "Type II")] },
@@ -526,7 +524,7 @@ const metricly = (() => {
       hero: {
         headline: "Understand every user, without SQL",
         subheadline: "Funnels, retention and revenue dashboards that set themselves up. Add one script and get answers today.",
-        ctaLabel: "Start free trial", ctaLink: "#pricing", image: A.hero("app", "chart", 5),
+        ctaLabel: "Start free trial", ctaLink: "#pricing", image: pic("t-charts"),
       },
       logos: { title: "Helping 2,000+ product teams", items: logos("Notely", "Swiftpay", "Hireloop", "Fitbite", "Tutorly") },
       features: {
@@ -586,7 +584,7 @@ const opscraft = (() => {
       hero: {
         headline: "Cloud infrastructure, done right",
         subheadline: "We design, migrate and run AWS, Azure and Kubernetes setups for growing companies, so your developers can just ship.",
-        ctaLabel: "Book a free audit", ctaLink: "#contact", image: A.hero("nodes", "wrench", 6),
+        ctaLabel: "Book a free audit", ctaLink: "#contact", image: pic("t-team-smile"),
       },
       logos: { title: "Infrastructure partners for", items: logos("Zippy", "EduNext", "Finvest", "Shopwise", "Caremate") },
       features: {
@@ -603,7 +601,7 @@ const opscraft = (() => {
       about: {
         title: "Engineers, not salespeople",
         body: "OpsCraft is a team of 18 certified cloud engineers. We've delivered 120+ infrastructure projects for startups and enterprises.\n\nEvery engagement is led by a senior engineer who stays with you from audit to handover.",
-        image: A.photo("users", 9),
+        image: pic("t-team-diverse"),
       },
       stats: { items: [stat("120+", "Projects"), stat("38%", "Avg. cloud savings"), stat("18", "Certified engineers"), stat("4.9★", "Client rating")] },
       howitworks: {

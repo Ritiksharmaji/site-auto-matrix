@@ -1,4 +1,4 @@
-import { theme } from "./kit";
+import { pic, theme } from "./kit";
 import type { Blueprint } from "./types";
 
 // Bare starting points: neutral colours, few sections, module default text.
@@ -20,7 +20,7 @@ export const CUSTOM_BLUEPRINTS: Blueprint[] = [
     theme: theme({ ...neutral, header: "simple", footer: "simple" }),
     sections: ["hero", "features", "cta", "contact"],
     brand: { siteName: "Your brand", tagline: "Your one-line pitch", email: "", phone: "", address: "", footerText: "" },
-    content: {},
+    content: { hero: { image: pic("t-lounge") } },
   },
   {
     key: "custom-business",
@@ -32,7 +32,7 @@ export const CUSTOM_BLUEPRINTS: Blueprint[] = [
     theme: theme({ ...neutral, heroLayout: "split", header: "simple" }),
     sections: ["hero", "about", "services", "contact"],
     brand: { siteName: "Your business", tagline: "What you do, in one line", email: "", phone: "", address: "", footerText: "" },
-    content: {},
+    content: { hero: { image: pic("b-highrise") }, about: { image: pic("b-lobby") } },
   },
   {
     key: "custom-no-header",

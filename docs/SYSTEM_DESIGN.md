@@ -277,7 +277,7 @@ flowchart LR
 
 ### 6.1 Blueprints (ready-made websites)
 
-A **blueprint** is a complete website you clone: module + ordered sections + full theme (including page structure and section variants) + finished demo content + artwork. The client only swaps text and images. It sits *on top of* modules, so the standard way (module + preset) is unchanged and remains the default in the "New client" form.
+A **blueprint** is a complete website you clone: module + ordered sections + full theme (including page structure and section variants) + finished demo content + real stock photos. The client only swaps text and images. It sits *on top of* modules, so the standard way (module + preset) is unchanged and remains the default in the "New client" form.
 
 ```mermaid
 flowchart LR
@@ -303,7 +303,8 @@ flowchart LR
 - **Applying** (`src/blueprints/index.ts`): start from `initialSiteConfig(module)`, overlay the blueprint's brand and section content (items replace the default list), keep its section order (required sections are appended), then run the same validation as the builder (`cleanTheme`, `sanitizeContent`). The result is an ordinary `Site`; later edits never touch the blueprint.
 - **Choosing** (`src/lib/site-start.ts`): both "New client" and "Add another website" post either `moduleKey + preset` (standard) or `blueprint` (`tech-…` or `saved:<id>`). `allowedModules` is enforced for both.
 - **Saved blueprints**: the Design tab's *Save this website as a blueprint* copies the saved site's sections, theme and content into `SavedBlueprint`. Brand contact details (phone, email, address, WhatsApp, logo) are cleared so one client's details never leak into another site.
-- **Artwork** (`src/lib/art.ts`, `GET /api/art/{hero|photo|icon|avatar}`): branded SVG illustrations generated from the blueprint's colours (`a`, `b`), a glyph (`g`), a scene and a seed. URLs are relative, so they work on every client domain, are cacheable for a week, and are served with a locked-down CSP. Clients replace them with real photos in the Content tab.
+- **Photos**: 112 stock photos from Unsplash (free licence, no attribution required) for heroes, About sections, portfolios, products, galleries and team members. They're bundled in `public/blueprints/photos/` as WebP (1280×960 landscape, 960×540 face-centred for people; ~7 MB in total) and served as static files on every domain, because the middleware doesn't rewrite image paths. `scripts/blueprint-photos.txt` records each photo's Unsplash ID. Clients replace them with their own photos in the Content tab.
+- **Icons** (`src/lib/art.ts`, `GET /api/art/icon`): small feature icons drawn as SVG in the blueprint's colours (`a`, `b`) from a glyph (`g`). URLs are relative, cacheable for a week and served with a locked-down CSP. The same route can still draw illustration scenes (`hero`, `photo`, `avatar`), but the built-in blueprints no longer use them.
 - **Quality gate**: `npm run check:blueprints` checks every blueprint's module, sections, field names, item fields, theme and variants (anything the builder would silently drop is an error).
 - **Adding a blueprint** = one object in the right `src/blueprints/<category>.ts` file, then `npm run check:blueprints`. No migration.
 
@@ -587,7 +588,7 @@ Steps, in order:
 - Email and WhatsApp need real provider credentials before alerts go out. Until then they are **LOGGED**.
 - `submitEnquiry` checks that the site exists but not that it is published. Draft sites aren't public, so this is low risk, but a status check should be added.
 - More modules are planned: Hospital, Restaurant and Real-estate (coaching institutes are covered by the BrightPath blueprint on the University module).
-- Blueprint artwork is generated illustration, not photography. It looks finished, but real client photos should replace it before launch.
+- Blueprint photos are generic stock photos (people in team sections are models, not real staff). Replace them with the client's own photos before launch.
 - **Code mode** (fully custom, hand-coded sites) is designed below but not built. See §18.
 
 ---

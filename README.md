@@ -59,7 +59,8 @@ src/modules/          Module definitions (pure config)
   theme.ts            Theme validation (colours, fonts, header/footer, section layouts)
   registry.ts         Register modules here; defaults/merging helpers
 src/blueprints/       Ready-made websites (tech, business, shop, education, custom)
-src/lib/art.ts        Branded SVG artwork for blueprints (served by /api/art)
+src/lib/art.ts        Branded SVG icons for blueprint features (served by /api/art)
+public/blueprints/photos/  112 bundled stock photos used by the blueprints (list: scripts/blueprint-photos.txt)
 src/components/site/  SiteRenderer: turns module + theme + content into a website
 src/components/builder/ Builder UI (sections, design, content, settings, enquiries)
 src/app/admin/        Admin panel (super admin + team), incl. Blueprints gallery

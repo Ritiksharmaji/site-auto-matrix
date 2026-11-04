@@ -14,6 +14,12 @@ export function art(a: string, b: string) {
 }
 export type Art = ReturnType<typeof art>;
 
+/**
+ * A bundled stock photo (public/blueprints/photos/<name>.webp). The list of photos,
+ * with their Unsplash IDs, is in scripts/blueprint-photos.txt.
+ */
+export const pic = (name: string) => `/blueprints/photos/${name}.webp`;
+
 type ThemeInput = Omit<Theme, "preset"> & { preset?: string };
 
 /** Fills page-structure defaults so every blueprint stores a complete theme. */
@@ -33,15 +39,15 @@ export function theme(t: ThemeInput): Theme {
 
 export const feature = (A: Art, g: string, title: string, description: string, meta = ""): SectionItem => ({ title, meta, description, image: "", icon: A.icon(g) });
 export const card = (title: string, description: string, image = "", meta = ""): SectionItem => ({ title, meta, description, image });
-export const person = (A: Art, s: number, title: string, meta: string, description = ""): SectionItem => ({ title, meta, description, image: A.avatar(s) });
+export const person = (photo: string, title: string, meta: string, description = ""): SectionItem => ({ title, meta, description, image: pic(photo) });
 export const stat = (value: string, label: string): SectionItem => ({ value, label });
 export const faq = (question: string, answer: string): SectionItem => ({ question, answer });
 export const quote = (q: string, name: string, role: string): SectionItem => ({ quote: q, name, role });
 export const row = (title: string, description: string, date = ""): SectionItem => ({ title, date, description });
 export const logos = (...names: string[]): SectionItem[] => names.map((title) => ({ title, image: "" }));
-export const shot = (A: Art, g: string, s: number, caption: string): SectionItem => ({ image: A.photo(g, s), caption });
-export const product = (A: Art, g: string, s: number, title: string, category: string, price: string, description: string): SectionItem => ({
-  title, category, price, description, image: A.photo(g, s),
+export const shot = (photo: string, caption: string): SectionItem => ({ image: pic(photo), caption });
+export const product = (photo: string, title: string, category: string, price: string, description: string): SectionItem => ({
+  title, category, price, description, image: pic(photo),
 });
 export const link = (title: string, description: string, href: string, linkLabel: string, A?: Art, g?: string): SectionItem => ({
   title, description, link: href, linkLabel, meta: "", image: "", icon: A && g ? A.icon(g) : "",

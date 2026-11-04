@@ -73,19 +73,17 @@ It does the following:
 2. Uploads the bundle and the `deploy/` folder. The server's `.env` and `data/` are never touched.
 3. On the server: builds the small runtime image, runs `prisma migrate deploy`, and restarts the containers.
 
-## 5. First sign-in
+## 5. Signing in and resetting passwords
 
-The data was copied from the local database. Every account that still used the local seed password was given a **new random password** during the copy. To read them:
+Everyone (Super Admin, team members and clients) signs in at **https://sites.onekampus.com/login**. Staff land in `/admin`; clients land in `/portal` with only their own website.
 
-```bash
-ssh -i ~/.ssh/site-platform-lightsail.pem ubuntu@16.4.19.238 "cat /opt/site-platform/CREDENTIALS.txt"
-```
-
-Sign in at https://sites.onekampus.com/login, then change the passwords. Delete the file once you've saved them:
+To set a new password for **any** login, run this from the project folder on your Mac and type the new password when asked (it stays hidden):
 
 ```bash
-ssh -i ~/.ssh/site-platform-lightsail.pem ubuntu@16.4.19.238 "rm /opt/site-platform/CREDENTIALS.txt"
+deploy/reset-password.sh admin@siteplatform.test
 ```
+
+It sends the password over SSH and stores only its bcrypt hash; nothing is written to disk or printed. It works for every account, e.g. `deploy/reset-password.sh advera@gmail.com`. Inside the app you can also reset passwords from **Team → member** or **Client → Add login or reset a password**.
 
 ## 6. Backups and restore
 

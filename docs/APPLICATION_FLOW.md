@@ -6,7 +6,7 @@ This guide explains, step by step, how the platform works: who uses it, what eac
 - For the technical architecture, see [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md).
 - **Roles and permissions, proven screen by screen:** [§17](#17-roles-and-permissions-proven-with-screenshots).
 - **Ready-made websites (blueprints) and the page-structure designer:** [§6B](#6b-starting-from-a-blueprint-ready-made-websites) and [§7 Step 2](#step-2--design).
-- **Planned next phase (Code mode, fully custom sites written in VS Code):** [§19](#19-planned-phase-2-code-mode-not-built-yet).
+- **Code websites (React / Next.js / HTML written in VS Code, deployed by pushing to GitHub):** [§6C](#6c-code-websites-built-in-vs-code). Still planned: an in-browser editor and a "build on server" button, see [§19](#19-planned-the-other-two-ways-to-code).
 
 ---
 
@@ -66,7 +66,8 @@ There are **two ways to start a new website**, and both produce the same kind of
 | Way | What you pick | Best for |
 |---|---|---|
 | **Standard** (default, unchanged) | A module + one of its 3 starting designs | Building a site from the module's sample content |
-| **Blueprint** (new) | One of 29 ready-made websites, or one your team saved | "Clone and change the text and images": a finished design per business type |
+| **Blueprint** | One of 29 ready-made websites, or one your team saved | "Clone and change the text and images": a finished design per business type |
+| **Code website** (new) | React, Next.js or HTML in its own GitHub repository, edited in VS Code | Fully custom sites and apps the builder can't express |
 
 ---
 
@@ -81,6 +82,7 @@ There are **two ways to start a new website**, and both produce the same kind of
 | Modules allowed | All | Only modules you allow | — |
 | Blueprints (ready-made sites) | All | Only blueprints of their allowed modules | ❌ |
 | Save a site as a blueprint | ✅ | ✅ (own clients' sites) | ❌ |
+| Create code websites (VS Code) | ✅ | Only if you allow **Can create code websites** | ❌ (sees the site and its enquiries) |
 | Sections / design / settings | ✅ | ✅ | ❌ |
 | Edit website content | ✅ | ✅ | ✅ (own sites only) |
 | Publish website | ✅ | Only if you allow **Can publish** | ❌ |
@@ -405,6 +407,94 @@ What is checked on the server:
 - the blueprint's module must be in the team member's **allowed modules** (same rule as the standard way)
 - web address and login email must be free; reserved names are refused
 - the blueprint's design and content go through the same validation as the builder, so a blueprint can never store anything the builder couldn't
+
+---
+
+## 6C. Code websites (built in VS Code)
+
+For a customer who needs something the builder can't do (a React app, a Next.js site, a custom design written by hand), create a **code website**. Its source code lives in its own private GitHub repository. You open it in **VS Code on your laptop**, code with the full terminal (`npm install`, `npm run dev`, any package), and **push**. GitHub builds it, and the platform publishes it on the customer's address with HTTPS, exactly like other sites.
+
+```mermaid
+flowchart TD
+    A["New client / Add website<br/>→ Code website (VS Code)<br/>→ React · Next.js · HTML"] --> B["Platform creates a private repo<br/>Ritiksharmaji/site-slug<br/>with a starter site + deploy workflow"]
+    B --> C["Code tab → Open in VS Code<br/>browser asks → VS Code clones the repo"]
+    C --> D["Code on your laptop<br/>npm install · npm run dev"]
+    D --> E["Commit + Push"]
+    E --> F["GitHub Actions builds it<br/>(npm install + npm run build)<br/>not on your 1 GB server"]
+    F -->|"signed webhook"| G["Platform downloads the build,<br/>checks it, stores it as a new version"]
+    G --> H["Live at slug.onekampus.com<br/>(or the customer's domain)"]
+    G --> I["Code tab: Live / Previous / Failed,<br/>build log, Roll back, Build again"]
+    H -->|"contact form"| J["Enquiries inbox + email/WhatsApp alerts + auto-reply"]
+```
+
+**What you get**
+
+| | |
+|---|---|
+| Frameworks | **React (Vite)** with page links (React Router) · **Next.js** (App Router, exported as static pages) · **HTML / CSS / JS** (no build) |
+| Where the code lives | A private GitHub repository per website: `Ritiksharmaji/site-<web address>` |
+| How to edit | **Open in VS Code** button (VS Code on your computer), or `git clone` |
+| How it goes live | Every push to `main` is built by GitHub Actions and published automatically in about 1–2 minutes |
+| Versions | Every build is kept as a version. The last 5 can be restored instantly with **Roll back** |
+| Forms and analytics | The starter templates already connect the contact form to the **Enquiries** inbox (alerts and auto-reply included) and count page views for **Analytics** |
+| Draft websites | Visible only through the Code tab's preview (a link valid for 2 hours) until you **Publish** |
+| Custom domains, HTTPS | Same as builder sites (Settings tab) |
+
+**Step 1: Create it.** In **New client** or **Add another website**, choose **Code website (VS Code)**, then pick React, Next.js or HTML. This option appears for the Super Admin and for team members you allow (**Can create code websites**).
+
+![New client: Code website option with React / Next.js / HTML](screenshots/06-code-websites/01-new-client-code-website.png)
+
+*New client: Code website option with React / Next.js / HTML*
+
+The platform creates the private repository with a starter website, connects the deploy webhook and starts the first build.
+
+**Step 2: Open it in VS Code.** On the website's **Code** tab, click **Open in VS Code**. Your browser asks *"Open Visual Studio Code?"*. Then VS Code asks where to save the project, clones it, and opens it. The first time, it may ask you to sign in to GitHub. (Needs VS Code, Git and Node.js on your computer.)
+
+![Code tab: Open in VS Code, deploys with Live / Failed / Previous, Roll back, developer access, live preview](screenshots/06-code-websites/02-code-tab.png)
+
+*Code tab: Open in VS Code, deploys with Live / Failed / Previous, Roll back, developer access, live preview*
+
+**Step 3: Code, then push.** In VS Code's terminal: `npm install` and `npm run dev` (HTML sites: `npx serve .`). When you're done, **Commit** and **Push** from the Source Control panel, or run `git push`.
+
+![How to work on it](screenshots/06-code-websites/03-code-tab-how-to.png)
+
+*How to work on it*
+
+**Step 4: It goes live.** A new row appears under **Deploys** as **Building**, then **Live** (or **Failed**, with a link to GitHub's build log). The preview on the right refreshes by itself. If something's wrong, click **Roll back** on an earlier version: it's live again instantly, with no rebuild.
+
+**Step 5: Publish, domain, automation.** These work as for any website: **Settings** (publish, web address, custom domain), **Automation** (alerts and auto-reply), **Enquiries**, **Analytics**.
+
+![Settings tab on a code website](screenshots/06-code-websites/04-code-site-settings.png)
+
+*Settings tab on a code website*
+
+![Websites list: code websites are labelled](screenshots/06-code-websites/05-websites-list.png)
+
+*Websites list: code websites are labelled*
+
+**Giving a developer access.** Under **Developer access**, enter their GitHub username and click **Invite**. They get push access to that one repository only.
+
+**Team permission.** The Super Admin decides who may create code websites:
+
+![Team member permissions: Can create code websites](screenshots/06-code-websites/06-team-permission.png)
+
+*Team member permissions: Can create code websites*
+
+**What visitors and the client see.** Visitors see the website on its address. The client's portal shows the website link and its enquiries (there's no content editor, because the site is changed in code).
+
+![A code website, live on its own address](screenshots/06-code-websites/07-live-code-website.png)
+
+*A code website, live on its own address*
+
+![Client portal for a code website](screenshots/06-code-websites/08-client-portal-code-website.png)
+
+*Client portal for a code website*
+
+**Rules for code websites**
+- The build must produce static files with an `index.html` at the top: Vite's `dist/`, Next.js's `out/` (`output: "export"`), or the HTML files themselves. The starter templates are already set up this way.
+- No server code runs on the platform: Next.js API routes, server actions, middleware and server rendering aren't available. Use the built-in form (`sendEnquiry()` / `<EnquiryForm />` / `data-onekampus-form`) for contact forms.
+- Paths starting with `/api/` belong to the platform (forms, tracking), so don't create pages there.
+- Don't rename `.github/workflows/onekampus-deploy.yml` or the `site` artifact it uploads.
 
 ---
 
@@ -845,6 +935,9 @@ Structured data (users, clients, permissions, invoices) uses normal tables with 
 | Theme validation, page structure options, section layouts | `src/modules/theme.ts`, `src/modules/shared.ts` |
 | Blueprints (built-in list, apply, saved) | `src/blueprints/`, `src/lib/site-start.ts`, `src/lib/blueprint-options.ts`, `src/app/actions/blueprints.ts` |
 | Blueprints page, preview, start picker | `src/app/admin/blueprints/`, `src/app/blueprint-preview/[key]/`, `src/components/admin/BlueprintGallery.tsx`, `src/components/admin/WebsiteStartPicker.tsx` |
+| Code websites: repo creation, builds, serving, rollback | `src/lib/code-sites.ts`, `src/lib/github.ts`, `src/app/api/github/webhook/`, `src/app/code-sites/[slug]/[[...path]]/`, `src/app/actions/code.ts`, `src/components/builder/CodeSiteBuilder.tsx` |
+| Code website starter templates | `code-templates/react`, `code-templates/nextjs`, `code-templates/html` |
+| Public form and tracking API for code websites | `src/app/api/public/enquiries/`, `src/app/api/track/`, `src/lib/enquiries.ts` |
 | Blueprint photos and icons | `public/blueprints/photos/` (list and Unsplash IDs: `scripts/blueprint-photos.txt`), feature icons: `src/lib/art.ts`, `src/app/api/art/[kind]/` |
 | Website rendering | `src/app/sites/[site]/`, `src/components/site/SiteRenderer.tsx` |
 | Public forms + automation | `src/app/actions/enquiry.ts`, `src/lib/enquiry-automation.ts`, `src/lib/notify.ts`, `src/lib/automation.ts` |
@@ -892,6 +985,7 @@ Each check below was performed by signing in as that role and opening the page. 
 | Activity log | [22](./screenshots/02-super-admin/22-activity.png) |
 | Billing | [23](./screenshots/02-super-admin/23-billing.png) |
 | Blueprints: gallery, previews, create from blueprint, save / delete own blueprint | [05-blueprints](./screenshots/05-blueprints/) |
+| Code websites: create, Code tab, settings, permission, live site, client view | [06-code-websites](./screenshots/06-code-websites/) |
 
 ![Activity log (Super Admin only): who did what and when](screenshots/02-super-admin/22-activity.png)
 
@@ -1007,25 +1101,19 @@ npm run check:blueprints
 
 ---
 
-## 19. Planned: Phase 2 Code mode (not built yet)
+## 19. Planned: the other two ways to code
 
-> **Not built yet; recorded here as the plan.** For a customer who wants a website that no module or blueprint can express, the team will write the site **as code in VS Code** and deploy it on the same platform.
+Of the three ways to build websites in code, **"Open in VS Code"** is built (§6C). Two more are planned:
 
-| | Config sites (today) | Code mode (planned) |
-|---|---|---|
-| How it's made | Module or blueprint + builder | A small web project in its own Git repo, edited in VS Code |
-| Who edits | Team in the builder, client in the portal | Developers (Git push); the client sees enquiries, analytics and billing in the portal |
-| Domain / HTTPS | `<slug>.onekampus.com` or custom domain | Same (Caddy routes the host to the site's own container) |
-| Enquiries, alerts, auto-reply | Built in | Same pipeline, through a public form API with a site key |
-| Builder tabs | All | Settings, Automation, Enquiries and Analytics only |
+| | Open in VS Code (built) | In-browser editor (planned) | "Build on server" button (planned) |
+|---|---|---|---|
+| Where you code | VS Code on your laptop | VS Code's editor inside the admin panel | The same in-browser editor |
+| Who builds | GitHub Actions | Your browser | GitHub Actions |
+| React | ✅ | ✅ (packages from a CDN) | ✅ |
+| Next.js | ✅ (static export) | ❌ | ✅ (static export) |
+| Terminal / npm install | ✅ on your laptop | Not needed (Packages panel) | Not needed (build log shown) |
+| Works on the 1 GB server | ✅ | ✅ | ✅ (builds run on GitHub, not the server) |
 
-```mermaid
-flowchart LR
-    VS["VS Code<br/>site repository"] -->|git push| CI[CI builds an image]
-    CI --> SRV["Server: the site's own container"]
-    VIS[Visitor] --> CADDY[Caddy] -->|code site| SRV
-    CADDY -->|config site| APP[Platform app]
-    SRV -->|forms + page views| APP
-```
-
-The technical design (data fields, public API, routing, deploy script, server sizing) is in [SYSTEM_DESIGN.md §18](./SYSTEM_DESIGN.md#18-phase-2-design-code-mode-custom-coded-websites-not-built-yet). Until it's built, use a **Custom starter** blueprint plus the Design tab for "custom look" requests.
+Also planned:
+- **Full Next.js with server features** (API routes, server rendering). Each site would need its own container (~150 MB each), so a 2 GB server.
+- **Editing builder sites and blueprints as code** (pull a site's content and design as files, edit, push back).

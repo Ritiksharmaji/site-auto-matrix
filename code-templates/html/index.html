@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>__NAME__</title>
+    <meta name="description" content="__NAME__" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <a href="/" class="logo">__NAME__</a>
+        <nav class="nav"><a href="/">Home</a><a href="/about.html">About</a><a href="/#contact">Contact</a></nav>
+      </div>
+    </header>
+    <section class="hero">
+      <div class="container">
+        <h1>Welcome to __NAME__</h1>
+        <p>This HTML starter is connected to oneKampus. Edit index.html, push, and it goes live.</p>
+        <a class="btn" href="#contact">Get in touch</a>
+      </div>
+    </section>
+    <section class="section">
+      <div class="container">
+        <h2>What we do</h2>
+        <div class="grid">
+          <div class="card"><h3>Fast</h3><p>Replace this text with the customer's services.</p></div>
+          <div class="card"><h3>Reliable</h3><p>Replace this text with the customer's services.</p></div>
+          <div class="card"><h3>Friendly</h3><p>Replace this text with the customer's services.</p></div>
+        </div>
+      </div>
+    </section>
+    <section class="section alt" id="contact">
+      <div class="container">
+        <h2>Contact us</h2>
+        <!-- Submissions go to the oneKampus Enquiries inbox (see onekampus.js). -->
+        <form class="form" data-onekampus-form="contact">
+          <input name="name" placeholder="Your name" required minlength="2" />
+          <div class="form-row"><input name="phone" placeholder="Phone" /><input name="email" type="email" placeholder="Email" /></div>
+          <textarea name="message" rows="4" placeholder="Message"></textarea>
+          <input name="company_website" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true" />
+          <p class="form-error" hidden></p>
+          <button>Send</button>
+        </form>
+      </div>
+    </section>
+    <footer class="footer">© __NAME__</footer>
+    <script src="/onekampus.js"></script>
+  </body>
+</html>

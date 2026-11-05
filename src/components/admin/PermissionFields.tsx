@@ -18,6 +18,10 @@ export default function PermissionFields({ value }: { value: StaffPermissions })
         <input type="checkbox" name="canDeleteClients" defaultChecked={value.canDeleteClients} className="h-4 w-4" />
         Can delete clients
       </label>
+      <label className="flex items-center gap-2 text-sm text-slate-700">
+        <input type="checkbox" name="canCreateCodeSites" defaultChecked={value.canCreateCodeSites} className="h-4 w-4" />
+        Can create code websites (React / Next.js / HTML in VS Code)
+      </label>
       <div>
         <span className="label">Modules they can use</span>
         <div className="flex flex-wrap gap-4">

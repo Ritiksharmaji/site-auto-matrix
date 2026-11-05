@@ -15,6 +15,8 @@ import { PrismaClient } from "@prisma/client";
 import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
 import { SESSION_COOKIE, signSession, type SessionPayload } from "../src/lib/session";
 import { BLUEPRINTS } from "../src/blueprints";
+import { zipSync } from "fflate";
+import { installBuild, makeLive, removeSiteBuilds } from "../src/lib/code-sites";
 
 const BASE = process.env.SCREENSHOT_BASE ?? "http://localhost:3000";
 const OUT = path.join(process.cwd(), "docs", "screenshots");
@@ -134,7 +136,7 @@ async function main() {
   const greenvalley = await siteBySlug("greenvalley");
   const horizon = await siteBySlug("horizon");
   const nexora = await siteBySlug("nexora");
-  const tempEmails = ["inactive.demo@siteplatform.test", "owner@sunrise-demo.test", "owner@blueprint-demo.test"];
+  const tempEmails = ["inactive.demo@siteplatform.test", "owner@sunrise-demo.test", "owner@blueprint-demo.test", "owner@code-demo.test"];
   const tempBlueprintName = "Blueprint Demo Labs design";
   const staffPermsBefore = staff.permissions;
   await loadMasks();
@@ -356,6 +358,87 @@ async function main() {
       await ctx.close();
     }
 
+    // ------------------------------------------------------- code websites
+    console.log("Code websites");
+    {
+      const dir = "06-code-websites";
+      // A demo code website with a few builds. GitHub isn't called: the builds are
+      // installed directly from the HTML starter template.
+      const demoClient = await db.client.create({ data: { name: "Code Demo Studio", contactName: "Code Demo Owner", email: tempEmails[3], ownerId: admin.id } });
+      const demoOwner = await db.user.create({ data: { name: "Code Demo Owner", email: tempEmails[3], passwordHash: await bcrypt.hash(randomBytes(12).toString("hex"), 10), role: "CLIENT", clientId: demoClient.id } });
+      const demo = await db.site.create({
+        data: {
+          clientId: demoClient.id, name: "Code Demo Studio", slug: "code-demo-studio", moduleKey: "code", status: "PUBLISHED",
+          enabledSections: [], theme: {}, content: { brand: { siteName: "Code Demo Studio" } },
+          codeProject: { create: { framework: "HTML", repoOwner: "Ritiksharmaji", repoName: "site-code-demo-studio" } },
+        },
+        include: { codeProject: true },
+      });
+      const tpl = path.join(process.cwd(), "code-templates", "html");
+      const files: Record<string, Uint8Array> = {};
+      for (const f of ["index.html", "about.html", "styles.css", "onekampus.js"]) {
+        files[f] = new TextEncoder().encode((await import("node:fs")).readFileSync(path.join(tpl, f), "utf8").replaceAll("__NAME__", "Code Demo Studio"));
+      }
+      const mkDeploy = async (runId: string, msg: string, minutesAgo: number) =>
+        db.deploy.create({
+          data: {
+            projectId: demo.codeProject!.id, runId: `demo-${runId}-${Date.now()}`, runUrl: "https://github.com/Ritiksharmaji/site-code-demo-studio/actions",
+            commitSha: randomBytes(20).toString("hex"), commitMessage: msg, author: "Ritik Sharma",
+            createdAt: new Date(Date.now() - minutesAgo * 60_000), finishedAt: new Date(Date.now() - (minutesAgo - 1) * 60_000),
+          },
+        });
+      const first = await mkDeploy("1", "Starter website from oneKampus", 240);
+      await db.deploy.update({ where: { id: first.id }, data: await installBuild(demo.id, first.id, zipSync(files)) });
+      await makeLive(demo.codeProject!.id, first.id);
+      const failed = await mkDeploy("2", "Add services section", 120);
+      await db.deploy.update({ where: { id: failed.id }, data: { status: "FAILED", error: "The build failed on GitHub. Open the log for details." } });
+      const second = await mkDeploy("3", "Fix services section and update contact text", 45);
+      await db.deploy.update({ where: { id: second.id }, data: await installBuild(demo.id, second.id, zipSync(files)) });
+      await makeLive(demo.codeProject!.id, second.id);
+
+      try {
+        const ctx = await contextFor(browser, admin.session);
+        const page = await ctx.newPage();
+        await page.goto(`${BASE}/admin/clients/new`, { waitUntil: "domcontentloaded" });
+        await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+        await page.getByRole("button", { name: /Code website \(VS Code\)/ }).click();
+        await page.getByRole("button", { name: /^Next\.js/ }).click();
+        await page.fill("#name", "Acme Labs");
+        await page.fill("#slug", "acme-labs");
+        await shot(page, `${dir}/01-new-client-code-website.png`, "New client – third option: Code website (VS Code), with React / Next.js / HTML");
+
+        await page.goto(`${BASE}/admin/sites/${demo.id}`, { waitUntil: "domcontentloaded" });
+        await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
+        await page.waitForTimeout(2500);
+        await shot(page, `${dir}/02-code-tab.png`, "Code website – Code tab: Open in VS Code, deploys, roll back, developer access");
+        await page.getByText("How to work on it").click();
+        await page.waitForTimeout(400);
+        await shot(page, `${dir}/03-code-tab-how-to.png`, "Code tab – how to work on it (open, run, push)", { fullPage: false });
+        await page.getByRole("button", { name: "Settings", exact: true }).click();
+        await page.waitForTimeout(600);
+        await shot(page, `${dir}/04-code-site-settings.png`, "Code website – Settings (publish, web address, custom domain) work as usual");
+        await page.goto(`${BASE}/admin/sites`, { waitUntil: "domcontentloaded" });
+        await shot(page, `${dir}/05-websites-list.png`, "Websites list – code websites are labelled “Code website”");
+        await page.goto(`${BASE}/admin/team/${staff.id}`, { waitUntil: "domcontentloaded" });
+        await shot(page, `${dir}/06-team-permission.png`, "Team member permissions – “Can create code websites” (off by default)");
+        await ctx.close();
+
+        const vctx = await contextFor(browser, null);
+        const v = await vctx.newPage();
+        await v.goto(siteUrl("code-demo-studio"), { waitUntil: "domcontentloaded" });
+        await shot(v, `${dir}/07-live-code-website.png`, "The code website live on its own address", { fullPage: false });
+        await vctx.close();
+
+        const cctx = await contextFor(browser, { userId: demoOwner.id, role: "CLIENT" });
+        const c = await cctx.newPage();
+        await c.goto(`${BASE}/portal/sites/${demo.id}`, { waitUntil: "domcontentloaded" });
+        await shot(c, `${dir}/08-client-portal-code-website.png`, "Client portal – code website: open the site and see enquiries (no content editor)", { fullPage: false });
+        await cctx.close();
+      } finally {
+        await removeSiteBuilds(demo.id);
+      }
+    }
+
     // ---------------------------------------------------------- team member
     console.log("Team member");
     {
@@ -376,6 +459,7 @@ async function main() {
       await page.goto(`${BASE}/admin/clients/new`, { waitUntil: "domcontentloaded" });
       await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
       await page.fill("#name", "Limit Test Co");
+      await page.fill("#slug", "limit-test-co");
       await page.fill("#contactName", "Test");
       await page.fill("#email", "limit-test@siteplatform.test");
       await page.fill("#password", randomBytes(12).toString("hex"));
@@ -447,6 +531,7 @@ async function main() {
     await db.client.deleteMany({ where: { id: { in: demoClients.map((c) => c.id) } } });
     await db.user.deleteMany({ where: { email: { in: tempEmails } } });
     await db.activity.deleteMany({ where: { details: { contains: '"Sunrise Demo Academy"' } } });
+    await db.activity.deleteMany({ where: { details: { contains: "Code Demo Studio" } } });
     await db.activity.deleteMany({ where: { OR: [{ details: { contains: '"Blueprint Demo Labs"' } }, { details: { contains: tempBlueprintName } }] } });
     await db.savedBlueprint.deleteMany({ where: { name: tempBlueprintName } });
     await writeFile(path.join(OUT, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");

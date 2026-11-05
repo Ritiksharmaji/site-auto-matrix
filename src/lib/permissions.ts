@@ -7,6 +7,8 @@ export type StaffPermissions = {
   canPublish: boolean;
   canDeleteClients: boolean;
   allowedModules: string[];
+  /** May create code websites (GitHub repo, edited in VS Code). */
+  canCreateCodeSites: boolean;
 };
 
 export const DEFAULT_STAFF_PERMISSIONS: StaffPermissions = {
@@ -14,6 +16,7 @@ export const DEFAULT_STAFF_PERMISSIONS: StaffPermissions = {
   canPublish: false,
   canDeleteClients: false,
   allowedModules: MODULES.map((m) => m.key),
+  canCreateCodeSites: false,
 };
 
 type PermUser = Pick<User, "id" | "role" | "permissions" | "clientId">;
@@ -25,6 +28,7 @@ export function staffPermissions(user: PermUser): StaffPermissions {
       canPublish: true,
       canDeleteClients: true,
       allowedModules: MODULES.map((m) => m.key),
+      canCreateCodeSites: true,
     };
   }
   return { ...DEFAULT_STAFF_PERMISSIONS, ...((user.permissions as Partial<StaffPermissions>) ?? {}) };

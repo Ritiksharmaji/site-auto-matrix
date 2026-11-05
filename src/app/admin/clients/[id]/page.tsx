@@ -7,6 +7,7 @@ import InvoiceTable from "@/components/billing/InvoiceTable";
 import ConfirmButton from "@/components/admin/ConfirmButton";
 import WebsiteStartPicker from "@/components/admin/WebsiteStartPicker";
 import { blueprintCategories, blueprintOptions } from "@/lib/blueprint-options";
+import { codeStartOptions } from "@/lib/code-options";
 import { PageHeader, StatusBadge } from "@/components/admin/Shell";
 import { requireStaff } from "@/lib/auth";
 import { CYCLE_LABEL } from "@/lib/billing";
@@ -14,7 +15,7 @@ import { db } from "@/lib/db";
 import { moduleOptions } from "@/lib/module-options";
 import { clientScope, staffPermissions } from "@/lib/permissions";
 import { siteUrl } from "@/lib/sites";
-import { getModule } from "@/modules/registry";
+import { siteKindName } from "@/modules/registry";
 
 export default async function ClientDetail({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireStaff();
@@ -57,7 +58,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                       <StatusBadge status={s.status} />
                     </div>
                     <p className="text-xs text-slate-500">
-                      {getModule(s.moduleKey)?.name} · {siteUrl(s)} · {s._count.enquiries} enquiries
+                      {siteKindName(s.moduleKey)} · {siteUrl(s)} · {s._count.enquiries} enquiries
                     </p>
                   </div>
                   <Link href={`/admin/sites/${s.id}`} className="btn-secondary !py-1.5">Open builder</Link>
@@ -73,7 +74,7 @@ export default async function ClientDetail({ params }: { params: Promise<{ id: s
                     <div><label className="label">Website name</label><input name="name" required className="input" /></div>
                     <div><label className="label">Web address (slug)</label><input name="slug" required className="input" placeholder="e.g. greenvalley-junior" /></div>
                   </div>
-                  <WebsiteStartPicker modules={moduleOptions(perms.allowedModules)} blueprints={await blueprintOptions(user, perms.allowedModules)} categories={blueprintCategories()} />
+                  <WebsiteStartPicker modules={moduleOptions(perms.allowedModules)} blueprints={await blueprintOptions(user, perms.allowedModules)} categories={blueprintCategories()} code={codeStartOptions(perms)} />
                 </ActionForm>
               </div>
             </details>

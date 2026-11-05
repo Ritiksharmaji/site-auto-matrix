@@ -105,29 +105,31 @@ model Client {
 }
 
 model Site {
-  id              String     @id @default(cuid())
+  id              String       @id @default(cuid())
   clientId        String
-  client          Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client          Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
   name            String
   /// Used for the subdomain: <slug>.yourplatform.com
-  slug            String     @unique
-  customDomain    String?    @unique
+  slug            String       @unique
+  customDomain    String?      @unique
   /// Module key from src/modules (e.g. "school", "company")
   moduleKey       String
   /// Ordered list of enabled section keys
-  enabledSections Json       @default("[]")
-  theme           Json       @default("{}")
+  enabledSections Json         @default("[]")
+  theme           Json         @default("{}")
   /// { brand: {...}, [sectionKey]: {...} }
-  content         Json       @default("{}")
-  status          SiteStatus @default(DRAFT)
+  content         Json         @default("{}")
+  status          SiteStatus   @default(DRAFT)
   publishedAt     DateTime?
   /// Notification + auto-reply settings, see src/lib/automation.ts
-  automation      Json       @default("{}")
+  automation      Json         @default("{}")
   enquiries       Enquiry[]
   assets          Asset[]
   pageViews       PageView[]
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  /// Set when the site is a "code website" (moduleKey = "code"), built from a Git repo
+  codeProject     CodeProject?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   @@index([clientId])
 }
@@ -259,4 +261,57 @@ model SavedBlueprint {
   createdAt       DateTime @default(now())
 
   @@index([moduleKey])
+}
+
+enum CodeFramework {
+  HTML
+  REACT
+  NEXTJS
+}
+
+enum DeployStatus {
+  BUILDING
+  LIVE
+  FAILED
+  REPLACED
+}
+
+/// A code website: its source lives in a GitHub repo, edited in VS Code and built by GitHub Actions.
+model CodeProject {
+  id           String        @id @default(cuid())
+  siteId       String        @unique
+  site         Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  framework    CodeFramework
+  repoOwner    String
+  repoName     String
+  branch       String        @default("main")
+  webhookId    Int?
+  /// The deploy currently served to visitors
+  liveDeployId String?
+  deploys      Deploy[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@unique([repoOwner, repoName])
+}
+
+/// One GitHub Actions build of a code website.
+model Deploy {
+  id            String       @id @default(cuid())
+  projectId     String
+  project       CodeProject  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  /// GitHub workflow run id
+  runId         String       @unique
+  runUrl        String
+  commitSha     String
+  commitMessage String       @default("")
+  author        String       @default("")
+  status        DeployStatus @default(BUILDING)
+  error         String?
+  fileCount     Int?
+  sizeBytes     Int?
+  createdAt     DateTime     @default(now())
+  finishedAt    DateTime?
+
+  @@index([projectId, createdAt])
 }

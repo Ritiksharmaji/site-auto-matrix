@@ -116,8 +116,8 @@
   {
     "file": "02-super-admin/05-client-created.png",
     "title": "New client created (plan, website, logins)",
-    "url": "http://localhost:3000/admin/clients/cmw2bbhif001ls1eajd8yyp17",
-    "finalUrl": "http://localhost:3000/admin/clients/cmw2bbhif001ls1eajd8yyp17"
+    "url": "http://localhost:3000/admin/clients/cmw3sgwtk0015s16znca1474v",
+    "finalUrl": "http://localhost:3000/admin/clients/cmw3sgwtk0015s16znca1474v"
   },
   {
     "file": "02-super-admin/06-client-detail.png",
@@ -194,8 +194,8 @@
   {
     "file": "02-super-admin/18-enquiry-detail.png",
     "title": "Enquiry detail – status, assignee, notes, notifications",
-    "url": "http://localhost:3000/admin/enquiries/cmw2bbanm001ds1ea2dv0w5pw",
-    "finalUrl": "http://localhost:3000/admin/enquiries/cmw2bbanm001ds1ea2dv0w5pw"
+    "url": "http://localhost:3000/admin/enquiries/cmw3sgtar000xs16zr01dqrs7",
+    "finalUrl": "http://localhost:3000/admin/enquiries/cmw3sgtar000xs16zr01dqrs7"
   },
   {
     "file": "02-super-admin/19-team.png",
@@ -452,38 +452,86 @@
   {
     "file": "05-blueprints/38-client-created-from-blueprint.png",
     "title": "Client created – website cloned from the blueprint",
-    "url": "http://localhost:3000/admin/clients/cmw2be2tq001ts1eaekee2xk2",
-    "finalUrl": "http://localhost:3000/admin/clients/cmw2be2tq001ts1eaekee2xk2"
+    "url": "http://localhost:3000/admin/clients/cmw3sirn9001ds16zvgvhwxod",
+    "finalUrl": "http://localhost:3000/admin/clients/cmw3sirn9001ds16zvgvhwxod"
   },
   {
     "file": "05-blueprints/39-builder-blueprint-site.png",
     "title": "Builder – a site made from a blueprint, ready to edit",
-    "url": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n",
-    "finalUrl": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n"
+    "url": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1"
   },
   {
     "file": "05-blueprints/40-design-tab-structure-layouts.png",
     "title": "Design tab – presets, colours, page structure and section layouts",
-    "url": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n",
-    "finalUrl": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n"
+    "url": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1"
   },
   {
     "file": "05-blueprints/41-design-tab-saved-preview.png",
     "title": "Design tab – header changed to Centered, saved, preview updated",
-    "url": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n",
-    "finalUrl": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n"
+    "url": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1"
   },
   {
     "file": "05-blueprints/42-save-as-blueprint.png",
     "title": "Design tab – Save this website as a blueprint",
-    "url": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n",
-    "finalUrl": "http://localhost:3000/admin/sites/cmw2be2u9001xs1eawyhz076n"
+    "url": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1"
   },
   {
     "file": "05-blueprints/43-gallery-saved-by-team.png",
     "title": "Blueprints – Saved by the team (with Delete for the person who saved it)",
     "url": "http://localhost:3000/admin/blueprints",
     "finalUrl": "http://localhost:3000/admin/blueprints"
+  },
+  {
+    "file": "06-code-websites/01-new-client-code-website.png",
+    "title": "New client – third option: Code website (VS Code), with React / Next.js / HTML",
+    "url": "http://localhost:3000/admin/clients/new",
+    "finalUrl": "http://localhost:3000/admin/clients/new"
+  },
+  {
+    "file": "06-code-websites/02-code-tab.png",
+    "title": "Code website – Code tab: Open in VS Code, deploys, roll back, developer access",
+    "url": "http://localhost:3000/admin/sites/cmw3sj7hk0006s1kt6wzfcoeg",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw3sj7hk0006s1kt6wzfcoeg"
+  },
+  {
+    "file": "06-code-websites/03-code-tab-how-to.png",
+    "title": "Code tab – how to work on it (open, run, push)",
+    "url": "http://localhost:3000/admin/sites/cmw3sj7hk0006s1kt6wzfcoeg",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw3sj7hk0006s1kt6wzfcoeg"
+  },
+  {
+    "file": "06-code-websites/04-code-site-settings.png",
+    "title": "Code website – Settings (publish, web address, custom domain) work as usual",
+    "url": "http://localhost:3000/admin/sites/cmw3sj7hk0006s1kt6wzfcoeg",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw3sj7hk0006s1kt6wzfcoeg"
+  },
+  {
+    "file": "06-code-websites/05-websites-list.png",
+    "title": "Websites list – code websites are labelled “Code website”",
+    "url": "http://localhost:3000/admin/sites",
+    "finalUrl": "http://localhost:3000/admin/sites"
+  },
+  {
+    "file": "06-code-websites/06-team-permission.png",
+    "title": "Team member permissions – “Can create code websites” (off by default)",
+    "url": "http://localhost:3000/admin/team/cmvdepbnf0002s1fcc91vbce0",
+    "finalUrl": "http://localhost:3000/admin/team/cmvdepbnf0002s1fcc91vbce0"
+  },
+  {
+    "file": "06-code-websites/07-live-code-website.png",
+    "title": "The code website live on its own address",
+    "url": "http://code-demo-studio.localhost:3000/",
+    "finalUrl": "http://code-demo-studio.localhost:3000/"
+  },
+  {
+    "file": "06-code-websites/08-client-portal-code-website.png",
+    "title": "Client portal – code website: open the site and see enquiries (no content editor)",
+    "url": "http://localhost:3000/portal/sites/cmw3sj7hk0006s1kt6wzfcoeg",
+    "finalUrl": "http://localhost:3000/portal/sites/cmw3sj7hk0006s1kt6wzfcoeg"
   },
   {
     "file": "03-team-member/01-dashboard.png",
@@ -590,8 +638,8 @@
   {
     "file": "04-client/05-enquiry-detail.png",
     "title": "Client – enquiry detail and notes",
-    "url": "http://localhost:3000/portal/enquiries/cmw2bbanm001ds1ea2dv0w5pw",
-    "finalUrl": "http://localhost:3000/portal/enquiries/cmw2bbanm001ds1ea2dv0w5pw"
+    "url": "http://localhost:3000/portal/enquiries/cmw3sgtar000xs16zr01dqrs7",
+    "finalUrl": "http://localhost:3000/portal/enquiries/cmw3sgtar000xs16zr01dqrs7"
   },
   {
     "file": "04-client/06-billing.png",

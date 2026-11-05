@@ -12,7 +12,7 @@ One Next.js app that creates and hosts many websites (schools, companies, …) f
 
 🎛️ **Design tab:** besides colours and fonts, choose the header (or no header), footer, spacing, button style and a layout for each section.
 
-🧑‍💻 **Planned (Phase 2, not built):** *Code mode* for fully custom sites written in VS Code and deployed on the same platform. Design: [SYSTEM_DESIGN.md §18](docs/SYSTEM_DESIGN.md#18-phase-2-design-code-mode-custom-coded-websites-not-built-yet).
+🧑‍💻 **Code websites:** React, Next.js or HTML sites in their own private GitHub repo. Click **Open in VS Code**, code, push, and the site is live (built by GitHub Actions, with versions and one-click rollback). See [APPLICATION_FLOW.md §6C](docs/APPLICATION_FLOW.md#6c-code-websites-built-in-vs-code) and [SYSTEM_DESIGN.md §18](docs/SYSTEM_DESIGN.md#18-code-websites-built-in-vs-code). One-time GitHub setup: [DEPLOYMENT.md](docs/DEPLOYMENT.md#code-websites-connecting-github-one-time).
 
 📸 **Regenerate the screenshots** (dev server running): `npm run docs:screenshots` · **Validate blueprints:** `npm run check:blueprints`
 
@@ -65,6 +65,8 @@ src/components/site/  SiteRenderer: turns module + theme + content into a websit
 src/components/builder/ Builder UI (sections, design, content, settings, enquiries)
 src/app/admin/        Admin panel (super admin + team), incl. Blueprints gallery
 src/app/portal/       Client portal
+src/lib/code-sites.ts Code websites: GitHub repo, builds, serving, rollback
+code-templates/       React / Next.js / HTML starters for code websites
 src/app/sites/[site]/ Public website route
 src/middleware.ts     Routes <slug>.PLATFORM_HOST and custom domains to /sites/<key>
 prisma/schema.prisma  Users, Clients, Sites (JSONB theme/content), Enquiries, Activity, SavedBlueprint

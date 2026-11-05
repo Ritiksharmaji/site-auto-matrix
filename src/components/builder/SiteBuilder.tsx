@@ -417,7 +417,7 @@ function SaveAsBlueprint({ siteId, siteName }: { siteId: string; siteName: strin
   );
 }
 
-function SettingsTab({ site, canPublish, onSaved }: Props & { onSaved: () => void }) {
+export function SettingsTab({ site, canPublish, onSaved }: Pick<Props, "site" | "canPublish"> & { onSaved: () => void }) {
   const [form, setForm] = useState({ name: site.name, slug: site.slug, customDomain: site.customDomain ?? "" });
   const { saving, msg, run } = useSaver();
   const pub = useSaver();
@@ -463,7 +463,7 @@ function SettingsTab({ site, canPublish, onSaved }: Props & { onSaved: () => voi
   );
 }
 
-function AutomationTab({ site, automation }: Props) {
+export function AutomationTab({ site, automation }: Pick<Props, "site" | "automation">) {
   const [a, setA] = useState<AutomationSettings>(automation);
   const { saving, msg, run } = useSaver();
   const toggle = (k: "notifyClient" | "notifyOwner" | "whatsappNotify" | "autoReply", label: string, hint: string) => (

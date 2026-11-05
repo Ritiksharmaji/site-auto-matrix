@@ -12,13 +12,14 @@ type Props = {
   blueprints: BlueprintOption[];
   categories: { key: string; label: string }[];
   initialBlueprint?: string;
+  code?: React.ComponentProps<typeof WebsiteStartPicker>["code"];
 };
 
 function toSlug(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
 }
 
-export default function NewClientForm({ modules, platformHost, blueprints, categories, initialBlueprint }: Props) {
+export default function NewClientForm({ modules, platformHost, blueprints, categories, initialBlueprint, code }: Props) {
   const [state, action, pending] = useActionState<FormState, FormData>(createClient, {});
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
@@ -60,7 +61,7 @@ export default function NewClientForm({ modules, platformHost, blueprints, categ
 
       <section className="card space-y-4">
         <h2 className="font-semibold text-slate-900">3. Website</h2>
-        <WebsiteStartPicker modules={modules} blueprints={blueprints} categories={categories} initialBlueprint={initialBlueprint} />
+        <WebsiteStartPicker modules={modules} blueprints={blueprints} categories={categories} initialBlueprint={initialBlueprint} code={code} />
         <div>
           <label className="label" htmlFor="slug">Web address</label>
           <div className="flex items-center">

@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto";
 import { db } from "@/lib/db";
+import { slugFromHost } from "@/lib/hosts";
+import { findSiteByKey } from "@/lib/sites";
 
 // Privacy-friendly page view counter for client websites. No cookies and no IP
 // storage: visitors are counted with a hash of IP + user agent + date + secret
@@ -17,8 +19,17 @@ export async function POST(req: Request) {
   } catch {
     return new Response(null, { status: 400 });
   }
-  const siteId = typeof body.siteId === "string" ? body.siteId : "";
-  const site = siteId ? await db.site.findUnique({ where: { id: siteId }, select: { status: true } }) : null;
+  // Builder sites send their id; code websites are recognised by the address they're on.
+  let siteId = typeof body.siteId === "string" ? body.siteId : "";
+  let site = siteId ? await db.site.findUnique({ where: { id: siteId }, select: { status: true } }) : null;
+  if (!siteId) {
+    const host = (req.headers.get("host") ?? "").toLowerCase();
+    const byHost = await findSiteByKey(slugFromHost(host) ?? host.replace(/^www\./, ""));
+    if (byHost?.moduleKey === "code") {
+      siteId = byHost.id;
+      site = byHost;
+    }
+  }
   if (!site || site.status !== "PUBLISHED") return new Response(null, { status: 204 });
 
   const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || req.headers.get("x-real-ip") || "local";

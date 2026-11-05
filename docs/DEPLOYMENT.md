@@ -81,7 +81,38 @@ npx tsc --noEmit && npm run lint && npm run check:blueprints
 
 **Blueprints release (Nov 2026).** This update adds the `20261104120000_saved_blueprints` migration, which only creates a new `SavedBlueprint` table, so existing data isn't touched; `deploy.sh` applies it automatically. It also adds the public `/api/art/*` route (the blueprints' SVG feature icons) and 112 stock photos in `public/blueprints/photos/` (about 7 MB, copied with the rest of `public/` by `deploy.sh`). Both are served on every client domain through the same Caddy rule, so there's nothing to configure. Existing websites keep their exact look, because all new design options default to the original layout. Team members only see blueprints for their allowed modules; to give someone the new **Tech / SaaS / DevOps** module, tick it under Team → (member) → Allowed modules.
 
-**Code mode (Phase 2)** is not deployed. It would run each custom site in its own container, which needs a bigger server than the current 1 GB plan. See [SYSTEM_DESIGN.md §18](./SYSTEM_DESIGN.md#18-phase-2-design-code-mode-custom-coded-websites-not-built-yet).
+**Code websites (Nov 2026)** add the `20261105100000_code_sites` migration (two new tables), a `data/code-sites` volume for stored builds, and starter templates copied with the app. `deploy.sh` handles all of it. They need a one-time GitHub connection (next section) before the "Code website" option can be used.
+
+### Code websites: connecting GitHub (one time)
+
+Code websites live in private GitHub repositories under your account. The server needs a **fine-grained personal access token** so it can create those repositories and download their builds.
+
+1. On github.com: **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
+2. **Name** `onekampus-sites`. **Expiration**: 1 year (set a reminder to renew it). **Resource owner**: your account (`Ritiksharmaji`).
+3. **Repository access**: **All repositories**. This is needed because new `site-*` repositories are created later.
+4. **Repository permissions**:
+
+   | Permission | Access | Used for |
+   |---|---|---|
+   | Administration | Read and write | creating `site-*` repos, inviting developers |
+   | Contents | Read and write | committing the starter template |
+   | Workflows | Read and write | the deploy workflow file, "Build again" |
+   | Webhooks | Read and write | telling the platform when a build finishes |
+   | Actions | Read-only | downloading builds |
+   | Metadata | Read-only | (selected automatically) |
+
+5. Click **Generate token**, copy it, then on your Mac run:
+
+   ```bash
+   deploy/set-github-token.sh
+   ```
+
+   Paste the token at the hidden prompt. The script stores it in the server's `.env`, sets `GITHUB_OWNER=Ritiksharmaji`, generates `GITHUB_WEBHOOK_SECRET` on the server, and restarts the app. The token isn't shown or saved on your Mac.
+6. In the admin panel: **New client → Code website (VS Code)** is now enabled. Create a test site, wait 1–2 minutes, and its Code tab should show the first deploy as **Live**.
+
+To replace an expired token, run the same script again.
+
+**On your laptop** (for "Open in VS Code"): install VS Code, Git and Node.js 22, and sign in to GitHub in VS Code (Accounts menu, bottom left). The browser asks to open VS Code the first time; tick "Always allow".
 
 ## 5. Signing in and resetting passwords
 

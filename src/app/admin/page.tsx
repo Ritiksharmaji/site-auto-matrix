@@ -3,7 +3,7 @@ import { PageHeader, StatusBadge } from "@/components/admin/Shell";
 import { requireStaff } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { clientScope, siteScope, staffPermissions } from "@/lib/permissions";
-import { getModule } from "@/modules/registry";
+import { getModule, siteKindName } from "@/modules/registry";
 
 export default async function Dashboard() {
   const user = await requireStaff();
@@ -67,7 +67,7 @@ export default async function Dashboard() {
                   <div className="min-w-0">
                     <Link href={`/admin/sites/${s.id}`} className="font-medium text-slate-900 hover:text-indigo-600">{s.name}</Link>
                     <p className="truncate text-xs text-slate-500">
-                      {getModule(s.moduleKey)?.name} · {s.client.name}
+                      {siteKindName(s.moduleKey)} · {s.client.name}
                       {isOwner && ` · managed by ${s.client.owner.name}`}
                     </p>
                   </div>
@@ -83,7 +83,7 @@ export default async function Dashboard() {
           <ul className="space-y-3">
             {byModule.map((m) => (
               <li key={m.moduleKey} className="flex items-center justify-between text-sm">
-                <span className="text-slate-700">{getModule(m.moduleKey)?.name ?? m.moduleKey}</span>
+                <span className="text-slate-700">{siteKindName(m.moduleKey)}</span>
                 <span className="font-semibold text-slate-900">{m._count}</span>
               </li>
             ))}

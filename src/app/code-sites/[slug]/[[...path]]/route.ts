@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { buildDir, contentType, PREVIEW_COOKIE, resolveBuildFile, verifyPreviewToken } from "@/lib/code-sites";
 import { CODE_SITE_HEADER, codeSiteMarker } from "@/lib/code-site-marker";
 import { db } from "@/lib/db";
+import { platformHost, protocolFor } from "@/lib/hosts";
 
 // Serves the live build of a code website. Only reached through the middleware,
 // which rewrites <slug>.onekampus.com/... (or the site's own domain) to here.
@@ -26,6 +27,10 @@ async function serve(req: Request, { params }: Params, headOnly: boolean) {
 
   const site = await db.site.findUnique({ where: { slug }, include: { codeProject: true } });
   if (!site?.codeProject) return html(PAGE("Website not found", "This address isn't in use."), 404);
+
+  // Code Studio's instant preview runs here, on the site's own origin (never on the
+  // admin origin). The page is empty until the admin panel sends it content.
+  if (parts.length === 1 && parts[0] === "__studio-preview") return previewShell();
   const project = site.codeProject;
 
   // Draft sites are visible only with a preview link from the admin panel (kept for 2 hours in a cookie).
@@ -59,6 +64,33 @@ async function serve(req: Request, { params }: Params, headOnly: boolean) {
   if (setCookie) headers.append("Set-Cookie", setCookie);
   if (headOnly) return new Response(null, { status: found.status, headers });
   return new Response(new Uint8Array(await readFile(found.file)), { status: found.status, headers });
+}
+
+/** Empty page that renders whatever Code Studio (on the platform origin) posts to it. */
+function previewShell() {
+  const platform = `${protocolFor(platformHost())}://${platformHost()}`;
+  const body = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Preview</title></head>
+<body style="margin:0;font:14px system-ui,sans-serif;color:#64748b"><p style="padding:24px">Preparing preview…</p>
+<script>
+(function () {
+  var PARENT = ${JSON.stringify(platform)};
+  addEventListener("message", function (e) {
+    if (e.origin !== PARENT || !e.data || e.data.type !== "studio-preview") return;
+    try { history.replaceState(null, "", e.data.path || "/"); } catch (err) {}
+    document.open(); document.write(e.data.html); document.close();
+  });
+  parent.postMessage({ type: "studio-preview-ready" }, PARENT);
+})();
+</script></body></html>`;
+  return new Response(body, {
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Robots-Tag": "noindex",
+      // Only the admin panel may embed this page.
+      "Content-Security-Policy": `frame-ancestors ${platform}`,
+    },
+  });
 }
 
 export async function GET(req: Request, ctx: Params) {

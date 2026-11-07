@@ -63,7 +63,7 @@ export async function middleware(req: NextRequest) {
 
   if (pathname.length > 1 && pathname.endsWith("/")) return stripSlash();
 
-  if (pathname.startsWith("/admin") || pathname.startsWith("/portal")) {
+  if (pathname.startsWith("/admin") || pathname.startsWith("/portal") || pathname.startsWith("/studio")) {
     const session = await verifySession(req.cookies.get(SESSION_COOKIE)?.value);
     if (!session) {
       const url = req.nextUrl.clone();

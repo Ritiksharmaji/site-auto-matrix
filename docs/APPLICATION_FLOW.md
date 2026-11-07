@@ -6,7 +6,7 @@ This guide explains, step by step, how the platform works: who uses it, what eac
 - For the technical architecture, see [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md).
 - **Roles and permissions, proven screen by screen:** [§17](#17-roles-and-permissions-proven-with-screenshots).
 - **Ready-made websites (blueprints) and the page-structure designer:** [§6B](#6b-starting-from-a-blueprint-ready-made-websites) and [§7 Step 2](#step-2--design).
-- **Code websites (React / Next.js / HTML written in VS Code, deployed by pushing to GitHub):** [§6C](#6c-code-websites-built-in-vs-code). Still planned: an in-browser editor and a "build on server" button, see [§19](#19-planned-the-other-two-ways-to-code).
+- **Code websites (React / Next.js / HTML written in VS Code, deployed by pushing to GitHub):** [§6C](#6c-code-websites-built-in-vs-code). Edit them in VS Code on a laptop, or in **Code Studio**, VS Code's editor inside the admin panel: [§6D](#6d-code-studio-vs-code-in-the-browser).
 
 ---
 
@@ -498,6 +498,78 @@ The platform creates the private repository with a starter website, connects the
 
 ---
 
+## 6D. Code Studio (VS Code in the browser)
+
+Every code website can be edited in **two ways**, and both work on the same GitHub repository, so you can switch between them at any time:
+
+| | **Open in window** (Code Studio) | **Open in laptop VS Code** |
+|---|---|---|
+| Where | Inside the admin panel, in any browser | VS Code on your computer |
+| Install anything? | No | VS Code, Git, Node.js |
+| Editor | VS Code's own editor (Monaco): colours, autocomplete, error underlines, find/replace, multi-cursor, minimap | Full VS Code with extensions and terminal |
+| Packages | **Packages** panel: type a name, click Add (replaces `npm install`) | `npm install` in the terminal |
+| Preview while editing | **Instant preview**: React and HTML compile in your browser as you type | `npm run dev` |
+| Publish | **Commit & deploy** button | `git push` |
+| React · Next.js · HTML | ✅ · ✅ (preview after deploy) · ✅ | ✅ · ✅ · ✅ |
+
+```mermaid
+flowchart LR
+    CT["Code tab"] -->|Open in window| ST["Code Studio<br/>(admin panel)"]
+    CT -->|Open in laptop VS Code| VS["VS Code on laptop"]
+    ST -->|"Commit & deploy<br/>(commit via GitHub API)"| GH[("GitHub repo<br/>site-slug")]
+    VS -->|git push| GH
+    GH --> GA["GitHub Actions build"] --> LIVE["Live site<br/>slug.onekampus.com"]
+    ST -.->|"instant preview<br/>(compiled in the browser)"| PV["Preview on the site's own address"]
+```
+
+**Step 1: Open it.** On the website's **Code** tab, click **Open in window**. Code Studio opens in a new tab.
+
+![Code tab: Open in window, or Open in laptop VS Code](screenshots/07-code-studio/01-code-tab-two-ways.png)
+
+*Code tab: Open in window, or Open in laptop VS Code*
+
+**Step 2: Edit.** Files are on the left (new file ＋, upload ⇪ for images, reload ↻; hover a file to rename or delete it). Open files appear as tabs, and a blue dot means unsaved changes. The preview on the right shows your code **before** you deploy it.
+
+![Code Studio: files, VS Code editor, instant preview, deploy status bar](screenshots/07-code-studio/02-studio-editor-preview.png)
+
+*Code Studio: files, VS Code editor, instant preview, deploy status bar*
+
+![After editing the headline and button: the instant preview updates as you type](screenshots/07-code-studio/03-studio-edit-instant-preview.png)
+
+*After editing the headline and button: the instant preview updates as you type*
+
+**Step 3: Packages, without a terminal.** Open **Packages** (⬢ on the left bar), type a name (e.g. `framer-motion`) and click **Add**. The latest version is written into `package.json`; GitHub installs it when it builds, and the instant preview loads it right away.
+
+![Packages panel](screenshots/07-code-studio/04-studio-packages.png)
+
+*Packages panel*
+
+**Step 4: Review and deploy.** **Changes** (⑂) lists every added (A), modified (M) and deleted (D) file, each with undo. Write a message at the top and click **Commit & deploy**. The status bar shows **Building…** and then **● Live** in about 1–2 minutes (or **✕ Build failed**, with a link to the log).
+
+![Changes panel](screenshots/07-code-studio/05-studio-changes.png)
+
+*Changes panel*
+
+![Committed: GitHub is building it](screenshots/07-code-studio/06-studio-committed-building.png)
+
+*Committed: GitHub is building it*
+
+**Working alongside a laptop.** If someone pushed from VS Code on a laptop after you opened the Studio:
+- if they changed **other** files, your commit goes on top automatically and nothing is lost
+- if they changed **the same** files, Code Studio asks: **Keep mine and deploy**, or **Use their version** (your other changes are kept)
+
+![Same file changed on a laptop: choose which version to keep](screenshots/07-code-studio/07-studio-conflict.png)
+
+*Same file changed on a laptop: choose which version to keep*
+
+**Good to know**
+- Unsaved changes are kept **in this browser** (even if you close the tab) until you deploy or discard them. **Cmd/Ctrl+S** just confirms that. Publishing is always the **Commit & deploy** button.
+- The **instant preview** works for React and HTML sites. Next.js sites use **Live site**, which shows the latest deployed version.
+- The instant preview runs on the website's own address (e.g. `acme.onekampus.com/__studio-preview`), never on the admin address, so a mistake or bad script in the customer's code can't affect the admin panel.
+- Code Studio needs GitHub to be connected on the server (same as code websites).
+
+---
+
 ## 7. Building the website (the builder)
 
 Open **Websites → (a site)**. The left side has tabs, the right side shows a **live preview** (desktop or mobile) that reloads after each save.
@@ -937,6 +1009,7 @@ Structured data (users, clients, permissions, invoices) uses normal tables with 
 | Blueprints page, preview, start picker | `src/app/admin/blueprints/`, `src/app/blueprint-preview/[key]/`, `src/components/admin/BlueprintGallery.tsx`, `src/components/admin/WebsiteStartPicker.tsx` |
 | Code websites: repo creation, builds, serving, rollback | `src/lib/code-sites.ts`, `src/lib/github.ts`, `src/app/api/github/webhook/`, `src/app/code-sites/[slug]/[[...path]]/`, `src/app/actions/code.ts`, `src/components/builder/CodeSiteBuilder.tsx` |
 | Code website starter templates | `code-templates/react`, `code-templates/nextjs`, `code-templates/html` |
+| Code Studio (VS Code in the browser) | `src/app/studio/[id]/`, `src/components/studio/` (CodeStudio, MonacoEditor, preview), `src/app/actions/studio.ts`, preview shell in `src/app/code-sites/[slug]/[[...path]]/route.ts` |
 | Public form and tracking API for code websites | `src/app/api/public/enquiries/`, `src/app/api/track/`, `src/lib/enquiries.ts` |
 | Blueprint photos and icons | `public/blueprints/photos/` (list and Unsplash IDs: `scripts/blueprint-photos.txt`), feature icons: `src/lib/art.ts`, `src/app/api/art/[kind]/` |
 | Website rendering | `src/app/sites/[site]/`, `src/components/site/SiteRenderer.tsx` |
@@ -986,6 +1059,7 @@ Each check below was performed by signing in as that role and opening the page. 
 | Billing | [23](./screenshots/02-super-admin/23-billing.png) |
 | Blueprints: gallery, previews, create from blueprint, save / delete own blueprint | [05-blueprints](./screenshots/05-blueprints/) |
 | Code websites: create, Code tab, settings, permission, live site, client view | [06-code-websites](./screenshots/06-code-websites/) |
+| Code Studio: editor, instant preview, packages, changes, commit, conflict | [07-code-studio](./screenshots/07-code-studio/) |
 
 ![Activity log (Super Admin only): who did what and when](screenshots/02-super-admin/22-activity.png)
 
@@ -1101,19 +1175,20 @@ npm run check:blueprints
 
 ---
 
-## 19. Planned: the other two ways to code
+## 19. Ways to code, and what's next
 
-Of the three ways to build websites in code, **"Open in VS Code"** is built (§6C). Two more are planned:
+| | Open in laptop VS Code | Open in window (Code Studio) |
+|---|---|---|
+| Status | ✅ built (§6C) | ✅ built (§6D) |
+| Who builds | GitHub Actions | GitHub Actions (the Studio commits; the same pipeline builds) |
+| React / Next.js / HTML | ✅ / ✅ / ✅ | ✅ / ✅ / ✅ |
+| Instant preview | `npm run dev` | ✅ React and HTML in the browser |
+| Terminal | ✅ | Not needed (Packages panel) |
+| Works on the 1 GB server | ✅ | ✅ |
 
-| | Open in VS Code (built) | In-browser editor (planned) | "Build on server" button (planned) |
-|---|---|---|---|
-| Where you code | VS Code on your laptop | VS Code's editor inside the admin panel | The same in-browser editor |
-| Who builds | GitHub Actions | Your browser | GitHub Actions |
-| React | ✅ | ✅ (packages from a CDN) | ✅ |
-| Next.js | ✅ (static export) | ❌ | ✅ (static export) |
-| Terminal / npm install | ✅ on your laptop | Not needed (Packages panel) | Not needed (build log shown) |
-| Works on the 1 GB server | ✅ | ✅ | ✅ (builds run on GitHub, not the server) |
+The planned "Build on server" button is covered by Code Studio: its **Commit & deploy** runs the real `npm install` + `npm run build` on GitHub Actions, without a terminal or laptop.
 
-Also planned:
+Still planned:
 - **Full Next.js with server features** (API routes, server rendering). Each site would need its own container (~150 MB each), so a 2 GB server.
-- **Editing builder sites and blueprints as code** (pull a site's content and design as files, edit, push back).
+- **Editing builder sites and blueprints as code** (pull a site's content and design as files, edit in Code Studio or VS Code, push back).
+- **Instant preview for Next.js** in the browser.

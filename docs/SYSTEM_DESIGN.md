@@ -211,6 +211,7 @@ siteScope(user)  → sites whose client is inside clientScope(user)
 | Delete a saved blueprint | ✅ any | ⚠️ only ones they saved | ❌ |
 | Create code websites (GitHub repo, VS Code) | ✅ | ⚠️ if `canCreateCodeSites` | ❌ |
 | Code tab: deploys, roll back, build again, invite a developer | ✅ | ✅ own clients' code sites | ❌ (portal shows the site and its enquiries) |
+| Code Studio (edit and commit in the browser) | ✅ | ✅ own clients' code sites | ❌ |
 | Reassign a client to another member | ✅ | ❌ | ❌ |
 | Delete client | ✅ | ⚠️ if `canDeleteClients` | ❌ |
 | Create client logins | ✅ | ✅ own clients | ❌ |
@@ -537,6 +538,8 @@ flowchart TD
 | Unsafe links in content | Card, hero, pricing, code and CTA button links only allow `http(s)`, `mailto:`, `tel:`, `#` and `/` |
 | Generated artwork | `/api/art` only accepts 6-digit hex colours and known glyph names, draws no user text, and is served with `Content-Security-Policy: default-src 'none'` |
 | Code websites running JavaScript next to the admin panel | Served only on their own address; `/code-sites/…` on the platform host returns 404; internal rewrites carry a secret marker; the session cookie is host-only (never sent to client subdomains) |
+| Customer code in Code Studio's preview | The instant preview runs on the site's own origin (`/__studio-preview`), which accepts content only from the platform origin (`postMessage` origin check) and can only be framed by it (`frame-ancestors`) |
+| Code Studio commits | Server-side only, with the platform's GitHub token, scoped to sites the user manages; paths are validated (no `..`, `.git/`), at most 200 files / 8 MB, and the deploy workflow can't be deleted |
 | Forged deploys | GitHub webhooks are verified with HMAC-SHA256 (`GITHUB_WEBHOOK_SECRET`); builds are downloaded from GitHub with the platform's token, never accepted from the request |
 | Malicious build archives | Unzipped in memory with path checks (no `..`, no absolute paths), limits of 10,000 files / 300 MB, must contain `index.html`; written to a temp folder then swapped in |
 | Form spam from code websites | `/api/public/enquiries` accepts only the site's own origin, needs email or phone, honeypot field, 10 posts per IP per 10 minutes |
@@ -558,6 +561,7 @@ src/
 │  ├─ admin/                Super Admin + Team panel (incl. blueprints/ gallery)
 │  ├─ blueprint-preview/    staff-only full preview of a blueprint
 │  ├─ code-sites/[slug]/    serves code websites' live builds (reached only via middleware rewrite)
+│  ├─ studio/[id]/          Code Studio: VS Code's editor in the browser for a code website
 │  ├─ portal/               Client portal
 │  ├─ sites/[site]/         public website, sitemap.xml, robots.txt
 │  ├─ actions/              server actions (auth, admin, site, enquiry, crm, billing, blueprints)
@@ -680,7 +684,42 @@ Both form and tracking do nothing on `localhost`.
 **Limits and next steps**
 - Static output only: no API routes, server actions, middleware or server rendering. A future "server" mode would run each Next.js site in its own container (~150 MB each, so a 2 GB server).
 - GitHub's free plan has 2,000 Actions minutes a month for private repos (a build takes about 1–2 minutes).
-- Not built yet:
-  - **in-browser editor:** VS Code's editor (Monaco) in the admin panel, with an in-browser bundler and npm packages from a CDN
-  - **"Build on server" button:** the same editor, built by the same GitHub Actions pipeline
-  - **editing builder sites and blueprints as code**
+- Not built yet: **editing builder sites and blueprints as code**, and an instant in-browser preview for Next.js.
+
+### 18.1 Code Studio (VS Code in the browser)
+
+Code Studio (`/studio/<siteId>`) is the second way to edit a code website, next to "Open in VS Code" on a laptop. It has no storage of its own: it reads and commits the same GitHub repository, so the existing build → webhook → install pipeline publishes its changes.
+
+```mermaid
+sequenceDiagram
+    participant B as Browser (Code Studio)
+    participant P as Platform (server actions)
+    participant G as GitHub
+    participant S as Site origin (slug.onekampus.com)
+    B->>P: studioTree / studioReadFiles
+    P->>G: git refs, trees, blobs (token)
+    G-->>B: file list + contents (via P)
+    Note over B: edit in Monaco · drafts kept in localStorage
+    B->>S: iframe /__studio-preview
+    S-->>B: ready
+    B->>S: postMessage(compiled HTML) → renders on the site's origin
+    B->>P: studioSave(headSha, changes with base blob shas)
+    P->>G: if head moved: compare changed paths → conflict or rebase
+    P->>G: blobs + tree(base_tree) + commit + update ref (no force)
+    G->>G: GitHub Actions build → webhook → platform installs → Live
+    B->>P: studioStatus (polls every 4 s while building)
+```
+
+- **Editor:** Monaco 0.55.1 (VS Code's editor) from jsDelivr, through `@monaco-editor/react`. JavaScript/TypeScript checks run without "missing module" errors, because packages are installed on GitHub, not in the browser.
+- **Saving:** the server re-reads the branch. If it moved since the Studio loaded it, every changed path's current blob sha is compared with the sha the editor started from:
+  - all the same → commit on top of the new head (automatic rebase)
+  - any different → the list goes back to the user (keep mine / use theirs)
+  - the ref update is never forced
+- **Drafts:** unsaved edits live in `localStorage` per site and are restored when the page is reopened.
+- **Packages panel:** resolves the latest (or requested) version from the npm registry in the browser, and writes `^x.y.z` into `package.json`.
+- **Instant preview:**
+  - **HTML sites:** the page with its CSS, JS and images inlined.
+  - **React sites:** compiled in the browser with **esbuild-wasm 0.25.12**. Bare imports become esm.sh URLs at the `package.json` versions, React is shared through an import map, CSS is injected, and images become data URLs.
+  - The document is posted to a shell page on the **site's own origin**, so customer code never runs on the admin origin, and React Router sees normal paths.
+  - Next.js sites preview the live build.
+- **Server cost:** none beyond GitHub API calls. Compiling happens in the user's browser and building on GitHub Actions.

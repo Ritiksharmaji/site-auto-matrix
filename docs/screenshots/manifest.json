@@ -25,49 +25,49 @@
   },
   {
     "file": "01-public/05-site-greenvalley-desktop.png",
-    "title": "School module – Green Valley Public School (desktop)",
+    "title": "School module \u2013 Green Valley Public School (desktop)",
     "url": "http://greenvalley.localhost:3000/",
     "finalUrl": "http://greenvalley.localhost:3000/"
   },
   {
     "file": "01-public/06-site-horizon-desktop.png",
-    "title": "University module – Horizon University (desktop)",
+    "title": "University module \u2013 Horizon University (desktop)",
     "url": "http://horizon.localhost:3000/",
     "finalUrl": "http://horizon.localhost:3000/"
   },
   {
     "file": "01-public/07-site-nexora-desktop.png",
-    "title": "Company module – Nexora Solutions (desktop)",
+    "title": "Company module \u2013 Nexora Solutions (desktop)",
     "url": "http://nexora.localhost:3000/",
     "finalUrl": "http://nexora.localhost:3000/"
   },
   {
     "file": "01-public/08-site-urbanthreads-desktop.png",
-    "title": "Shop module – Urban Threads (desktop)",
+    "title": "Shop module \u2013 Urban Threads (desktop)",
     "url": "http://urbanthreads.localhost:3000/",
     "finalUrl": "http://urbanthreads.localhost:3000/"
   },
   {
     "file": "01-public/09-site-greenvalley-mobile.png",
-    "title": "School module – Green Valley Public School (mobile)",
+    "title": "School module \u2013 Green Valley Public School (mobile)",
     "url": "http://greenvalley.localhost:3000/",
     "finalUrl": "http://greenvalley.localhost:3000/"
   },
   {
     "file": "01-public/10-site-horizon-mobile.png",
-    "title": "University module – Horizon University (mobile)",
+    "title": "University module \u2013 Horizon University (mobile)",
     "url": "http://horizon.localhost:3000/",
     "finalUrl": "http://horizon.localhost:3000/"
   },
   {
     "file": "01-public/11-site-nexora-mobile.png",
-    "title": "Company module – Nexora Solutions (mobile)",
+    "title": "Company module \u2013 Nexora Solutions (mobile)",
     "url": "http://nexora.localhost:3000/",
     "finalUrl": "http://nexora.localhost:3000/"
   },
   {
     "file": "01-public/12-site-urbanthreads-mobile.png",
-    "title": "Shop module – Urban Threads (mobile)",
+    "title": "Shop module \u2013 Urban Threads (mobile)",
     "url": "http://urbanthreads.localhost:3000/",
     "finalUrl": "http://urbanthreads.localhost:3000/"
   },
@@ -85,7 +85,7 @@
   },
   {
     "file": "01-public/15-enquiry-sent.png",
-    "title": "Enquiry sent – thank-you message",
+    "title": "Enquiry sent \u2013 thank-you message",
     "url": "http://greenvalley.localhost:3000/#admissions",
     "finalUrl": "http://greenvalley.localhost:3000/#admissions"
   },
@@ -103,25 +103,25 @@
   },
   {
     "file": "02-super-admin/03-client-new.png",
-    "title": "Create client – empty form",
+    "title": "Create client \u2013 empty form",
     "url": "http://localhost:3000/admin/clients/new",
     "finalUrl": "http://localhost:3000/admin/clients/new"
   },
   {
     "file": "02-super-admin/04-client-new-filled.png",
-    "title": "Create client – form filled, module chosen",
+    "title": "Create client \u2013 form filled, module chosen",
     "url": "http://localhost:3000/admin/clients/new",
     "finalUrl": "http://localhost:3000/admin/clients/new"
   },
   {
     "file": "02-super-admin/05-client-created.png",
     "title": "New client created (plan, website, logins)",
-    "url": "http://localhost:3000/admin/clients/cmw3sgwtk0015s16znca1474v",
-    "finalUrl": "http://localhost:3000/admin/clients/cmw3sgwtk0015s16znca1474v"
+    "url": "http://localhost:3000/admin/clients/cmw61blap0013s12mpjeblc1x",
+    "finalUrl": "http://localhost:3000/admin/clients/cmw61blap0013s12mpjeblc1x"
   },
   {
     "file": "02-super-admin/06-client-detail.png",
-    "title": "Client detail – billing plan, invoices, logins, reassign, delete",
+    "title": "Client detail \u2013 billing plan, invoices, logins, reassign, delete",
     "url": "http://localhost:3000/admin/clients/cmvdepbnl0004s1fc0ebqd5qu",
     "finalUrl": "http://localhost:3000/admin/clients/cmvdepbnl0004s1fc0ebqd5qu"
   },
@@ -133,49 +133,49 @@
   },
   {
     "file": "02-super-admin/08-builder-sections.png",
-    "title": "Website builder – Sections tab",
+    "title": "Website builder \u2013 Sections tab",
     "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
     "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
   },
   {
     "file": "02-super-admin/09-builder-design.png",
-    "title": "Website builder – Design tab",
+    "title": "Website builder \u2013 Design tab",
     "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
     "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
   },
   {
     "file": "02-super-admin/10-builder-content.png",
-    "title": "Website builder – Content tab",
+    "title": "Website builder \u2013 Content tab",
     "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
     "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
   },
   {
     "file": "02-super-admin/11-builder-automation.png",
-    "title": "Website builder – Automation tab",
+    "title": "Website builder \u2013 Automation tab",
     "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
     "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
   },
   {
     "file": "02-super-admin/12-builder-settings.png",
-    "title": "Website builder – Settings tab",
+    "title": "Website builder \u2013 Settings tab",
     "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
     "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
   },
   {
     "file": "02-super-admin/13-builder-enquiries.png",
-    "title": "Website builder – Enquiries tab",
+    "title": "Website builder \u2013 Enquiries tab",
     "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
     "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
   },
   {
     "file": "02-super-admin/14-builder-analytics.png",
-    "title": "Website builder – Analytics tab",
+    "title": "Website builder \u2013 Analytics tab",
     "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
     "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
   },
   {
     "file": "02-super-admin/15-builder-mobile-preview.png",
-    "title": "Website builder – mobile preview",
+    "title": "Website builder \u2013 mobile preview",
     "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
     "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
   },
@@ -193,9 +193,9 @@
   },
   {
     "file": "02-super-admin/18-enquiry-detail.png",
-    "title": "Enquiry detail – status, assignee, notes, notifications",
-    "url": "http://localhost:3000/admin/enquiries/cmw3sgtar000xs16zr01dqrs7",
-    "finalUrl": "http://localhost:3000/admin/enquiries/cmw3sgtar000xs16zr01dqrs7"
+    "title": "Enquiry detail \u2013 status, assignee, notes, notifications",
+    "url": "http://localhost:3000/admin/enquiries/cmw61bgbz000vs12mvrih9x77",
+    "finalUrl": "http://localhost:3000/admin/enquiries/cmw61bgbz000vs12mvrih9x77"
   },
   {
     "file": "02-super-admin/19-team.png",
@@ -205,7 +205,7 @@
   },
   {
     "file": "02-super-admin/20-team-new.png",
-    "title": "Add team member – limits and permissions",
+    "title": "Add team member \u2013 limits and permissions",
     "url": "http://localhost:3000/admin/team/new",
     "finalUrl": "http://localhost:3000/admin/team/new"
   },
@@ -223,301 +223,301 @@
   },
   {
     "file": "02-super-admin/23-billing.png",
-    "title": "Billing – all invoices",
+    "title": "Billing \u2013 all invoices",
     "url": "http://localhost:3000/admin/billing",
     "finalUrl": "http://localhost:3000/admin/billing"
   },
   {
     "file": "05-blueprints/01-gallery-all.png",
-    "title": "Blueprints – gallery (all categories)",
+    "title": "Blueprints \u2013 gallery (all categories)",
     "url": "http://localhost:3000/admin/blueprints",
     "finalUrl": "http://localhost:3000/admin/blueprints"
   },
   {
     "file": "05-blueprints/02-gallery-tech.png",
-    "title": "Blueprints – Tech / DevOps category (10)",
+    "title": "Blueprints \u2013 Tech / DevOps category (10)",
     "url": "http://localhost:3000/admin/blueprints",
     "finalUrl": "http://localhost:3000/admin/blueprints"
   },
   {
     "file": "05-blueprints/03-gallery-custom.png",
-    "title": "Blueprints – Custom starters",
+    "title": "Blueprints \u2013 Custom starters",
     "url": "http://localhost:3000/admin/blueprints",
     "finalUrl": "http://localhost:3000/admin/blueprints"
   },
   {
     "file": "05-blueprints/04-preview-tech-container-registry.jpg",
-    "title": "Blueprint preview – ShipCrate – Container registry",
+    "title": "Blueprint preview \u2013 ShipCrate \u2013 Container registry",
     "url": "http://localhost:3000/blueprint-preview/tech-container-registry",
     "finalUrl": "http://localhost:3000/blueprint-preview/tech-container-registry"
   },
   {
     "file": "05-blueprints/05-preview-tech-kubernetes.jpg",
-    "title": "Blueprint preview – Helmsman – Kubernetes platform",
+    "title": "Blueprint preview \u2013 Helmsman \u2013 Kubernetes platform",
     "url": "http://localhost:3000/blueprint-preview/tech-kubernetes",
     "finalUrl": "http://localhost:3000/blueprint-preview/tech-kubernetes"
   },
   {
     "file": "05-blueprints/06-preview-tech-cicd.jpg",
-    "title": "Blueprint preview – PipeRocket – CI/CD pipelines",
+    "title": "Blueprint preview \u2013 PipeRocket \u2013 CI/CD pipelines",
     "url": "http://localhost:3000/blueprint-preview/tech-cicd",
     "finalUrl": "http://localhost:3000/blueprint-preview/tech-cicd"
   },
   {
     "file": "05-blueprints/07-preview-tech-cloud-hosting.jpg",
-    "title": "Blueprint preview – NimbusHost – Cloud & VPS hosting",
+    "title": "Blueprint preview \u2013 NimbusHost \u2013 Cloud & VPS hosting",
     "url": "http://localhost:3000/blueprint-preview/tech-cloud-hosting",
     "finalUrl": "http://localhost:3000/blueprint-preview/tech-cloud-hosting"
   },
   {
     "file": "05-blueprints/08-preview-tech-api-platform.jpg",
-    "title": "Blueprint preview – Relay – API platform",
+    "title": "Blueprint preview \u2013 Relay \u2013 API platform",
     "url": "http://localhost:3000/blueprint-preview/tech-api-platform",
     "finalUrl": "http://localhost:3000/blueprint-preview/tech-api-platform"
   },
   {
     "file": "05-blueprints/09-preview-tech-open-source-cli.jpg",
-    "title": "Blueprint preview – Forgekit – Open-source CLI",
+    "title": "Blueprint preview \u2013 Forgekit \u2013 Open-source CLI",
     "url": "http://localhost:3000/blueprint-preview/tech-open-source-cli",
     "finalUrl": "http://localhost:3000/blueprint-preview/tech-open-source-cli"
   },
   {
     "file": "05-blueprints/10-preview-tech-monitoring.jpg",
-    "title": "Blueprint preview – Pulsewatch – Monitoring & observability",
+    "title": "Blueprint preview \u2013 Pulsewatch \u2013 Monitoring & observability",
     "url": "http://localhost:3000/blueprint-preview/tech-monitoring",
     "finalUrl": "http://localhost:3000/blueprint-preview/tech-monitoring"
   },
   {
     "file": "05-blueprints/11-preview-tech-devsecops.jpg",
-    "title": "Blueprint preview – Sentinel Scan – DevSecOps security",
+    "title": "Blueprint preview \u2013 Sentinel Scan \u2013 DevSecOps security",
     "url": "http://localhost:3000/blueprint-preview/tech-devsecops",
     "finalUrl": "http://localhost:3000/blueprint-preview/tech-devsecops"
   },
   {
     "file": "05-blueprints/12-preview-tech-saas-analytics.jpg",
-    "title": "Blueprint preview – Metricly – SaaS analytics",
+    "title": "Blueprint preview \u2013 Metricly \u2013 SaaS analytics",
     "url": "http://localhost:3000/blueprint-preview/tech-saas-analytics",
     "finalUrl": "http://localhost:3000/blueprint-preview/tech-saas-analytics"
   },
   {
     "file": "05-blueprints/13-preview-tech-devops-agency.jpg",
-    "title": "Blueprint preview – OpsCraft – DevOps consultancy",
+    "title": "Blueprint preview \u2013 OpsCraft \u2013 DevOps consultancy",
     "url": "http://localhost:3000/blueprint-preview/tech-devops-agency",
     "finalUrl": "http://localhost:3000/blueprint-preview/tech-devops-agency"
   },
   {
     "file": "05-blueprints/14-preview-business-consulting.jpg",
-    "title": "Blueprint preview – Northstar – Strategy consulting",
+    "title": "Blueprint preview \u2013 Northstar \u2013 Strategy consulting",
     "url": "http://localhost:3000/blueprint-preview/business-consulting",
     "finalUrl": "http://localhost:3000/blueprint-preview/business-consulting"
   },
   {
     "file": "05-blueprints/15-preview-business-creative-agency.jpg",
-    "title": "Blueprint preview – Pixel & Pine – Creative agency",
+    "title": "Blueprint preview \u2013 Pixel & Pine \u2013 Creative agency",
     "url": "http://localhost:3000/blueprint-preview/business-creative-agency",
     "finalUrl": "http://localhost:3000/blueprint-preview/business-creative-agency"
   },
   {
     "file": "05-blueprints/16-preview-business-law-firm.jpg",
-    "title": "Blueprint preview – Mehta & Associates – Law / CA firm",
+    "title": "Blueprint preview \u2013 Mehta & Associates \u2013 Law / CA firm",
     "url": "http://localhost:3000/blueprint-preview/business-law-firm",
     "finalUrl": "http://localhost:3000/blueprint-preview/business-law-firm"
   },
   {
     "file": "05-blueprints/17-preview-business-construction.jpg",
-    "title": "Blueprint preview – BuildRight – Construction & interiors",
+    "title": "Blueprint preview \u2013 BuildRight \u2013 Construction & interiors",
     "url": "http://localhost:3000/blueprint-preview/business-construction",
     "finalUrl": "http://localhost:3000/blueprint-preview/business-construction"
   },
   {
     "file": "05-blueprints/18-preview-business-clinic.jpg",
-    "title": "Blueprint preview – CarePlus – Clinic & healthcare",
+    "title": "Blueprint preview \u2013 CarePlus \u2013 Clinic & healthcare",
     "url": "http://localhost:3000/blueprint-preview/business-clinic",
     "finalUrl": "http://localhost:3000/blueprint-preview/business-clinic"
   },
   {
     "file": "05-blueprints/19-preview-shop-fashion.jpg",
-    "title": "Blueprint preview – Loom & Lane – Fashion boutique",
+    "title": "Blueprint preview \u2013 Loom & Lane \u2013 Fashion boutique",
     "url": "http://localhost:3000/blueprint-preview/shop-fashion",
     "finalUrl": "http://localhost:3000/blueprint-preview/shop-fashion"
   },
   {
     "file": "05-blueprints/20-preview-shop-grocery.jpg",
-    "title": "Blueprint preview – Daily Fresh – Grocery & kirana",
+    "title": "Blueprint preview \u2013 Daily Fresh \u2013 Grocery & kirana",
     "url": "http://localhost:3000/blueprint-preview/shop-grocery",
     "finalUrl": "http://localhost:3000/blueprint-preview/shop-grocery"
   },
   {
     "file": "05-blueprints/21-preview-shop-electronics.jpg",
-    "title": "Blueprint preview – Gadget Galaxy – Electronics store",
+    "title": "Blueprint preview \u2013 Gadget Galaxy \u2013 Electronics store",
     "url": "http://localhost:3000/blueprint-preview/shop-electronics",
     "finalUrl": "http://localhost:3000/blueprint-preview/shop-electronics"
   },
   {
     "file": "05-blueprints/22-preview-shop-cafe-bakery.jpg",
-    "title": "Blueprint preview – Bean & Brew – Café & bakery",
+    "title": "Blueprint preview \u2013 Bean & Brew \u2013 Caf\u00e9 & bakery",
     "url": "http://localhost:3000/blueprint-preview/shop-cafe-bakery",
     "finalUrl": "http://localhost:3000/blueprint-preview/shop-cafe-bakery"
   },
   {
     "file": "05-blueprints/23-preview-shop-gifts-florist.jpg",
-    "title": "Blueprint preview – Bloom – Gifts & florist",
+    "title": "Blueprint preview \u2013 Bloom \u2013 Gifts & florist",
     "url": "http://localhost:3000/blueprint-preview/shop-gifts-florist",
     "finalUrl": "http://localhost:3000/blueprint-preview/shop-gifts-florist"
   },
   {
     "file": "05-blueprints/24-preview-school-preschool.jpg",
-    "title": "Blueprint preview – Little Sprouts – Pre-school",
+    "title": "Blueprint preview \u2013 Little Sprouts \u2013 Pre-school",
     "url": "http://localhost:3000/blueprint-preview/school-preschool",
     "finalUrl": "http://localhost:3000/blueprint-preview/school-preschool"
   },
   {
     "file": "05-blueprints/25-preview-school-k12.jpg",
-    "title": "Blueprint preview – Greenfield – K-12 public school",
+    "title": "Blueprint preview \u2013 Greenfield \u2013 K-12 public school",
     "url": "http://localhost:3000/blueprint-preview/school-k12",
     "finalUrl": "http://localhost:3000/blueprint-preview/school-k12"
   },
   {
     "file": "05-blueprints/26-preview-school-heritage.jpg",
-    "title": "Blueprint preview – St. Mary's – Heritage convent school",
+    "title": "Blueprint preview \u2013 St. Mary's \u2013 Heritage convent school",
     "url": "http://localhost:3000/blueprint-preview/school-heritage",
     "finalUrl": "http://localhost:3000/blueprint-preview/school-heritage"
   },
   {
     "file": "05-blueprints/27-preview-university-engineering.jpg",
-    "title": "Blueprint preview – Apex – Engineering college",
+    "title": "Blueprint preview \u2013 Apex \u2013 Engineering college",
     "url": "http://localhost:3000/blueprint-preview/university-engineering",
     "finalUrl": "http://localhost:3000/blueprint-preview/university-engineering"
   },
   {
     "file": "05-blueprints/28-preview-university-business-school.jpg",
-    "title": "Blueprint preview – Vidya – Business school (MBA)",
+    "title": "Blueprint preview \u2013 Vidya \u2013 Business school (MBA)",
     "url": "http://localhost:3000/blueprint-preview/university-business-school",
     "finalUrl": "http://localhost:3000/blueprint-preview/university-business-school"
   },
   {
     "file": "05-blueprints/29-preview-university-coaching.jpg",
-    "title": "Blueprint preview – BrightPath – Coaching institute",
+    "title": "Blueprint preview \u2013 BrightPath \u2013 Coaching institute",
     "url": "http://localhost:3000/blueprint-preview/university-coaching",
     "finalUrl": "http://localhost:3000/blueprint-preview/university-coaching"
   },
   {
     "file": "05-blueprints/30-preview-custom-landing.jpg",
-    "title": "Blueprint preview – Blank landing page",
+    "title": "Blueprint preview \u2013 Blank landing page",
     "url": "http://localhost:3000/blueprint-preview/custom-landing",
     "finalUrl": "http://localhost:3000/blueprint-preview/custom-landing"
   },
   {
     "file": "05-blueprints/31-preview-custom-business.jpg",
-    "title": "Blueprint preview – Blank business site",
+    "title": "Blueprint preview \u2013 Blank business site",
     "url": "http://localhost:3000/blueprint-preview/custom-business",
     "finalUrl": "http://localhost:3000/blueprint-preview/custom-business"
   },
   {
     "file": "05-blueprints/32-preview-custom-no-header.jpg",
-    "title": "Blueprint preview – Single-screen page (no header)",
+    "title": "Blueprint preview \u2013 Single-screen page (no header)",
     "url": "http://localhost:3000/blueprint-preview/custom-no-header",
     "finalUrl": "http://localhost:3000/blueprint-preview/custom-no-header"
   },
   {
     "file": "05-blueprints/33-full-tech-container-registry.jpg",
-    "title": "Blueprint full page – tech-container-registry",
+    "title": "Blueprint full page \u2013 tech-container-registry",
     "url": "http://localhost:3000/blueprint-preview/tech-container-registry?bare=1",
     "finalUrl": "http://localhost:3000/blueprint-preview/tech-container-registry?bare=1"
   },
   {
     "file": "05-blueprints/34-full-business-construction.jpg",
-    "title": "Blueprint full page – business-construction",
+    "title": "Blueprint full page \u2013 business-construction",
     "url": "http://localhost:3000/blueprint-preview/business-construction?bare=1",
     "finalUrl": "http://localhost:3000/blueprint-preview/business-construction?bare=1"
   },
   {
     "file": "05-blueprints/35-full-school-k12.jpg",
-    "title": "Blueprint full page – school-k12",
+    "title": "Blueprint full page \u2013 school-k12",
     "url": "http://localhost:3000/blueprint-preview/school-k12?bare=1",
     "finalUrl": "http://localhost:3000/blueprint-preview/school-k12?bare=1"
   },
   {
     "file": "05-blueprints/36-new-client-standard-default.png",
-    "title": "New client – Standard (module + design) is selected by default",
+    "title": "New client \u2013 Standard (module + design) is selected by default",
     "url": "http://localhost:3000/admin/clients/new",
     "finalUrl": "http://localhost:3000/admin/clients/new"
   },
   {
     "file": "05-blueprints/37-new-client-from-blueprint.png",
-    "title": "New client – from a blueprint (opened from “Use for new client”)",
+    "title": "New client \u2013 from a blueprint (opened from \u201cUse for new client\u201d)",
     "url": "http://localhost:3000/admin/clients/new?blueprint=tech-kubernetes",
     "finalUrl": "http://localhost:3000/admin/clients/new?blueprint=tech-kubernetes"
   },
   {
     "file": "05-blueprints/38-client-created-from-blueprint.png",
-    "title": "Client created – website cloned from the blueprint",
-    "url": "http://localhost:3000/admin/clients/cmw3sirn9001ds16zvgvhwxod",
-    "finalUrl": "http://localhost:3000/admin/clients/cmw3sirn9001ds16zvgvhwxod"
+    "title": "Client created \u2013 website cloned from the blueprint",
+    "url": "http://localhost:3000/admin/clients/cmw61djac001bs12m2u9s4dkp",
+    "finalUrl": "http://localhost:3000/admin/clients/cmw61djac001bs12m2u9s4dkp"
   },
   {
     "file": "05-blueprints/39-builder-blueprint-site.png",
-    "title": "Builder – a site made from a blueprint, ready to edit",
-    "url": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1",
-    "finalUrl": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1"
+    "title": "Builder \u2013 a site made from a blueprint, ready to edit",
+    "url": "http://localhost:3000/admin/sites/cmw61djaq001fs12mnlnj7umv",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw61djaq001fs12mnlnj7umv"
   },
   {
     "file": "05-blueprints/40-design-tab-structure-layouts.png",
-    "title": "Design tab – presets, colours, page structure and section layouts",
-    "url": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1",
-    "finalUrl": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1"
+    "title": "Design tab \u2013 presets, colours, page structure and section layouts",
+    "url": "http://localhost:3000/admin/sites/cmw61djaq001fs12mnlnj7umv",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw61djaq001fs12mnlnj7umv"
   },
   {
     "file": "05-blueprints/41-design-tab-saved-preview.png",
-    "title": "Design tab – header changed to Centered, saved, preview updated",
-    "url": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1",
-    "finalUrl": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1"
+    "title": "Design tab \u2013 header changed to Centered, saved, preview updated",
+    "url": "http://localhost:3000/admin/sites/cmw61djaq001fs12mnlnj7umv",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw61djaq001fs12mnlnj7umv"
   },
   {
     "file": "05-blueprints/42-save-as-blueprint.png",
-    "title": "Design tab – Save this website as a blueprint",
-    "url": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1",
-    "finalUrl": "http://localhost:3000/admin/sites/cmw3sirnd001hs16za05u7sy1"
+    "title": "Design tab \u2013 Save this website as a blueprint",
+    "url": "http://localhost:3000/admin/sites/cmw61djaq001fs12mnlnj7umv",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw61djaq001fs12mnlnj7umv"
   },
   {
     "file": "05-blueprints/43-gallery-saved-by-team.png",
-    "title": "Blueprints – Saved by the team (with Delete for the person who saved it)",
+    "title": "Blueprints \u2013 Saved by the team (with Delete for the person who saved it)",
     "url": "http://localhost:3000/admin/blueprints",
     "finalUrl": "http://localhost:3000/admin/blueprints"
   },
   {
     "file": "06-code-websites/01-new-client-code-website.png",
-    "title": "New client – third option: Code website (VS Code), with React / Next.js / HTML",
+    "title": "New client \u2013 third option: Code website (VS Code), with React / Next.js / HTML",
     "url": "http://localhost:3000/admin/clients/new",
     "finalUrl": "http://localhost:3000/admin/clients/new"
   },
   {
     "file": "06-code-websites/02-code-tab.png",
-    "title": "Code website – Code tab: Open in VS Code, deploys, roll back, developer access",
-    "url": "http://localhost:3000/admin/sites/cmw3sj7hk0006s1kt6wzfcoeg",
-    "finalUrl": "http://localhost:3000/admin/sites/cmw3sj7hk0006s1kt6wzfcoeg"
+    "title": "Code website \u2013 Code tab: Open in VS Code, deploys, roll back, developer access",
+    "url": "http://localhost:3000/admin/sites/cmw61dyxb0006s1u15cxy48kn",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw61dyxb0006s1u15cxy48kn"
   },
   {
     "file": "06-code-websites/03-code-tab-how-to.png",
-    "title": "Code tab – how to work on it (open, run, push)",
-    "url": "http://localhost:3000/admin/sites/cmw3sj7hk0006s1kt6wzfcoeg",
-    "finalUrl": "http://localhost:3000/admin/sites/cmw3sj7hk0006s1kt6wzfcoeg"
+    "title": "Code tab \u2013 how to work on it (open, run, push)",
+    "url": "http://localhost:3000/admin/sites/cmw61dyxb0006s1u15cxy48kn",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw61dyxb0006s1u15cxy48kn"
   },
   {
     "file": "06-code-websites/04-code-site-settings.png",
-    "title": "Code website – Settings (publish, web address, custom domain) work as usual",
-    "url": "http://localhost:3000/admin/sites/cmw3sj7hk0006s1kt6wzfcoeg",
-    "finalUrl": "http://localhost:3000/admin/sites/cmw3sj7hk0006s1kt6wzfcoeg"
+    "title": "Code website \u2013 Settings (publish, web address, custom domain) work as usual",
+    "url": "http://localhost:3000/admin/sites/cmw61dyxb0006s1u15cxy48kn",
+    "finalUrl": "http://localhost:3000/admin/sites/cmw61dyxb0006s1u15cxy48kn"
   },
   {
     "file": "06-code-websites/05-websites-list.png",
-    "title": "Websites list – code websites are labelled “Code website”",
+    "title": "Websites list \u2013 code websites are labelled \u201cCode website\u201d",
     "url": "http://localhost:3000/admin/sites",
     "finalUrl": "http://localhost:3000/admin/sites"
   },
   {
     "file": "06-code-websites/06-team-permission.png",
-    "title": "Team member permissions – “Can create code websites” (off by default)",
+    "title": "Team member permissions \u2013 \u201cCan create code websites\u201d (off by default)",
     "url": "http://localhost:3000/admin/team/cmvdepbnf0002s1fcc91vbce0",
     "finalUrl": "http://localhost:3000/admin/team/cmvdepbnf0002s1fcc91vbce0"
   },
@@ -529,9 +529,9 @@
   },
   {
     "file": "06-code-websites/08-client-portal-code-website.png",
-    "title": "Client portal – code website: open the site and see enquiries (no content editor)",
-    "url": "http://localhost:3000/portal/sites/cmw3sj7hk0006s1kt6wzfcoeg",
-    "finalUrl": "http://localhost:3000/portal/sites/cmw3sj7hk0006s1kt6wzfcoeg"
+    "title": "Client portal \u2013 code website: open the site and see enquiries (no content editor)",
+    "url": "http://localhost:3000/portal/sites/cmw61dyxb0006s1u15cxy48kn",
+    "finalUrl": "http://localhost:3000/portal/sites/cmw61dyxb0006s1u15cxy48kn"
   },
   {
     "file": "03-team-member/01-dashboard.png",
@@ -541,13 +541,13 @@
   },
   {
     "file": "03-team-member/02-clients-own-only.png",
-    "title": "Clients – only the ones they own",
+    "title": "Clients \u2013 only the ones they own",
     "url": "http://localhost:3000/admin/clients",
     "finalUrl": "http://localhost:3000/admin/clients"
   },
   {
     "file": "03-team-member/03-client-new-allowed-modules.png",
-    "title": "Create client – only allowed modules",
+    "title": "Create client \u2013 only allowed modules",
     "url": "http://localhost:3000/admin/clients/new",
     "finalUrl": "http://localhost:3000/admin/clients/new"
   },
@@ -559,25 +559,25 @@
   },
   {
     "file": "03-team-member/05-sites-own-only.png",
-    "title": "Websites – only their clients'",
+    "title": "Websites \u2013 only their clients'",
     "url": "http://localhost:3000/admin/sites",
     "finalUrl": "http://localhost:3000/admin/sites"
   },
   {
     "file": "03-team-member/06-builder-no-publish.png",
-    "title": "Builder – Publish disabled (no permission)",
+    "title": "Builder \u2013 Publish disabled (no permission)",
     "url": "http://localhost:3000/admin/sites/cmvdepbnw000es1fcduu9lh3z",
     "finalUrl": "http://localhost:3000/admin/sites/cmvdepbnw000es1fcduu9lh3z"
   },
   {
     "file": "03-team-member/07-enquiries-own-only.png",
-    "title": "Enquiries – only their clients'",
+    "title": "Enquiries \u2013 only their clients'",
     "url": "http://localhost:3000/admin/enquiries",
     "finalUrl": "http://localhost:3000/admin/enquiries"
   },
   {
     "file": "03-team-member/13-blueprints-allowed-modules.png",
-    "title": "Blueprints – only those for their allowed modules",
+    "title": "Blueprints \u2013 only those for their allowed modules",
     "url": "http://localhost:3000/admin/blueprints",
     "finalUrl": "http://localhost:3000/admin/blueprints"
   },
@@ -601,13 +601,13 @@
   },
   {
     "file": "03-team-member/11-blocked-other-client.png",
-    "title": "Another owner's client – not found",
+    "title": "Another owner's client \u2013 not found",
     "url": "http://localhost:3000/admin/clients/cmvdepbnl0004s1fc0ebqd5qu",
     "finalUrl": "http://localhost:3000/admin/clients/cmvdepbnl0004s1fc0ebqd5qu"
   },
   {
     "file": "03-team-member/12-blocked-other-site.png",
-    "title": "Another owner's website – not found",
+    "title": "Another owner's website \u2013 not found",
     "url": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6",
     "finalUrl": "http://localhost:3000/admin/sites/cmvdepbno0008s1fcvgbi1yi6"
   },
@@ -625,25 +625,25 @@
   },
   {
     "file": "04-client/03-site-editor-enquiries.png",
-    "title": "Client – enquiries tab in the editor",
+    "title": "Client \u2013 enquiries tab in the editor",
     "url": "http://localhost:3000/portal/sites/cmvdepbno0008s1fcvgbi1yi6",
     "finalUrl": "http://localhost:3000/portal/sites/cmvdepbno0008s1fcvgbi1yi6"
   },
   {
     "file": "04-client/04-enquiries.png",
-    "title": "Client – their enquiries",
+    "title": "Client \u2013 their enquiries",
     "url": "http://localhost:3000/portal/enquiries",
     "finalUrl": "http://localhost:3000/portal/enquiries"
   },
   {
     "file": "04-client/05-enquiry-detail.png",
-    "title": "Client – enquiry detail and notes",
-    "url": "http://localhost:3000/portal/enquiries/cmw3sgtar000xs16zr01dqrs7",
-    "finalUrl": "http://localhost:3000/portal/enquiries/cmw3sgtar000xs16zr01dqrs7"
+    "title": "Client \u2013 enquiry detail and notes",
+    "url": "http://localhost:3000/portal/enquiries/cmw61bgbz000vs12mvrih9x77",
+    "finalUrl": "http://localhost:3000/portal/enquiries/cmw61bgbz000vs12mvrih9x77"
   },
   {
     "file": "04-client/06-billing.png",
-    "title": "Client – their invoices",
+    "title": "Client \u2013 their invoices",
     "url": "http://localhost:3000/portal/billing",
     "finalUrl": "http://localhost:3000/portal/billing"
   },
@@ -667,32 +667,74 @@
   },
   {
     "file": "04-client/08-blocked-other-site.png",
-    "title": "Another client's website – not found",
+    "title": "Another client's website \u2013 not found",
     "url": "http://localhost:3000/portal/sites/cmvdhwyxv0008s1i0tnz79uy9",
     "finalUrl": "http://localhost:3000/portal/sites/cmvdhwyxv0008s1i0tnz79uy9"
   },
   {
     "file": "04-client/09-blocked-other-enquiry.png",
-    "title": "Another client's enquiry – not found",
+    "title": "Another client's enquiry \u2013 not found",
     "url": "http://localhost:3000/portal/enquiries/cmvdhpsvt0001s1ybcr7v2hly",
     "finalUrl": "http://localhost:3000/portal/enquiries/cmvdhpsvt0001s1ybcr7v2hly"
   },
   {
     "file": "04-client/10-portal-home-university.png",
-    "title": "Portal home – university@siteplatform.test",
+    "title": "Portal home \u2013 university@siteplatform.test",
     "url": "http://localhost:3000/portal",
     "finalUrl": "http://localhost:3000/portal"
   },
   {
     "file": "04-client/11-portal-home-company.png",
-    "title": "Portal home – company@siteplatform.test",
+    "title": "Portal home \u2013 company@siteplatform.test",
     "url": "http://localhost:3000/portal",
     "finalUrl": "http://localhost:3000/portal"
   },
   {
     "file": "04-client/12-portal-home-shop.png",
-    "title": "Portal home – shop@siteplatform.test",
+    "title": "Portal home \u2013 shop@siteplatform.test",
     "url": "http://localhost:3000/portal",
     "finalUrl": "http://localhost:3000/portal"
+  },
+  {
+    "file": "07-code-studio/01-code-tab-two-ways.png",
+    "title": "Code tab \u2013 Open in window (Code Studio) or Open in laptop VS Code",
+    "url": "/studio/<siteId>",
+    "finalUrl": "/studio/<siteId>"
+  },
+  {
+    "file": "07-code-studio/02-studio-editor-preview.png",
+    "title": "Code Studio \u2013 files, VS Code editor, instant preview",
+    "url": "/studio/<siteId>",
+    "finalUrl": "/studio/<siteId>"
+  },
+  {
+    "file": "07-code-studio/03-studio-edit-instant-preview.png",
+    "title": "Code Studio \u2013 edit with instant preview",
+    "url": "/studio/<siteId>",
+    "finalUrl": "/studio/<siteId>"
+  },
+  {
+    "file": "07-code-studio/04-studio-packages.png",
+    "title": "Code Studio \u2013 Packages panel",
+    "url": "/studio/<siteId>",
+    "finalUrl": "/studio/<siteId>"
+  },
+  {
+    "file": "07-code-studio/05-studio-changes.png",
+    "title": "Code Studio \u2013 Changes panel",
+    "url": "/studio/<siteId>",
+    "finalUrl": "/studio/<siteId>"
+  },
+  {
+    "file": "07-code-studio/06-studio-committed-building.png",
+    "title": "Code Studio \u2013 committed, building",
+    "url": "/studio/<siteId>",
+    "finalUrl": "/studio/<siteId>"
+  },
+  {
+    "file": "07-code-studio/07-studio-conflict.png",
+    "title": "Code Studio \u2013 same file changed on a laptop",
+    "url": "/studio/<siteId>",
+    "finalUrl": "/studio/<siteId>"
   }
 ]

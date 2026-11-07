@@ -112,6 +112,8 @@ Code websites live in private GitHub repositories under your account. The server
 
 To replace an expired token, run the same script again.
 
+**Code Studio** (editing code websites in the browser) needs nothing extra on the server. It uses the same GitHub connection. The editor (Monaco), the in-browser compiler (esbuild-wasm) and npm packages for instant previews load in the user's browser from jsDelivr, esm.sh and the npm registry.
+
 **On your laptop** (for "Open in VS Code"): install VS Code, Git and Node.js 22, and sign in to GitHub in VS Code (Accounts menu, bottom left). The browser asks to open VS Code the first time; tick "Always allow".
 
 ## 5. Signing in and resetting passwords

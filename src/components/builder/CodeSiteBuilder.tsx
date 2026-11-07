@@ -136,19 +136,25 @@ function CodeTab({ site, code, deploys, building }: Props & { building: boolean 
           {building && <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">Building…</span>}
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <a href={code.vscodeUrl} className="btn-primary">Open in VS Code</a>
-          <a href={code.repoUrl} target="_blank" rel="noreferrer" className="btn-secondary">Open on GitHub ↗</a>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <a href={`/studio/${site.id}`} target="_blank" rel="noreferrer" className="rounded-lg border border-indigo-200 bg-indigo-50 p-3 hover:border-indigo-400">
+            <span className="block font-semibold text-indigo-700">Open in window ↗</span>
+            <span className="block text-xs text-slate-600">VS Code&apos;s editor in this browser. Nothing to install. Commit &amp; deploy from there.</span>
+          </a>
+          <a href={code.vscodeUrl} className="rounded-lg border border-slate-200 bg-white p-3 hover:border-slate-400">
+            <span className="block font-semibold text-slate-900">Open in laptop VS Code</span>
+            <span className="block text-xs text-slate-600">Full VS Code with terminal. Needs VS Code, Git and Node.js on this computer.</span>
+          </a>
         </div>
         <p className="text-xs text-slate-500">
-          Your browser will ask to open Visual Studio Code. VS Code then asks where to save the project and may ask you to sign in to GitHub. Needs VS Code, Git and Node.js on this computer.
+          Both edit the same GitHub repository (<a href={code.repoUrl} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">open on GitHub ↗</a>), so you can switch between them. For the laptop, your browser asks to open Visual Studio Code, which then asks where to save the project and may ask you to sign in to GitHub.
         </p>
 
         <details className="rounded-md bg-slate-50 p-3 text-sm">
           <summary className="cursor-pointer font-medium text-slate-700">How to work on it</summary>
           <ol className="mt-2 list-decimal space-y-1 pl-5 text-slate-600">
-            <li>Click <b>Open in VS Code</b> (or run <code className="rounded bg-white px-1">git clone {code.cloneUrl}</code>).</li>
-            <li>In VS Code&apos;s terminal: <code className="rounded bg-white px-1">{code.devCommand}</code></li>
+            <li><b>In the browser:</b> click <b>Open in window</b>, edit, then <b>Commit &amp; deploy</b>. Or <b>on your laptop:</b> click <b>Open in laptop VS Code</b> (or run <code className="rounded bg-white px-1">git clone {code.cloneUrl}</code>).</li>
+            <li>On the laptop, in VS Code&apos;s terminal: <code className="rounded bg-white px-1">{code.devCommand}</code></li>
             <li>Make your changes, then <b>Commit</b> and <b>Push</b> (Source Control panel) or <code className="rounded bg-white px-1">git push</code>.</li>
             <li>GitHub builds it and it goes live here in about 1–2 minutes. Forms on the site arrive in <b>Enquiries</b>.</li>
           </ol>

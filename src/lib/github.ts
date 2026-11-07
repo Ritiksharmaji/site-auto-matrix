@@ -7,7 +7,8 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 //   GITHUB_OWNER           account or organisation that owns the repos (e.g. Ritiksharmaji)
 //   GITHUB_WEBHOOK_SECRET  random string; GitHub signs webhook calls with it
 
-const API = "https://api.github.com";
+// GITHUB_API_URL is only for local testing against a mock; production uses api.github.com.
+const API = process.env.GITHUB_API_URL || "https://api.github.com";
 export const DEPLOY_WORKFLOW_FILE = "onekampus-deploy.yml";
 export const DEPLOY_WORKFLOW_NAME = "Deploy to oneKampus";
 export const BUILD_ARTIFACT_NAME = "site";
@@ -129,4 +130,49 @@ export function cloneUrl(owner: string, repo: string) {
 /** Opens VS Code on the user's computer and clones the repo (VS Code's built-in Git handler). */
 export function vscodeCloneLink(owner: string, repo: string) {
   return `vscode://vscode.git/clone?url=${encodeURIComponent(cloneUrl(owner, repo))}`;
+}
+
+// ---------------------------------------------------------------- Code Studio (in-browser editor)
+
+export type RepoEntry = { path: string; sha: string; size: number };
+
+/** The latest commit on a branch and its file list (files only, recursive). */
+export async function readRepoTree(owner: string, repo: string, branch: string) {
+  const ref = await gh<{ object: { sha: string } }>(`/repos/${owner}/${repo}/git/ref/heads/${branch}`);
+  const commit = await gh<{ tree: { sha: string } }>(`/repos/${owner}/${repo}/git/commits/${ref.object.sha}`);
+  const tree = await gh<{ tree: { path: string; type: string; sha: string; size?: number }[]; truncated: boolean }>(
+    `/repos/${owner}/${repo}/git/trees/${commit.tree.sha}?recursive=1`,
+  );
+  const files: RepoEntry[] = tree.tree.filter((t) => t.type === "blob").map((t) => ({ path: t.path, sha: t.sha, size: t.size ?? 0 }));
+  return { headSha: ref.object.sha, files, truncated: tree.truncated };
+}
+
+/** A file's bytes (base64) by blob sha. */
+export async function readBlob(owner: string, repo: string, sha: string) {
+  const blob = await gh<{ content: string; encoding: string; size: number }>(`/repos/${owner}/${repo}/git/blobs/${sha}`);
+  return { base64: blob.content.replace(/\n/g, ""), size: blob.size };
+}
+
+export type FileChange = { path: string; content?: string; encoding?: "utf-8" | "base64"; delete?: boolean };
+
+/**
+ * Commits changes on top of `parentSha` (only adds/updates/deletes the given paths)
+ * and moves the branch to it. Fails with GitHubError 422 if the branch moved meanwhile.
+ */
+export async function commitOnto(owner: string, repo: string, branch: string, parentSha: string, changes: FileChange[], message: string) {
+  const parent = await gh<{ tree: { sha: string } }>(`/repos/${owner}/${repo}/git/commits/${parentSha}`);
+  const entries = await Promise.all(
+    changes.map(async (c) => {
+      if (c.delete) return { path: c.path, mode: "100644", type: "blob", sha: null };
+      if (c.encoding === "base64") {
+        const blob = await gh<{ sha: string }>(`/repos/${owner}/${repo}/git/blobs`, { method: "POST", json: { content: c.content ?? "", encoding: "base64" } });
+        return { path: c.path, mode: "100644", type: "blob", sha: blob.sha };
+      }
+      return { path: c.path, mode: "100644", type: "blob", content: c.content ?? "" };
+    }),
+  );
+  const tree = await gh<{ sha: string }>(`/repos/${owner}/${repo}/git/trees`, { method: "POST", json: { base_tree: parent.tree.sha, tree: entries } });
+  const commit = await gh<{ sha: string }>(`/repos/${owner}/${repo}/git/commits`, { method: "POST", json: { message, tree: tree.sha, parents: [parentSha] } });
+  await gh(`/repos/${owner}/${repo}/git/refs/heads/${branch}`, { method: "PATCH", json: { sha: commit.sha, force: false } });
+  return commit.sha;
 }

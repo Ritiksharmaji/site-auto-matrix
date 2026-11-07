@@ -14,6 +14,8 @@ One Next.js app that creates and hosts many websites (schools, companies, …) f
 
 🧑‍💻 **Code websites:** React, Next.js or HTML sites in their own private GitHub repo. Click **Open in VS Code**, code, push, and the site is live (built by GitHub Actions, with versions and one-click rollback). See [APPLICATION_FLOW.md §6C](docs/APPLICATION_FLOW.md#6c-code-websites-built-in-vs-code) and [SYSTEM_DESIGN.md §18](docs/SYSTEM_DESIGN.md#18-code-websites-built-in-vs-code). One-time GitHub setup: [DEPLOYMENT.md](docs/DEPLOYMENT.md#code-websites-connecting-github-one-time).
 
+🪟 **Code Studio:** edit a code website **in the browser** with VS Code's editor: file tree, instant React/HTML preview, a Packages panel instead of `npm install`, and Commit & deploy. It uses the same repo as the laptop, and is safe when both are used ([APPLICATION_FLOW.md §6D](docs/APPLICATION_FLOW.md#6d-code-studio-vs-code-in-the-browser)).
+
 📸 **Regenerate the screenshots** (dev server running): `npm run docs:screenshots` · **Validate blueprints:** `npm run check:blueprints`
 
 ## Run locally

@@ -22,6 +22,8 @@ cp -R "$DIST/standalone/." deploy/build/app/
 mkdir -p "deploy/build/app/$DIST"
 cp -R "$DIST/static" "deploy/build/app/$DIST/static"
 cp -R public deploy/build/app/public
+# starter templates for new code websites (read at runtime)
+cp -R code-templates deploy/build/app/code-templates
 mkdir -p deploy/build/app/prisma
 cp -R prisma/schema.prisma prisma/migrations deploy/build/app/prisma/
 # never ship local env files

@@ -1,6 +1,5 @@
 "use server";
 
-import type { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -10,7 +9,8 @@ import { logActivity } from "@/lib/activity";
 import { db } from "@/lib/db";
 import { clientScope, DEFAULT_STAFF_PERMISSIONS, staffPermissions, type StaffPermissions } from "@/lib/permissions";
 import { getModule } from "@/modules/registry";
-import { resolveSiteStart } from "@/lib/site-start";
+import { siteStartData } from "@/lib/site-start";
+import { removeSiteBuilds } from "@/lib/code-sites";
 
 export type FormState = { error?: string; ok?: string };
 
@@ -27,6 +27,7 @@ const newClientSchema = z.object({
   moduleKey: z.string().optional(),
   preset: z.string().optional(),
   blueprint: z.string().optional(),
+  codeFramework: z.string().optional(),
   slug: z.string().trim().toLowerCase().regex(slugRe, "Web address: lowercase letters, numbers and dashes only"),
 });
 
@@ -46,11 +47,10 @@ export async function createClient(_prev: FormState, formData: FormData): Promis
   if (await db.site.findUnique({ where: { slug: d.slug } })) return { error: "That web address is already taken." };
   if (await db.user.findUnique({ where: { email: d.email } })) return { error: "A login with this email already exists." };
 
-  // Standard module + starting design (default), or a blueprint.
-  const config = await resolveSiteStart(d, perms.allowedModules, d.name);
-  if ("error" in config) return { error: config.error };
-  const mod = config.module;
   const passwordHash = await hashPassword(d.password);
+  // Standard module + starting design (default), a blueprint, or a code website.
+  const start = await siteStartData(d, perms, { name: d.name, slug: d.slug });
+  if ("error" in start) return { error: start.error };
 
   const client = await db.$transaction(async (tx) => {
     const c = await tx.client.create({
@@ -59,21 +59,11 @@ export async function createClient(_prev: FormState, formData: FormData): Promis
     await tx.user.create({
       data: { name: d.contactName, email: d.email, passwordHash, role: "CLIENT", clientId: c.id, createdById: user.id },
     });
-    await tx.site.create({
-      data: {
-        clientId: c.id,
-        name: d.name,
-        slug: d.slug,
-        moduleKey: mod.key,
-        enabledSections: config.enabledSections,
-        theme: config.theme as Prisma.InputJsonValue,
-        content: config.content as Prisma.InputJsonValue,
-      },
-    });
+    await tx.site.create({ data: { clientId: c.id, name: d.name, slug: d.slug, ...start.data } });
     return c;
   });
 
-  await logActivity(user.id, "client.create", `${user.name} created client "${d.name}" (${config.label})`);
+  await logActivity(user.id, "client.create", `${user.name} created client "${d.name}" (${start.label})`);
   revalidatePath("/admin");
   redirect(`/admin/clients/${client.id}`);
 }
@@ -104,7 +94,10 @@ export async function deleteClient(formData: FormData) {
   const id = String(formData.get("id"));
   const client = await db.client.findFirst({ where: { id, ...clientScope(user) } });
   if (!client) throw new Error("Not found");
+  const sites = await db.site.findMany({ where: { clientId: id }, select: { id: true } });
   await db.client.delete({ where: { id } });
+  // Code websites' stored builds (their GitHub repos are kept).
+  await Promise.all(sites.map((s) => removeSiteBuilds(s.id).catch(() => {})));
   await logActivity(user.id, "client.delete", `${user.name} deleted client "${client.name}"`);
   revalidatePath("/admin");
   redirect("/admin/clients");
@@ -120,6 +113,7 @@ export async function createSiteForClient(_prev: FormState, formData: FormData):
     moduleKey: String(formData.get("moduleKey") ?? ""),
     preset: String(formData.get("preset") ?? "") || undefined,
     blueprint: String(formData.get("blueprint") ?? "") || undefined,
+    codeFramework: String(formData.get("codeFramework") ?? "") || undefined,
   };
 
   const client = await db.client.findFirst({ where: { id: clientId, ...clientScope(user) } });
@@ -129,21 +123,10 @@ export async function createSiteForClient(_prev: FormState, formData: FormData):
   if (isReservedSlug(slug)) return { error: "That web address is reserved." };
   if (await db.site.findUnique({ where: { slug } })) return { error: "That web address is already taken." };
 
-  const config = await resolveSiteStart(choice, staffPermissions(user).allowedModules, name);
-  if ("error" in config) return { error: config.error };
-  const mod = config.module;
-  const site = await db.site.create({
-    data: {
-      clientId,
-      name,
-      slug,
-      moduleKey: mod.key,
-      enabledSections: config.enabledSections,
-      theme: config.theme as Prisma.InputJsonValue,
-      content: config.content as Prisma.InputJsonValue,
-    },
-  });
-  await logActivity(user.id, "site.create", `${user.name} created website "${name}" for ${client.name} (${config.label})`);
+  const start = await siteStartData(choice, staffPermissions(user), { name, slug });
+  if ("error" in start) return { error: start.error };
+  const site = await db.site.create({ data: { clientId, name, slug, ...start.data } });
+  await logActivity(user.id, "site.create", `${user.name} created website "${name}" for ${client.name} (${start.label})`);
   redirect(`/admin/sites/${site.id}`);
 }
 
@@ -183,6 +166,7 @@ function readPermissions(formData: FormData): StaffPermissions {
     maxClients: Number.isFinite(max) && max >= 0 ? Math.floor(max) : DEFAULT_STAFF_PERMISSIONS.maxClients,
     canPublish: formData.get("canPublish") === "on",
     canDeleteClients: formData.get("canDeleteClients") === "on",
+    canCreateCodeSites: formData.get("canCreateCodeSites") === "on",
     allowedModules: formData.getAll("allowedModules").map(String).filter((k) => getModule(k)),
   };
 }

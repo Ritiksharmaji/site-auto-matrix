@@ -5,7 +5,7 @@ import { requireClient } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { siteScope } from "@/lib/permissions";
 import { siteUrl } from "@/lib/sites";
-import { getModule } from "@/modules/registry";
+import { siteKindName } from "@/modules/registry";
 
 export default async function PortalHome() {
   const user = await requireClient();
@@ -25,7 +25,7 @@ export default async function PortalHome() {
               <p className="font-semibold text-slate-900">{s.name}</p>
               <StatusBadge status={s.status} />
             </div>
-            <p className="mt-1 text-xs text-slate-500">{getModule(s.moduleKey)?.name} website</p>
+            <p className="mt-1 text-xs text-slate-500">{siteKindName(s.moduleKey)} website</p>
             <p className="mt-2 text-sm text-slate-600">{views.get(s.id) ?? 0} page views in the last 30 days</p>
             {s._count.enquiries > 0 && <p className="mt-2 text-sm font-medium text-amber-700">{s._count.enquiries} new enquiries</p>}
             <div className="mt-4 flex gap-2">

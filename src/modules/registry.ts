@@ -12,6 +12,11 @@ export function getModule(key: string): ModuleDef | undefined {
   return MODULES.find((m) => m.key === key);
 }
 
+/** Label for a site's kind in lists: the module name, or "Code website" for sites built in VS Code. */
+export function siteKindName(moduleKey: string) {
+  return moduleKey === "code" ? "Code website" : getModule(moduleKey)?.name ?? moduleKey;
+}
+
 export function getPresetTheme(mod: ModuleDef, presetKey?: string): Theme {
   const preset = mod.presets.find((p) => p.key === presetKey) ?? mod.presets[0];
   return { preset: preset.key, ...preset.theme };

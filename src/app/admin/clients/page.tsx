@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/admin/Shell";
 import { requireStaff } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { clientScope } from "@/lib/permissions";
-import { getModule } from "@/modules/registry";
+import { siteKindName } from "@/modules/registry";
 
 export default async function ClientsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const user = await requireStaff();
@@ -47,7 +47,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
                 </td>
                 <td className="px-5 py-3 text-slate-600">{c.contactName}<br /><span className="text-xs text-slate-400">{c.email}</span></td>
                 <td className="px-5 py-3 text-slate-600">
-                  {c.sites.map((s) => getModule(s.moduleKey)?.name).join(", ") || "—"}
+                  {c.sites.map((s) => siteKindName(s.moduleKey)).join(", ") || "—"}
                   <span className="ml-1 text-xs text-slate-400">({c.sites.filter((s) => s.status === "PUBLISHED").length} live)</span>
                 </td>
                 {isOwner && <td className="px-5 py-3 text-slate-600">{c.owner.name}</td>}

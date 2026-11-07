@@ -8,10 +8,11 @@ import { db } from "@/lib/db";
 import { DEFAULT_AUTOMATION, parseEmails, type AutomationSettings } from "@/lib/automation";
 import { canPublish, siteScope } from "@/lib/permissions";
 import { isReservedSlug } from "@/lib/hosts";
+import { forgetCodeSiteLookups } from "@/lib/code-site-lookup";
 import { getModule } from "@/modules/registry";
 import { cleanTheme } from "@/modules/theme";
 import { sanitizeContent } from "@/modules/content";
-import type { Theme } from "@/modules/types";
+import type { ModuleDef, Theme } from "@/modules/types";
 
 export type SaveResult = { ok: boolean; error?: string };
 
@@ -22,8 +23,16 @@ async function loadSite(siteId: string, opts: { staffOnly: boolean }) {
   const site = await db.site.findFirst({ where: { id: siteId, ...siteScope(user) } });
   if (!site) throw new Error("Website not found");
   const mod = getModule(site.moduleKey);
-  if (!mod) throw new Error("Unknown module");
-  return { user, site, mod };
+  // Code websites have no module: only settings, publishing and automation apply to them.
+  if (!mod && site.moduleKey !== "code") throw new Error("Unknown module");
+  return { user, site, mod: mod as ModuleDef };
+}
+
+/** For actions that edit sections, design or content (builder sites only). */
+async function loadBuilderSite(siteId: string, opts: { staffOnly: boolean }) {
+  const loaded = await loadSite(siteId, opts);
+  if (loaded.site.moduleKey === "code") throw new Error("This is a code website: edit it in VS Code and push.");
+  return loaded;
 }
 
 function refresh(siteId: string) {
@@ -42,7 +51,7 @@ async function guarded(fn: () => Promise<void>): Promise<SaveResult> {
 
 export async function saveSections(siteId: string, keys: string[]): Promise<SaveResult> {
   return guarded(async () => {
-    const { user, mod } = await loadSite(siteId, { staffOnly: true });
+    const { user, mod } = await loadBuilderSite(siteId, { staffOnly: true });
     const known = new Set(mod.sections.map((s) => s.key));
     // Keep the order chosen in the builder; required sections are always on.
     const enabled = Array.from(new Set(keys.filter((k) => known.has(k))));
@@ -55,7 +64,7 @@ export async function saveSections(siteId: string, keys: string[]): Promise<Save
 
 export async function saveTheme(siteId: string, theme: Theme): Promise<SaveResult> {
   return guarded(async () => {
-    const { user, mod } = await loadSite(siteId, { staffOnly: true });
+    const { user, mod } = await loadBuilderSite(siteId, { staffOnly: true });
     await db.site.update({ where: { id: siteId }, data: { theme: cleanTheme(mod, theme) as Prisma.InputJsonValue } });
     await log(user, siteId, "changed the design");
     refresh(siteId);
@@ -64,7 +73,7 @@ export async function saveTheme(siteId: string, theme: Theme): Promise<SaveResul
 
 export async function saveContent(siteId: string, content: Record<string, unknown>): Promise<SaveResult> {
   return guarded(async () => {
-    const { user, mod } = await loadSite(siteId, { staffOnly: false });
+    const { user, mod } = await loadBuilderSite(siteId, { staffOnly: false });
     await db.site.update({ where: { id: siteId }, data: { content: sanitizeContent(mod, content) as Prisma.InputJsonValue } });
     await log(user, siteId, "edited content");
     refresh(siteId);
@@ -89,6 +98,7 @@ export async function saveSettings(siteId: string, data: { name: string; slug: s
     });
     if (clash) throw new Error(clash.slug === slug ? "That web address is taken" : "That domain is used by another site");
     await db.site.update({ where: { id: siteId }, data: { name, slug, customDomain } });
+    forgetCodeSiteLookups();
     await log(user, siteId, "updated settings");
     refresh(siteId);
   });

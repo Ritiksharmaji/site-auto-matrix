@@ -104,7 +104,9 @@ flowchart TD
     H -- no --> K{Host ends with .PLATFORM_HOST?}
     K -- yes --> S1["key = subdomain<br/>greenvalley.localhost:3000 → greenvalley"]
     K -- no --> S2["key = host without www.<br/>www.greenvalley.edu → greenvalley.edu"]
-    S1 & S2 --> RW["Rewrite to /sites/&lt;key&gt;/…"]
+    S1 & S2 --> CS{"Code website?<br/>(cached lookup, 15 s)"}
+    CS -- yes --> CW["Rewrite to /code-sites/&lt;slug&gt;/…<br/>+ secret marker header<br/>serve file from the live build"]
+    CS -- no --> RW["Rewrite to /sites/&lt;key&gt;/…"]
     RW --> F["findSiteByKey(key)<br/>slug OR customDomain"]
     F --> PUB{PUBLISHED?<br/>or preview by an allowed user}
     PUB -- yes --> RENDER[Render website]
@@ -119,6 +121,9 @@ flowchart TD
 Key points:
 - The **rewrite is internal**, so the visitor's address bar keeps showing `greenvalley.edu`.
 - `/api/*` is shared by every host. That's how a site can call `/api/track` and `/api/uploads/...` on its own domain.
+- The middleware runs on the **Node.js runtime** (stable in Next.js 15.5) because it looks up, with a 15-second cache, whether a host belongs to a code website. For code websites **every** path is rewritten, including `/_next/…` (a Next.js export's own files) and images. Builder sites keep using the platform's `/_next/` files and `public/` images.
+- Next.js's automatic trailing-slash redirect is switched off (`skipTrailingSlashRedirect`) so Next.js exports keep `/about/`. The middleware redirects `/page/` → `/page` itself for the platform and builder sites, so they behave as before.
+- `/code-sites/…` is refused on the platform address. Only rewrites carrying a secret marker (derived from `AUTH_SECRET`) are served, so a customer's JavaScript never runs on the admin origin.
 - The middleware only checks that a session **exists**. The **role and ownership** checks happen in each page and action, against the database (see §5).
 
 ---
@@ -204,6 +209,8 @@ siteScope(user)  → sites whose client is inside clientScope(user)
 | Blueprints page, previews, "Use for new client" | ✅ all | ⚠️ blueprints of `allowedModules` only | ❌ redirected |
 | Save a site as a blueprint | ✅ | ✅ own clients' sites | ❌ |
 | Delete a saved blueprint | ✅ any | ⚠️ only ones they saved | ❌ |
+| Create code websites (GitHub repo, VS Code) | ✅ | ⚠️ if `canCreateCodeSites` | ❌ |
+| Code tab: deploys, roll back, build again, invite a developer | ✅ | ✅ own clients' code sites | ❌ (portal shows the site and its enquiries) |
 | Reassign a client to another member | ✅ | ❌ | ❌ |
 | Delete client | ✅ | ⚠️ if `canDeleteClients` | ❌ |
 | Create client logins | ✅ | ✅ own clients | ❌ |
@@ -327,6 +334,8 @@ erDiagram
     User ||--o{ Enquiry : "assigned to"
     User ||--o{ Activity : performs
     User ||--o{ SavedBlueprint : saves
+    Site ||--o| CodeProject : "code website"
+    CodeProject ||--o{ Deploy : builds
 
     User {
         string id PK
@@ -388,6 +397,21 @@ erDiagram
         json content "contact details cleared"
         string createdById FK
     }
+    CodeProject {
+        string siteId FK "unique"
+        CodeFramework framework "HTML | REACT | NEXTJS"
+        string repoOwner
+        string repoName
+        string branch
+        string liveDeployId
+    }
+    Deploy {
+        string runId UK "GitHub workflow run"
+        string commitSha
+        string commitMessage
+        DeployStatus status "BUILDING | LIVE | FAILED | REPLACED"
+        int fileCount
+    }
     PageView {
         string siteId FK
         string path
@@ -402,7 +426,7 @@ erDiagram
 - **Money in paise.** Amounts are stored as integers, so there are no floating-point rounding errors.
 - **Indexes** on `ownerId`, `siteId`, `status` and `createdAt` support the scoped list queries.
 
-Migrations live in `prisma/migrations/`: `init`, `phase2_automation_crm_uploads`, `phase3_billing_analytics`, `enquiry_extra_fields` and `saved_blueprints`.
+Migrations live in `prisma/migrations/`: `init`, `phase2_automation_crm_uploads`, `phase3_billing_analytics`, `enquiry_extra_fields`, `saved_blueprints` and `code_sites`.
 
 ---
 
@@ -512,6 +536,10 @@ flowchart TD
 | CSV formula injection | Cells starting with `= + - @` are prefixed with `'` in the export |
 | Unsafe links in content | Card, hero, pricing, code and CTA button links only allow `http(s)`, `mailto:`, `tel:`, `#` and `/` |
 | Generated artwork | `/api/art` only accepts 6-digit hex colours and known glyph names, draws no user text, and is served with `Content-Security-Policy: default-src 'none'` |
+| Code websites running JavaScript next to the admin panel | Served only on their own address; `/code-sites/…` on the platform host returns 404; internal rewrites carry a secret marker; the session cookie is host-only (never sent to client subdomains) |
+| Forged deploys | GitHub webhooks are verified with HMAC-SHA256 (`GITHUB_WEBHOOK_SECRET`); builds are downloaded from GitHub with the platform's token, never accepted from the request |
+| Malicious build archives | Unzipped in memory with path checks (no `..`, no absolute paths), limits of 10,000 files / 300 MB, must contain `index.html`; written to a temp folder then swapped in |
+| Form spam from code websites | `/api/public/enquiries` accepts only the site's own origin, needs email or phone, honeypot field, 10 posts per IP per 10 minutes |
 | Blueprint data leaking between clients | Saved blueprints drop brand contact details; previews and the gallery are staff-only and filtered by `allowedModules` |
 | Enquiry spam | Hidden honeypot field `company_website`; zod length limits; email or phone required |
 | Cron abuse | Bearer `CRON_SECRET` is required |
@@ -529,10 +557,12 @@ src/
 │  ├─ login/                sign-in page
 │  ├─ admin/                Super Admin + Team panel (incl. blueprints/ gallery)
 │  ├─ blueprint-preview/    staff-only full preview of a blueprint
+│  ├─ code-sites/[slug]/    serves code websites' live builds (reached only via middleware rewrite)
 │  ├─ portal/               Client portal
 │  ├─ sites/[site]/         public website, sitemap.xml, robots.txt
 │  ├─ actions/              server actions (auth, admin, site, enquiry, crm, billing, blueprints)
-│  └─ api/                  uploads, track, enquiries/export, cron/billing, art, caddy/ask
+│  └─ api/                  uploads, track, enquiries/export, cron/billing, art, caddy/ask,
+│                           github/webhook, public/enquiries
 ├─ components/
 │  ├─ site/                 SiteRenderer, EnquiryForm, PageViewTracker
 │  ├─ builder/              SiteBuilder, ContentEditor, AnalyticsPanel
@@ -540,6 +570,7 @@ src/
 ├─ lib/                     auth, session, permissions, notify, billing, analytics, uploads …
 ├─ modules/                 school, university, company, shop, tech, shared, theme, content, registry
 └─ blueprints/              tech, business, shop, education, custom, kit, index
+code-templates/             react, nextjs, html starters for code websites
 prisma/                     schema.prisma, migrations/, seed.ts
 scripts/screenshots.ts      regenerates every image in docs/screenshots
 scripts/check-blueprints.ts validates every blueprint against its module
@@ -589,40 +620,67 @@ Steps, in order:
 - `submitEnquiry` checks that the site exists but not that it is published. Draft sites aren't public, so this is low risk, but a status check should be added.
 - More modules are planned: Hospital, Restaurant and Real-estate (coaching institutes are covered by the BrightPath blueprint on the University module).
 - Blueprint photos are generic stock photos (people in team sections are models, not real staff). Replace them with the client's own photos before launch.
-- **Code mode** (fully custom, hand-coded sites) is designed below but not built. See §18.
+- **Code websites** are static only (no server-side code); full Next.js would need a container per site. The in-browser editor and the "build on server" button aren't built yet. See §18.
 
 ---
 
-## 18. Phase 2 design: Code mode (custom-coded websites), not built yet
+## 18. Code websites (built in VS Code)
 
-> **Status: planned, documentation only.** Nothing in this section exists in the code yet. It records the agreed direction so it can be built in a later phase.
-
-**Why.** Some customers want a fully custom website that no module or blueprint can express (custom animations, extra pages, a bespoke design system). The team should be able to **write that site as code in VS Code**, deploy it on the same platform and domain setup, and still give the client the platform's enquiry inbox, automation, analytics and billing.
-
-**Idea.** A site gets a `renderMode`: `config` (today: module/blueprint) or `code`. A code site is a separate small web project (e.g. Next.js, Astro or plain HTML) kept in its own Git repository and built into its own container. Caddy routes its host to that container instead of the shared renderer. The platform stays the system of record for the client, domain, enquiries and billing.
+A code website is a site whose source is a **GitHub repository** instead of builder JSON. The team edits it in VS Code, GitHub Actions builds it, and the platform stores and serves the result. The site still belongs to a client and uses the same domain, HTTPS, enquiries, automation, analytics and billing as builder sites.
 
 ```mermaid
-flowchart LR
-    DEV["Developer in VS Code<br/>repo: site-SLUG"] -->|git push| CI["CI build<br/>(GitHub Actions)"]
-    CI -->|image| REG[(Container registry)]
-    REG --> HOST["Server: docker compose<br/>site-SLUG container"]
-    V[Visitor] --> CADDY[Caddy] -->|"host = SLUG.onekampus.com<br/>renderMode = code"| HOST
-    CADDY -->|renderMode = config| APP[Platform app / SiteRenderer]
-    HOST -->|"POST /api/public/enquiries<br/>(site key)"| APP
-    HOST -->|"POST /api/track"| APP
-    APP --> PG[(PostgreSQL)]
+sequenceDiagram
+    participant A as Admin (Code tab)
+    participant P as Platform
+    participant G as GitHub
+    participant V as VS Code (laptop)
+    participant W as Visitor
+    A->>P: Create code website (React / Next.js / HTML)
+    P->>G: create private repo site-slug, add webhook, commit starter template
+    G->>G: workflow "Deploy to oneKampus" (npm install, npm run build, upload artifact "site")
+    G-->>P: workflow_run webhook (signed): requested → Deploy BUILDING
+    G-->>P: workflow_run completed (success)
+    P->>G: download artifact zip (token)
+    P->>P: check + unzip to CODE_SITES_DIR/siteId/deployId, mark LIVE
+    A->>V: Open in VS Code (vscode://vscode.git/clone?url=…)
+    V->>G: git push
+    Note over G,P: same build → webhook → install cycle
+    W->>P: GET slug.onekampus.com/about
+    P->>P: middleware → /code-sites/slug/about → live build file
+    W->>P: POST /api/public/enquiries (same origin)
+    P->>P: Enquiry + alerts + auto-reply
 ```
 
-Planned pieces (for the later phase):
+**Data.** `Site.moduleKey = "code"`, plus `CodeProject` (framework, repo, branch, `liveDeployId`) and one `Deploy` per GitHub workflow run (status, commit, author, log URL, error). Builder-only actions (sections, design, content, save as blueprint) refuse code websites.
 
-| Piece | Plan |
-|---|---|
-| Data | `Site.renderMode` (`config` \| `code`), `Site.codeRepo` (Git URL), `Site.codeImage` (image tag), `Site.publicKey` (for form posts) |
-| Starter kit | `create-onekampus-site` template repo: Next.js + Tailwind, an `<EnquiryForm siteKey>` component and a tracking snippet, so code sites still feed the CRM |
-| Public API | `POST /api/public/enquiries` (site key + honeypot + rate limit) → the same `submitEnquiry` pipeline, so email/WhatsApp alerts and auto-replies work unchanged |
-| Routing | Caddy `ask` stays the same; a generated Caddy snippet maps code-site hosts to `site-<slug>:3000`; everything else falls through to the platform app |
-| Deploy | CI builds an image per push to `main`; a `deploy-site.sh <slug> <tag>` pulls and restarts only that container. Preview URLs per branch are a later extra |
-| Builder | Code sites show only Settings, Automation, Enquiries and Analytics tabs; Sections, Design and Content are replaced by "Edited in code: open repository" |
-| Limits | Each code site costs memory (~100–150 MB per Node container). The current 1 GB server fits only a few; move to a 2–4 GB plan or serve static exports via Caddy before offering this widely |
+**Builds.**
+- Builds run on **GitHub Actions**, never on the server: a React or Next.js build needs about 1–1.5 GB of memory, more than the 1 GB server has.
+- Each successful build is unpacked into `CODE_SITES_DIR/<siteId>/<deployId>/` (`/data/code-sites` on the server, a Docker volume).
+- Going live just changes `liveDeployId`, so **rollback is instant**. The newest 5 builds are kept on disk, and older folders are deleted.
 
-Until then, the closest option is a **Custom starter** blueprint plus the Design tab (header, sections, layouts, style), which covers most "custom look" requests without code.
+**Serving** (`src/app/code-sites/[slug]/[[...path]]/route.ts`)
+- **Lookup order:** the exact file, then `folder/index.html`, then `path.html`.
+- **React** page links fall back to `index.html` (200). Otherwise the site's own `404.html` is used.
+- **Caching:** fingerprinted assets (`/assets/`, `/_next/static/`, hashed names) are cached for a year. HTML is `no-cache`, so a deploy shows at once.
+- **Drafts** need a 2-hour preview token (signed with `AUTH_SECRET`), which is then stored in a host-only cookie.
+
+**Templates** (`code-templates/`): React (Vite + React Router), Next.js (App Router, `output: "export"`, `trailingSlash: true`) and HTML. Each has:
+- the deploy workflow
+- a contact form posting to `/api/public/enquiries` (the site is recognised by its host, so no keys are in the code)
+- page-view tracking to `/api/track`
+- a developer README
+
+Both form and tracking do nothing on `localhost`.
+
+**GitHub access.**
+- Uses a fine-grained token on the account in `GITHUB_OWNER` (repos are private, named `site-<slug>`).
+- The token creates repositories and webhooks, commits the starter, starts workflows ("Build again"), downloads artifacts and invites collaborators.
+- When GitHub isn't configured, the Code website option is shown but disabled.
+
+**Limits and next steps**
+- Static output only: no API routes, server actions, middleware or server rendering. A future "server" mode would run each Next.js site in its own container (~150 MB each, so a 2 GB server).
+- GitHub's free plan has 2,000 Actions minutes a month for private repos (a build takes about 1–2 minutes).
+- Not built yet:
+  - **in-browser editor:** VS Code's editor (Monaco) in the admin panel, with an in-browser bundler and npm packages from a CDN
+  - **"Build on server" button:** the same editor, built by the same GitHub Actions pipeline
+  - **editing builder sites and blueprints as code**

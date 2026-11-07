@@ -25,10 +25,10 @@ sudo usermod -aG docker ubuntu
 command -v aws >/dev/null || sudo snap install aws-cli --classic >/dev/null
 
 echo "› folders"
-sudo mkdir -p "$ROOT/deploy/data/uploads" "$ROOT/deploy/data/postgres" "$ROOT/backups"
+sudo mkdir -p "$ROOT/deploy/data/uploads" "$ROOT/deploy/data/code-sites" "$ROOT/deploy/data/postgres" "$ROOT/backups"
 sudo chown -R ubuntu:ubuntu "$ROOT"
 # the app container runs as uid 1000 ("node")
-sudo chown 1000:1000 "$ROOT/deploy/data/uploads"
+sudo chown 1000:1000 "$ROOT/deploy/data/uploads" "$ROOT/deploy/data/code-sites"
 
 ENV="$ROOT/deploy/.env"
 if [ ! -f "$ENV" ]; then

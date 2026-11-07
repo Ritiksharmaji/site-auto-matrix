@@ -4,7 +4,7 @@ import { requireStaff } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { siteScope } from "@/lib/permissions";
 import { siteUrl } from "@/lib/sites";
-import { getModule } from "@/modules/registry";
+import { siteKindName } from "@/modules/registry";
 
 export default async function SitesPage() {
   const user = await requireStaff();
@@ -23,7 +23,7 @@ export default async function SitesPage() {
               <p className="font-semibold text-slate-900">{s.name}</p>
               <StatusBadge status={s.status} />
             </div>
-            <p className="mt-1 text-xs text-slate-500">{getModule(s.moduleKey)?.name} · {s.client.name}</p>
+            <p className="mt-1 text-xs text-slate-500">{siteKindName(s.moduleKey)} · {s.client.name}</p>
             <p className="mt-3 truncate text-xs text-indigo-600">{siteUrl(s)}</p>
             {s._count.enquiries > 0 && <p className="mt-2 text-xs font-medium text-amber-700">{s._count.enquiries} new enquiries</p>}
           </Link>

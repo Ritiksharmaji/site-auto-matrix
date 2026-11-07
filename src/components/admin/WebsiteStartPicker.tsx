@@ -11,6 +11,8 @@ type Props = {
   categories: Category[];
   /** Pre-selected blueprint (from the Blueprints page). */
   initialBlueprint?: string;
+  /** Present when the user may create code websites. */
+  code?: { frameworks: { value: string; label: string; description: string }[]; githubReady: boolean };
 };
 
 /**
@@ -18,9 +20,10 @@ type Props = {
  * and works exactly as before; "Blueprint" clones a ready-made website instead.
  * Submits moduleKey + preset, or blueprint.
  */
-export default function WebsiteStartPicker({ modules, blueprints, categories, initialBlueprint }: Props) {
+export default function WebsiteStartPicker({ modules, blueprints, categories, initialBlueprint, code }: Props) {
   const valid = blueprints.some((b) => b.key === initialBlueprint);
-  const [mode, setMode] = useState<"standard" | "blueprint">(valid ? "blueprint" : "standard");
+  const [mode, setMode] = useState<"standard" | "blueprint" | "code">(valid ? "blueprint" : "standard");
+  const [framework, setFramework] = useState(code?.frameworks[0]?.value ?? "");
   const [selected, setSelected] = useState(valid ? initialBlueprint! : "");
   const initialCat = blueprints.find((b) => b.key === initialBlueprint)?.category ?? blueprints[0]?.category ?? "";
   const [cat, setCat] = useState(initialCat);
@@ -30,7 +33,7 @@ export default function WebsiteStartPicker({ modules, blueprints, categories, in
     <div className="space-y-4">
       <div>
         <span className="label">How do you want to start?</span>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className={`grid gap-3 ${code ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
           <ModeButton active={mode === "standard"} onClick={() => setMode("standard")} title="Standard (module + design)" hint="Pick a module and a starting design, then fill in content. The usual way." />
           <ModeButton
             active={mode === "blueprint"}
@@ -39,10 +42,44 @@ export default function WebsiteStartPicker({ modules, blueprints, categories, in
             title={`From a blueprint (${blueprints.length})`}
             hint="Clone a ready-made website with design, sections, text and images. Just swap the content."
           />
+          {code && (
+            <ModeButton
+              active={mode === "code"}
+              onClick={() => setMode("code")}
+              title="Code website (VS Code)"
+              hint="React, Next.js or HTML in its own GitHub repo. Open it in VS Code, push, and it goes live."
+            />
+          )}
         </div>
       </div>
 
       {mode === "standard" && <ModulePicker modules={modules} />}
+
+      {mode === "code" && code && (
+        <div className="space-y-3">
+          <input type="hidden" name="codeFramework" value={framework} />
+          <span className="label">Framework</span>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {code.frameworks.map((f) => (
+              <button
+                type="button"
+                key={f.value}
+                onClick={() => setFramework(f.value)}
+                className={`rounded-lg border p-3 text-left transition ${f.value === framework ? "border-indigo-500 bg-indigo-50 ring-2 ring-indigo-200" : "border-slate-200 bg-white hover:border-slate-300"}`}
+              >
+                <p className="text-sm font-medium text-slate-900">{f.label}</p>
+                <p className="text-xs text-slate-500">{f.description}</p>
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-slate-500">
+            Creates a private GitHub repository with a starter site (contact form and analytics already connected) and starts the first build. You then open it in VS Code from the website&apos;s Code tab.
+          </p>
+          {!code.githubReady && (
+            <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">GitHub isn&apos;t connected on this server yet, so code websites can&apos;t be created. See docs/DEPLOYMENT.md → Code websites.</p>
+          )}
+        </div>
+      )}
 
       {mode === "blueprint" && (
         <div>

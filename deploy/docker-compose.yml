@@ -29,9 +29,11 @@ services:
     environment:
       DATABASE_URL: postgresql://siteplatform:${POSTGRES_PASSWORD}@db:5432/site_platform
       UPLOAD_DIR: /data/uploads
+      CODE_SITES_DIR: /data/code-sites
       NODE_OPTIONS: --max-old-space-size=384
     volumes:
       - ./data/uploads:/data/uploads
+      - ./data/code-sites:/data/code-sites
     depends_on:
       db:
         condition: service_healthy

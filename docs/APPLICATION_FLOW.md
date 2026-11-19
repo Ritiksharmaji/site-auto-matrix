@@ -7,6 +7,7 @@ This guide explains, step by step, how the platform works: who uses it, what eac
 - **Roles and permissions, proven screen by screen:** [§17](#17-roles-and-permissions-proven-with-screenshots).
 - **Ready-made websites (blueprints) and the page-structure designer:** [§6B](#6b-starting-from-a-blueprint-ready-made-websites) and [§7 Step 2](#step-2--design).
 - **Code websites (React / Next.js / HTML written in VS Code, deployed by pushing to GitHub):** [§6C](#6c-code-websites-built-in-vs-code). Edit them in VS Code on a laptop, or in **Code Studio**, VS Code's editor inside the admin panel: [§6D](#6d-code-studio-vs-code-in-the-browser).
+- **Custom code on builder websites** (extra CSS, JS and HTML blocks on sites like ADVERA, while the builder keeps working): [§6E](#6e-custom-code-on-builder-websites).
 
 ---
 
@@ -570,6 +571,44 @@ flowchart LR
 
 ---
 
+## 6E. Custom code on builder websites
+
+A website made with the builder (e.g. ADVERA) can get **a little code on top**: extra styles, scripts, or whole HTML blocks between its sections. It **stays a builder website**: the team still uses Sections, Design and Content, and the client still edits text and images in the portal.
+
+| File in the repo | What it does |
+|---|---|
+| `custom.css` | Your own styles, applied **after** the builder's design (so they win) |
+| `custom.js` | Scripts that run on the live site (chat widget, tracking, effects) |
+| `sections/after-<section>.html` | An extra HTML block right **after** that builder section (e.g. `after-hero.html`) |
+| `sections/before-<section>.html` | An extra HTML block right **before** that section |
+
+The repo's README lists the section names of that website (e.g. `hero`, `services`, `about`, `whyus`, `faq`, `contact`).
+
+**Step 1: Add it.** Open the website in the builder → **Code** tab → **Add custom code**. This creates a private repository `site-<web address>` with a starter `custom.css`, `custom.js` and an example section. (It needs the **Can create code websites** permission and GitHub connected.)
+
+![Builder website: Code tab → Add custom code](screenshots/08-custom-code/01-add-custom-code.png)
+
+*Builder website: Code tab → Add custom code*
+
+**Step 2: Edit and publish.** Use **Open in window** (Code Studio in the browser) or **Open in laptop VS Code**, exactly like a code website. **Commit & deploy** or `git push` puts it live in about a minute. **Deploys** shows the history, with **Roll back**.
+
+![Custom code live: here custom.css turns the headline red; deploys and rollback below](screenshots/08-custom-code/02-custom-code-live.png)
+
+*Custom code live: here custom.css turns the headline red; deploys and rollback below*
+
+![Code Studio editing a builder website's custom.css](screenshots/08-custom-code/03-custom-code-studio.png)
+
+*Code Studio editing a builder website's custom.css*
+
+**Safety**
+- `custom.js`, and any scripts or `onclick`-style handlers in HTML blocks, run **only on the real website** (`advera.onekampus.com`). In the admin panel's preview, HTML blocks are shown without scripts and `custom.js` doesn't run, so custom code can never act inside the admin panel.
+- `<script>` tags inside `sections/*.html` don't run anywhere. Put scripts in `custom.js`.
+- To remove custom code, empty `custom.css` and `custom.js`, delete the files in `sections/`, and deploy, or roll back to an earlier version.
+
+Websites without custom code look and work exactly as before.
+
+---
+
 ## 7. Building the website (the builder)
 
 Open **Websites → (a site)**. The left side has tabs, the right side shows a **live preview** (desktop or mobile) that reloads after each save.
@@ -1009,6 +1048,7 @@ Structured data (users, clients, permissions, invoices) uses normal tables with 
 | Blueprints page, preview, start picker | `src/app/admin/blueprints/`, `src/app/blueprint-preview/[key]/`, `src/components/admin/BlueprintGallery.tsx`, `src/components/admin/WebsiteStartPicker.tsx` |
 | Code websites: repo creation, builds, serving, rollback | `src/lib/code-sites.ts`, `src/lib/github.ts`, `src/app/api/github/webhook/`, `src/app/code-sites/[slug]/[[...path]]/`, `src/app/actions/code.ts`, `src/components/builder/CodeSiteBuilder.tsx` |
 | Code website starter templates | `code-templates/react`, `code-templates/nextjs`, `code-templates/html` |
+| Custom code on builder sites | `code-templates/custom/`, `liveCustomCode()` in `src/lib/code-sites.ts`, `src/app/sites/[site]/page.tsx`, `src/app/sites/[site]/site-custom/[file]/`, `enableCustomCode` in `src/app/actions/code.ts`, Code tab in `SiteBuilder.tsx` |
 | Code Studio (VS Code in the browser) | `src/app/studio/[id]/`, `src/components/studio/` (CodeStudio, MonacoEditor, preview), `src/app/actions/studio.ts`, preview shell in `src/app/code-sites/[slug]/[[...path]]/route.ts` |
 | Public form and tracking API for code websites | `src/app/api/public/enquiries/`, `src/app/api/track/`, `src/lib/enquiries.ts` |
 | Blueprint photos and icons | `public/blueprints/photos/` (list and Unsplash IDs: `scripts/blueprint-photos.txt`), feature icons: `src/lib/art.ts`, `src/app/api/art/[kind]/` |
@@ -1060,6 +1100,7 @@ Each check below was performed by signing in as that role and opening the page. 
 | Blueprints: gallery, previews, create from blueprint, save / delete own blueprint | [05-blueprints](./screenshots/05-blueprints/) |
 | Code websites: create, Code tab, settings, permission, live site, client view | [06-code-websites](./screenshots/06-code-websites/) |
 | Code Studio: editor, instant preview, packages, changes, commit, conflict | [07-code-studio](./screenshots/07-code-studio/) |
+| Custom code on builder websites | [08-custom-code](./screenshots/08-custom-code/) |
 
 ![Activity log (Super Admin only): who did what and when](screenshots/02-super-admin/22-activity.png)
 
@@ -1190,5 +1231,6 @@ The planned "Build on server" button is covered by Code Studio: its **Commit & d
 
 Still planned:
 - **Full Next.js with server features** (API routes, server rendering). Each site would need its own container (~150 MB each), so a 2 GB server.
-- **Editing builder sites and blueprints as code** (pull a site's content and design as files, edit in Code Studio or VS Code, push back).
+- **Converting a builder website into a full code website** (keeps its look and content, then edited only in code). Small changes are already possible with custom code (§6E).
+- **Editing blueprints in Code Studio.**
 - **Instant preview for Next.js** in the browser.

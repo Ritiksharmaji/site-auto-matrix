@@ -212,6 +212,7 @@ siteScope(user)  → sites whose client is inside clientScope(user)
 | Create code websites (GitHub repo, VS Code) | ✅ | ⚠️ if `canCreateCodeSites` | ❌ |
 | Code tab: deploys, roll back, build again, invite a developer | ✅ | ✅ own clients' code sites | ❌ (portal shows the site and its enquiries) |
 | Code Studio (edit and commit in the browser) | ✅ | ✅ own clients' code sites | ❌ |
+| Add custom code to a builder website | ✅ | ⚠️ if `canCreateCodeSites` | ❌ (keeps editing content as before) |
 | Reassign a client to another member | ✅ | ❌ | ❌ |
 | Delete client | ✅ | ⚠️ if `canDeleteClients` | ❌ |
 | Create client logins | ✅ | ✅ own clients | ❌ |
@@ -427,7 +428,7 @@ erDiagram
 - **Money in paise.** Amounts are stored as integers, so there are no floating-point rounding errors.
 - **Indexes** on `ownerId`, `siteId`, `status` and `createdAt` support the scoped list queries.
 
-Migrations live in `prisma/migrations/`: `init`, `phase2_automation_crm_uploads`, `phase3_billing_analytics`, `enquiry_extra_fields`, `saved_blueprints` and `code_sites`.
+Migrations live in `prisma/migrations/`: `init`, `phase2_automation_crm_uploads`, `phase3_billing_analytics`, `enquiry_extra_fields`, `saved_blueprints`, `code_sites` and `custom_code`.
 
 ---
 
@@ -723,3 +724,15 @@ sequenceDiagram
   - The document is posted to a shell page on the **site's own origin**, so customer code never runs on the admin origin, and React Router sees normal paths.
   - Next.js sites preview the live build.
 - **Server cost:** none beyond GitHub API calls. Compiling happens in the user's browser and building on GitHub Actions.
+
+### 18.2 Custom code on builder websites
+
+A builder site can have a `CodeProject` with framework **`CUSTOM`** (repo from `code-templates/custom`). The site keeps its module (`moduleKey` stays e.g. `company`), so the middleware still renders it with `SiteRenderer`. The same GitHub Actions → webhook → install pipeline stores each build; a custom build needs no `index.html`.
+
+| Piece | How it's applied (`src/app/sites/[site]/page.tsx`) |
+|---|---|
+| `custom.css` | Read from the live build and rendered as a `<style>` **after** the builder's styles, so equal selectors win |
+| `custom.js` | `<script async src="/site-custom/script?v=<deployId>">` (immutable cache per deploy), **only on the site's own host** |
+| `sections/before-<key>.html`, `after-<key>.html` | Passed to `SiteRenderer` as `customSections` and rendered around that section in a `.site-custom-html` wrapper |
+
+Admin-panel previews are on the platform origin. There, HTML sections go through `stripActiveHtml()` (removes `<script>`, `<iframe>`/`<object>`/`<embed>`/`<base>`/`<meta>`/`<link>`, `on*=` handlers and `javascript:` URLs), and `custom.js` isn't loaded. So code written for a customer site can't run in the admin panel. The four demo sites were verified pixel-identical after this change.

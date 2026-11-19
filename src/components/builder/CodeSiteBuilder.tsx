@@ -108,7 +108,11 @@ export default function CodeSiteBuilder(props: Props) {
   );
 }
 
-function CodeTab({ site, code, deploys, building }: Props & { building: boolean }) {
+export type CodeInfo = Props["code"];
+
+/** Deploys, rollback, developer access and the two ways to open the code (also used for builder sites' custom code). */
+export function CodeTab({ site, code, deploys, building }: Pick<Props, "site" | "code" | "deploys"> & { building: boolean }) {
+  const custom = code.framework === "CUSTOM";
   const [msg, setMsg] = useState<{ ok?: string; error?: string }>({});
   const [busy, setBusy] = useState("");
   const [gh, setGh] = useState("");
@@ -128,7 +132,7 @@ function CodeTab({ site, code, deploys, building }: Props & { building: boolean 
       <div className="card space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="font-semibold text-slate-900">Code website · {code.frameworkLabel}</h3>
+            <h3 className="font-semibold text-slate-900">{custom ? "Custom code on this website" : `Code website · ${code.frameworkLabel}`}</h3>
             <p className="text-sm text-slate-500">
               Repository <a href={code.repoUrl} target="_blank" rel="noreferrer" className="font-mono text-indigo-600 hover:underline">{code.repo}</a> · branch <span className="font-mono">{code.branch}</span>
             </p>
@@ -154,9 +158,13 @@ function CodeTab({ site, code, deploys, building }: Props & { building: boolean 
           <summary className="cursor-pointer font-medium text-slate-700">How to work on it</summary>
           <ol className="mt-2 list-decimal space-y-1 pl-5 text-slate-600">
             <li><b>In the browser:</b> click <b>Open in window</b>, edit, then <b>Commit &amp; deploy</b>. Or <b>on your laptop:</b> click <b>Open in laptop VS Code</b> (or run <code className="rounded bg-white px-1">git clone {code.cloneUrl}</code>).</li>
-            <li>On the laptop, in VS Code&apos;s terminal: <code className="rounded bg-white px-1">{code.devCommand}</code></li>
+            {custom ? (
+              <li>Edit <code className="rounded bg-white px-1">custom.css</code> (styles), <code className="rounded bg-white px-1">custom.js</code> (scripts) or add <code className="rounded bg-white px-1">sections/after-&lt;section&gt;.html</code> (extra blocks). The README in the repo lists this site&apos;s sections.</li>
+            ) : (
+              <li>On the laptop, in VS Code&apos;s terminal: <code className="rounded bg-white px-1">{code.devCommand}</code></li>
+            )}
             <li>Make your changes, then <b>Commit</b> and <b>Push</b> (Source Control panel) or <code className="rounded bg-white px-1">git push</code>.</li>
-            <li>GitHub builds it and it goes live here in about 1–2 minutes. Forms on the site arrive in <b>Enquiries</b>.</li>
+            <li>{custom ? "It goes live on the website in about a minute. Text and images are still edited in the Content tab." : <>GitHub builds it and it goes live here in about 1–2 minutes. Forms on the site arrive in <b>Enquiries</b>.</>}</li>
           </ol>
         </details>
         {!code.githubReady && <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">GitHub isn&apos;t connected on this server, so builds won&apos;t arrive. See docs/DEPLOYMENT.md → Code websites.</p>}

@@ -22,7 +22,7 @@ type Deploy = { status: "BUILDING" | "LIVE" | "FAILED" | "REPLACED"; commitSha: 
 
 export type StudioProps = {
   site: { id: string; name: string; slug: string; status: "DRAFT" | "PUBLISHED" };
-  framework: "HTML" | "REACT" | "NEXTJS";
+  framework: "HTML" | "REACT" | "NEXTJS" | "CUSTOM";
   frameworkLabel: string;
   repo: string;
   repoUrl: string;
@@ -429,13 +429,13 @@ export default function CodeStudio(props: StudioProps) {
 
   // ------------------------------------------------------------ preview
 
-  const [previewMode, setPreviewMode] = useState<"instant" | "live" | "off">(props.framework === "NEXTJS" ? "live" : "instant");
+  const [previewMode, setPreviewMode] = useState<"instant" | "live" | "off">(props.framework === "REACT" || props.framework === "HTML" ? "instant" : "live");
   const [previewKey, setPreviewKey] = useState(0);
   const [previewError, setPreviewError] = useState("");
   const [previewBusy, setPreviewBusy] = useState(false);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const pendingDoc = useRef<{ html: string; path: string } | null>(null);
-  const canInstant = props.framework !== "NEXTJS";
+  const canInstant = props.framework === "REACT" || props.framework === "HTML";
 
   const collectFiles = useCallback(async (): Promise<PreviewFiles> => {
     const wanted = entries.filter((e) => (isText(e.path) || DATA_EXT.test(e.path)) && e.size < 1_500_000 && !e.path.startsWith(".github/"));
@@ -637,7 +637,11 @@ export default function CodeStudio(props: StudioProps) {
             ) : (
               <iframe key={`live-${deploy?.commitSha ?? ""}-${deploy?.status ?? ""}`} src={props.liveUrl} title="Live site" className="min-h-0 flex-1 bg-white" />
             )}
-            {!canInstant && <p className="bg-[#2d2d2d] px-3 py-1 text-xs text-slate-400">Next.js previews after each deploy (instant preview is for React and HTML sites).</p>}
+            {!canInstant && (
+              <p className="bg-[#2d2d2d] px-3 py-1 text-xs text-slate-400">
+                {props.framework === "CUSTOM" ? "Custom code shows on the live site about a minute after Commit & deploy." : "Next.js previews after each deploy (instant preview is for React and HTML sites)."}
+              </p>
+            )}
           </section>
         )}
       </div>

@@ -17,10 +17,12 @@ import { platformHost } from "./hosts";
 export const CODE_MODULE_KEY = "code";
 export const KEEP_BUILDS = 5;
 
-export const FRAMEWORKS: { value: CodeFramework; label: string; description: string; template: string }[] = [
+export const FRAMEWORKS: { value: CodeFramework; label: string; description: string; template: string; pickable?: false }[] = [
   { value: "REACT", label: "React (Vite)", description: "Single-page React app with page links (React Router)", template: "react" },
   { value: "NEXTJS", label: "Next.js", description: "Next.js App Router, exported as static pages", template: "nextjs" },
   { value: "HTML", label: "HTML / CSS / JS", description: "Plain files, no build step", template: "html" },
+  // Not a website on its own: extra CSS / JS / HTML sections for a builder site.
+  { value: "CUSTOM", label: "Custom code", description: "CSS, JS and HTML sections added to a builder website", template: "custom", pickable: false },
 ];
 
 export function codeSitesDir() {
@@ -44,7 +46,7 @@ async function listFiles(dir: string, base = dir): Promise<string[]> {
 }
 
 /** Starter files for a framework, with the site's name and address filled in. */
-export async function templateFiles(framework: CodeFramework, vars: { name: string; slug: string; url: string }) {
+export async function templateFiles(framework: CodeFramework, vars: { name: string; slug: string; url: string; sections?: string[] }) {
   const tpl = FRAMEWORKS.find((f) => f.value === framework)!.template;
   const root = path.join(process.cwd(), "code-templates", tpl);
   const files = await listFiles(root);
@@ -54,7 +56,8 @@ export async function templateFiles(framework: CodeFramework, vars: { name: stri
       content: (await readFile(path.join(root, rel), "utf8"))
         .replaceAll("__NAME__", vars.name.replace(/[<>"`$\\]/g, ""))
         .replaceAll("__SLUG__", vars.slug)
-        .replaceAll("__URL__", vars.url),
+        .replaceAll("__URL__", vars.url)
+        .replaceAll("__SECTIONS__", (vars.sections ?? []).map((k) => `\`${k}\``).join(", ") || "(none)"),
     })),
   );
 }
@@ -63,7 +66,7 @@ export async function templateFiles(framework: CodeFramework, vars: { name: stri
  * Creates the GitHub repo for a new code website, commits the starter template
  * (which starts the first build) and registers the deploy webhook.
  */
-export async function createCodeRepo(opts: { slug: string; name: string; framework: CodeFramework; url: string }) {
+export async function createCodeRepo(opts: { slug: string; name: string; framework: CodeFramework; url: string; sections?: string[] }) {
   const cfg = githubConfig();
   if (!cfg.ready) throw new Error("GitHub isn't connected yet. Add GITHUB_TOKEN, GITHUB_OWNER and GITHUB_WEBHOOK_SECRET on the server (see docs/DEPLOYMENT.md).");
   const repoName = `site-${opts.slug}`;
@@ -81,7 +84,7 @@ const MAX_FILES = 10_000;
 const MAX_BYTES = 300 * 1024 * 1024;
 
 /** Unzips a build into its folder after checking every path. Returns file count and size. */
-export async function installBuild(siteId: string, deployId: string, zip: Uint8Array) {
+export async function installBuild(siteId: string, deployId: string, zip: Uint8Array, framework: CodeFramework = "HTML") {
   const entries = unzipSync(zip);
   const names = Object.keys(entries).filter((n) => !n.endsWith("/"));
   if (names.length === 0) throw new Error("The build is empty.");
@@ -93,7 +96,7 @@ export async function installBuild(siteId: string, deployId: string, zip: Uint8A
     total += entries[n].length;
   }
   if (total > MAX_BYTES) throw new Error("The build is larger than 300 MB.");
-  if (!names.includes("index.html")) throw new Error("The build has no index.html at its top level. Check the build output folder in the workflow.");
+  if (framework !== "CUSTOM" && !names.includes("index.html")) throw new Error("The build has no index.html at its top level. Check the build output folder in the workflow.");
 
   const target = buildDir(siteId, deployId);
   const tmp = `${target}.tmp`;
@@ -188,9 +191,9 @@ export async function handleWorkflowRun(event: RunEvent, install = downloadAndIn
   }
 }
 
-async function downloadAndInstall(project: { siteId: string; repoOwner: string; repoName: string }, deployId: string, runId: string) {
+async function downloadAndInstall(project: { siteId: string; repoOwner: string; repoName: string; framework: CodeFramework }, deployId: string, runId: string) {
   const zip = await downloadBuildArtifact(project.repoOwner, project.repoName, runId);
-  return installBuild(project.siteId, deployId, zip);
+  return installBuild(project.siteId, deployId, zip, project.framework);
 }
 
 /** Removes all stored builds of a site (used when a site or client is deleted). */
@@ -272,4 +275,45 @@ export async function verifyPreviewToken(token: string | undefined | null, siteI
   } catch {
     return false;
   }
+}
+
+// ---------------------------------------------------------------- custom code on builder sites
+
+export type CustomCode = {
+  deployId: string;
+  css: string;
+  hasCss: boolean;
+  hasJs: boolean;
+  /** "before-<section>" / "after-<section>" → HTML */
+  sections: Record<string, string>;
+};
+
+/** The live custom code (CSS / JS / HTML sections) of a builder site, or null. */
+export async function liveCustomCode(siteId: string): Promise<CustomCode | null> {
+  const project = await db.codeProject.findUnique({ where: { siteId }, select: { framework: true, liveDeployId: true } });
+  if (!project || project.framework !== "CUSTOM" || !project.liveDeployId) return null;
+  const root = buildDir(siteId, project.liveDeployId);
+  const sections: Record<string, string> = {};
+  try {
+    for (const f of await readdir(path.join(root, "sections"))) {
+      const m = /^((?:before|after)-[a-z0-9_-]+)\.html$/i.exec(f);
+      if (m) sections[m[1].toLowerCase()] = (await readFile(path.join(root, "sections", f), "utf8")).slice(0, 200_000);
+    }
+  } catch {}
+  const cssFile = path.join(root, "custom.css");
+  const hasCss = await isFile(cssFile);
+  const css = hasCss ? (await readFile(cssFile, "utf8")).slice(0, 500_000) : "";
+  return { deployId: project.liveDeployId, css, hasCss, hasJs: await isFile(path.join(root, "custom.js")), sections };
+}
+
+/**
+ * For the admin panel's preview (platform origin): HTML sections without scripts,
+ * event handlers or javascript: links. The real website shows them unchanged.
+ */
+export function stripActiveHtml(html: string) {
+  return html
+    .replace(/<script\b[\s\S]*?<\/script\s*>/gi, "")
+    .replace(/<(iframe|object|embed|base|meta|link)\b[^>]*>/gi, "")
+    .replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(/(href|src|action|formaction|xlink:href)\s*=\s*("|')\s*javascript:[^"']*\2/gi, '$1="#"');
 }

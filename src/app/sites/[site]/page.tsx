@@ -7,6 +7,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { siteScope } from "@/lib/permissions";
 import { buildRenderProps, findSiteByKey } from "@/lib/sites";
+import { liveCustomCode, stripActiveHtml } from "@/lib/code-sites";
+import { platformHost } from "@/lib/hosts";
 
 type Params = { params: Promise<{ site: string }> };
 
@@ -47,10 +49,20 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 export default async function SitePage({ params }: Params) {
-  const site = await loadVisibleSite((await params).site);
+  const key = (await params).site;
+  const site = await loadVisibleSite(key);
   if (!site) notFound();
   const props = buildRenderProps(site);
   if (!props) notFound();
+
+  // Custom code from the site's repo. On the platform address (the builder's preview)
+  // HTML sections are shown without scripts, and custom.js doesn't run.
+  const custom = await liveCustomCode(site.id);
+  const host = ((await headers()).get("host") ?? "").toLowerCase();
+  const onPlatform = [platformHost(), "localhost:3000", "127.0.0.1:3000"].includes(host);
+  const customSections = custom
+    ? Object.fromEntries(Object.entries(custom.sections).map(([slot, html]) => [slot, onPlatform ? stripActiveHtml(html) : html]))
+    : undefined;
 
   return (
     <>
@@ -59,7 +71,9 @@ export default async function SitePage({ params }: Params) {
           Draft preview — this site is not public yet
         </div>
       )}
-      <SiteRenderer {...props} />
+      <SiteRenderer {...props} customSections={customSections} />
+      {custom?.css && <style data-custom-css dangerouslySetInnerHTML={{ __html: custom.css.replace(/<\/style/gi, "<\\/style") }} />}
+      {custom?.hasJs && !onPlatform && <script src={`/site-custom/script?v=${custom.deployId}`} async />}
       {site.status === "PUBLISHED" && <PageViewTracker siteId={site.id} />}
       <OrganizationJsonLd name={props.brand.siteName} phone={props.brand.phone} email={props.brand.email} address={props.brand.address} />
     </>

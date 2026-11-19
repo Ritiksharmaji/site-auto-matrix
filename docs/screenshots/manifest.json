@@ -736,5 +736,23 @@
     "title": "Code Studio \u2013 same file changed on a laptop",
     "url": "/studio/<siteId>",
     "finalUrl": "/studio/<siteId>"
+  },
+  {
+    "file": "08-custom-code/01-add-custom-code.png",
+    "title": "Builder website \u2013 Code tab: Add custom code",
+    "url": "/admin/sites/<siteId>",
+    "finalUrl": "/admin/sites/<siteId>"
+  },
+  {
+    "file": "08-custom-code/02-custom-code-live.png",
+    "title": "Builder website with custom code \u2013 deploys, Open in window / laptop; custom.css applied in the preview",
+    "url": "/admin/sites/<siteId>",
+    "finalUrl": "/admin/sites/<siteId>"
+  },
+  {
+    "file": "08-custom-code/03-custom-code-studio.png",
+    "title": "Code Studio on a builder website's custom code",
+    "url": "/admin/sites/<siteId>",
+    "finalUrl": "/admin/sites/<siteId>"
   }
 ]

@@ -16,6 +16,8 @@ One Next.js app that creates and hosts many websites (schools, companies, …) f
 
 🪟 **Code Studio:** edit a code website **in the browser** with VS Code's editor: file tree, instant React/HTML preview, a Packages panel instead of `npm install`, and Commit & deploy. It uses the same repo as the laptop, and is safe when both are used ([APPLICATION_FLOW.md §6D](docs/APPLICATION_FLOW.md#6d-code-studio-vs-code-in-the-browser)).
 
+🧩 **Custom code on builder websites:** add `custom.css`, `custom.js` and extra HTML blocks to any builder site (e.g. ADVERA) from its **Code** tab. The builder and client editing keep working ([APPLICATION_FLOW.md §6E](docs/APPLICATION_FLOW.md#6e-custom-code-on-builder-websites)).
+
 📸 **Regenerate the screenshots** (dev server running): `npm run docs:screenshots` · **Validate blueprints:** `npm run check:blueprints`
 
 ## Run locally

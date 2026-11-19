@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { Fragment, type CSSProperties } from "react";
 import type { Brand, FormFieldDef, ModuleDef, SectionContent, SectionItem, Theme } from "@/modules/types";
 import { fontCss, radiusCss, sectionVariant, SPACING_OPTIONS } from "@/modules/shared";
 import EnquiryForm, { type ExtraField } from "./EnquiryForm";
@@ -15,6 +15,8 @@ type Props = {
   brand: Brand;
   sections: Record<string, SectionContent>;
   basePath?: string;
+  /** Custom HTML blocks from the site's custom code: "before-<key>" / "after-<key>" → HTML. */
+  customSections?: Record<string, string>;
 };
 
 export function googleFontsHref(theme: Theme) {
@@ -33,7 +35,7 @@ function isDarkColor(hex: string) {
   return lum < 0.45;
 }
 
-export default function SiteRenderer({ siteId, module, enabledSections, theme, brand, sections }: Props) {
+export default function SiteRenderer({ siteId, module, enabledSections, theme, brand, sections, customSections }: Props) {
   // Sections render in the site's own saved order.
   const defs = module.sections
     .filter((s) => enabledSections.includes(s.key))
@@ -108,6 +110,44 @@ export default function SiteRenderer({ siteId, module, enabledSections, theme, b
     </nav>
   );
 
+  function renderSection(def: (typeof defs)[number]) {
+    const c = sections[def.key] ?? def.defaults;
+    const items = (c.items as SectionItem[] | undefined) ?? [];
+    const v = variant(def.key, def.kind);
+    switch (def.kind) {
+      case "hero":
+        return <Hero key={def.key} id={def.key} c={c} layout={theme.heroLayout} dark={heroDark} />;
+      case "about":
+        return <About key={def.key} id={def.key} c={c} variant={v} />;
+      case "stats":
+        return <Stats key={def.key} id={def.key} c={c} items={items} variant={v} />;
+      case "cards":
+        return <Cards key={def.key} id={def.key} c={c} items={items} variant={v} />;
+      case "list":
+        return <List key={def.key} id={def.key} c={c} items={items} variant={v} />;
+      case "gallery":
+        return <Gallery key={def.key} id={def.key} c={c} items={items} variant={v} />;
+      case "testimonials":
+        return <Testimonials key={def.key} id={def.key} c={c} items={items} variant={v} />;
+      case "products":
+        return <Products key={def.key} id={def.key} c={c} items={items} whatsapp={whatsappNumber(brand)} />;
+      case "faq":
+        return <Faq key={def.key} id={def.key} c={c} items={items} variant={v} />;
+      case "pricing":
+        return <Pricing key={def.key} id={def.key} c={c} items={items} />;
+      case "code":
+        return <CodeBlock key={def.key} id={def.key} c={c} variant={v} />;
+      case "logos":
+        return <Logos key={def.key} id={def.key} c={c} items={items} variant={v} />;
+      case "cta":
+        return <Cta key={def.key} id={def.key} c={c} variant={v} />;
+      case "contact":
+        return (
+          <Contact key={def.key} id={def.key} c={c} brand={brand} siteId={siteId} formType={def.key} variant={v} extraFields={extraFields(def.formFields, module, sections, enabledSections)} />
+        );
+    }
+  }
+
   return (
     <div style={vars} className={classes} data-style={theme.style}>
       <link rel="stylesheet" href={googleFontsHref(theme)} precedence="default" />
@@ -140,41 +180,17 @@ export default function SiteRenderer({ siteId, module, enabledSections, theme, b
 
       <main id="top">
         {defs.map((def) => {
-          const c = sections[def.key] ?? def.defaults;
-          const items = (c.items as SectionItem[] | undefined) ?? [];
-          const v = variant(def.key, def.kind);
-          switch (def.kind) {
-            case "hero":
-              return <Hero key={def.key} id={def.key} c={c} layout={theme.heroLayout} dark={heroDark} />;
-            case "about":
-              return <About key={def.key} id={def.key} c={c} variant={v} />;
-            case "stats":
-              return <Stats key={def.key} id={def.key} c={c} items={items} variant={v} />;
-            case "cards":
-              return <Cards key={def.key} id={def.key} c={c} items={items} variant={v} />;
-            case "list":
-              return <List key={def.key} id={def.key} c={c} items={items} variant={v} />;
-            case "gallery":
-              return <Gallery key={def.key} id={def.key} c={c} items={items} variant={v} />;
-            case "testimonials":
-              return <Testimonials key={def.key} id={def.key} c={c} items={items} variant={v} />;
-            case "products":
-              return <Products key={def.key} id={def.key} c={c} items={items} whatsapp={whatsappNumber(brand)} />;
-            case "faq":
-              return <Faq key={def.key} id={def.key} c={c} items={items} variant={v} />;
-            case "pricing":
-              return <Pricing key={def.key} id={def.key} c={c} items={items} />;
-            case "code":
-              return <CodeBlock key={def.key} id={def.key} c={c} variant={v} />;
-            case "logos":
-              return <Logos key={def.key} id={def.key} c={c} items={items} variant={v} />;
-            case "cta":
-              return <Cta key={def.key} id={def.key} c={c} variant={v} />;
-            case "contact":
-              return (
-                <Contact key={def.key} id={def.key} c={c} brand={brand} siteId={siteId} formType={def.key} variant={v} extraFields={extraFields(def.formFields, module, sections, enabledSections)} />
-              );
-          }
+          const before = customSections?.[`before-${def.key}`];
+          const after = customSections?.[`after-${def.key}`];
+          const block = renderSection(def);
+          if (!before && !after) return block;
+          return (
+            <Fragment key={def.key}>
+              {before && <div className="site-custom-html" data-slot={`before-${def.key}`} dangerouslySetInnerHTML={{ __html: before }} />}
+              {block}
+              {after && <div className="site-custom-html" data-slot={`after-${def.key}`} dangerouslySetInnerHTML={{ __html: after }} />}
+            </Fragment>
+          );
         })}
       </main>
 

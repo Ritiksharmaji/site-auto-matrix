@@ -1,0 +1,26 @@
+# Publishes the custom code on every push to main. Do not rename this file or the "site" artifact.
+name: Deploy to oneKampus
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect the custom code
+        run: |
+          mkdir -p _site/sections
+          [ -f custom.css ] && cp custom.css _site/
+          [ -f custom.js ] && cp custom.js _site/
+          cp sections/*.html _site/sections/ 2>/dev/null || true
+          echo "{\"commit\":\"$GITHUB_SHA\"}" > _site/build.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: _site
+          retention-days: 3
+          if-no-files-found: error

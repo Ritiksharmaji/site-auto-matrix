@@ -62,7 +62,7 @@ export async function siteStartData(
   site: { name: string; slug: string },
 ): Promise<{ error: string } | { data: Omit<Prisma.SiteUncheckedCreateInput, "clientId" | "name" | "slug">; label: string }> {
   if (choice.codeFramework) {
-    const fw = FRAMEWORKS.find((f) => f.value === choice.codeFramework);
+    const fw = FRAMEWORKS.find((f) => f.value === choice.codeFramework && f.pickable !== false);
     if (!fw) return { error: "Choose React, Next.js or HTML for the code website." };
     if (!perms.canCreateCodeSites) return { error: "You are not allowed to create code websites. Ask the admin." };
     try {

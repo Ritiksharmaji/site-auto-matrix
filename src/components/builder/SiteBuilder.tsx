@@ -1,13 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { saveAutomation, saveSections, saveSettings, saveTheme, setPublished } from "@/app/actions/site";
 import RecentEnquiries, { type RecentEnquiry } from "@/components/crm/RecentEnquiries";
 import type { AutomationSettings } from "@/lib/automation";
 import { saveSiteAsBlueprint } from "@/app/actions/blueprints";
 import { BUTTON_OPTIONS, FONTS, FOOTER_OPTIONS, HEADER_OPTIONS, HERO_LAYOUTS, RADIUS_OPTIONS, SECTION_VARIANTS, SPACING_OPTIONS, STYLE_OPTIONS } from "@/modules/shared";
 import type { Brand, ModuleDef, SectionContent, Theme } from "@/modules/types";
+import { enableCustomCode } from "@/app/actions/code";
+import { CodeTab, type CodeInfo, type DeployRow } from "./CodeSiteBuilder";
 import ContentEditor from "./ContentEditor";
 
 
@@ -23,6 +25,10 @@ type Props = {
   canPublish: boolean;
   /** Server-rendered analytics panel. */
   analytics: React.ReactNode;
+  /** Custom code (CSS / JS / HTML sections) for this builder site, if added. */
+  code?: { code: CodeInfo; deploys: DeployRow[] } | null;
+  /** Why custom code can't be added (missing permission / GitHub), or null if it can. */
+  codeBlocked?: string | null;
 };
 
 const TABS = [
@@ -31,6 +37,7 @@ const TABS = [
   { key: "content", label: "Content" },
   { key: "automation", label: "Automation" },
   { key: "settings", label: "Settings" },
+  { key: "code", label: "Code" },
   { key: "enquiries", label: "Enquiries" },
   { key: "analytics", label: "Analytics" },
 ] as const;
@@ -78,6 +85,7 @@ export default function SiteBuilder(props: Props) {
           />
         )}
         {tab === "settings" && <SettingsTab {...props} onSaved={refreshPreview} />}
+        {tab === "code" && <BuilderCodeTab {...props} onChanged={refreshPreview} />}
         {tab === "automation" && <AutomationTab {...props} />}
         {tab === "analytics" && props.analytics}
         {tab === "enquiries" && <RecentEnquiries enquiries={props.enquiries} basePath="/admin/enquiries" siteId={site.id} />}
@@ -512,6 +520,59 @@ export function AutomationTab({ site, automation }: Pick<Props, "site" | "automa
         )}
         <SaveBar saving={saving} msg={msg} onSave={() => run(() => saveAutomation(site.id, a), () => {})} />
       </div>
+    </div>
+  );
+}
+
+/** Custom code for a builder site: add it, then the same deploy / rollback / editor tools as code websites. */
+function BuilderCodeTab({ site, code, codeBlocked, onChanged }: Props & { onChanged: () => void }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const building = !!code?.deploys.some((d) => d.status === "BUILDING" && Date.now() - new Date(d.createdAt).getTime() < 30 * 60_000);
+
+  useEffect(() => {
+    if (!building) return;
+    const t = setInterval(() => router.refresh(), 6000);
+    return () => clearInterval(t);
+  }, [building, router]);
+  const live = code?.deploys.find((d) => d.status === "LIVE")?.id;
+  useEffect(() => {
+    if (live) onChanged();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [live]);
+
+  if (code) return <CodeTab site={site} code={code.code} deploys={code.deploys} building={building} />;
+  return (
+    <div className="card space-y-4">
+      <div>
+        <h3 className="font-semibold text-slate-900">Add custom code to this website</h3>
+        <p className="mt-1 text-sm text-slate-600">
+          Keep using the builder, and change the look or add features with a little code. It&apos;s edited in the browser (Code Studio) or in VS Code on a laptop, like code websites.
+        </p>
+      </div>
+      <ul className="space-y-1 text-sm text-slate-600">
+        <li><code className="rounded bg-slate-100 px-1">custom.css</code>: your own styles on top of the design</li>
+        <li><code className="rounded bg-slate-100 px-1">custom.js</code>: scripts (chat widgets, effects, tracking)</li>
+        <li><code className="rounded bg-slate-100 px-1">sections/after-&lt;section&gt;.html</code>: extra HTML blocks between builder sections</li>
+      </ul>
+      <p className="text-xs text-slate-500">Creates a private GitHub repository <span className="font-mono">site-{site.slug}</span>. The client keeps editing text and images in their portal as before.</p>
+      {codeBlocked && <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">{codeBlocked}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      <button
+        disabled={busy || !!codeBlocked}
+        onClick={async () => {
+          setBusy(true);
+          setError("");
+          const res = await enableCustomCode(site.id);
+          setBusy(false);
+          if (!res.ok) setError(res.error ?? "Something went wrong");
+          else router.refresh();
+        }}
+        className="btn-primary"
+      >
+        {busy ? "Creating repository…" : "Add custom code"}
+      </button>
     </div>
   );
 }

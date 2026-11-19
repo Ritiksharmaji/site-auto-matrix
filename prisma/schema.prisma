@@ -267,6 +267,8 @@ enum CodeFramework {
   HTML
   REACT
   NEXTJS
+  /// Custom code (CSS, JS, HTML sections) added to a builder site
+  CUSTOM
 }
 
 enum DeployStatus {

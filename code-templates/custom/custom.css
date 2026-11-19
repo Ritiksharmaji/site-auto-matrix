@@ -1,0 +1,16 @@
+/*
+ * Custom styles for __NAME__ (added on top of the builder design).
+ * They load on the live website after every deploy.
+ *
+ * Useful hooks:
+ *   .site                 the whole page          .site-header / .site-footer
+ *   section#<key>         a builder section, e.g. section#hero, section#services
+ *   .site-card            cards                   .site-btn   buttons
+ *   .site-custom-html     your own HTML sections (sections/*.html)
+ *   CSS variables: --c-primary --c-secondary --c-bg --c-surface --c-text --radius
+ *
+ * Example (remove the comment marks to try it):
+ *
+ * section#hero h1 { letter-spacing: -0.02em; }
+ * .site-btn { box-shadow: 0 8px 20px -8px var(--c-primary); }
+ */

@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { logActivity } from "@/lib/activity";
-import { buildOnDisk, makeLive, signPreviewToken } from "@/lib/code-sites";
+import { buildOnDisk, createCodeRepo, makeLive, signPreviewToken } from "@/lib/code-sites";
 import { db } from "@/lib/db";
 import { addCollaborator, dispatchDeploy, githubConfig } from "@/lib/github";
-import { siteScope } from "@/lib/permissions";
+import { siteScope, staffPermissions } from "@/lib/permissions";
+import { getModule } from "@/modules/registry";
 import { siteUrl } from "@/lib/sites";
 
 export type CodeResult = { ok: boolean; error?: string; url?: string };
@@ -67,5 +68,33 @@ export async function previewLink(siteId: string) {
   return guarded(async () => {
     const { site } = await loadCodeSite(siteId);
     return { ok: true, url: `${siteUrl(site)}/?_preview=${await signPreviewToken(site.id)}` };
+  });
+}
+
+/**
+ * Adds custom code (CSS, JS, HTML sections) to a builder website: creates its GitHub
+ * repo from the "custom" template. The site stays a builder site.
+ */
+export async function enableCustomCode(siteId: string) {
+  return guarded(async () => {
+    const user = await getCurrentUser();
+    if (!user || user.role === "CLIENT") throw new Error("Not allowed");
+    if (!staffPermissions(user).canCreateCodeSites) throw new Error("You are not allowed to add code. Ask the admin for “Can create code websites”.");
+    if (!githubConfig().ready) throw new Error("GitHub isn't connected on this server.");
+    const site = await db.site.findFirst({ where: { id: siteId, ...siteScope(user) }, include: { codeProject: true } });
+    if (!site) throw new Error("Website not found");
+    if (site.codeProject) throw new Error("This website already has code.");
+    const mod = getModule(site.moduleKey);
+    if (!mod) throw new Error("Custom code is for builder websites.");
+    let repo;
+    try {
+      repo = await createCodeRepo({ slug: site.slug, name: site.name, framework: "CUSTOM", url: siteUrl(site), sections: (site.enabledSections as string[]) ?? [] });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Could not create the GitHub repository.";
+      throw new Error(/already exists|name already/i.test(msg) ? `A GitHub repository named site-${site.slug} already exists.` : msg);
+    }
+    await db.codeProject.create({ data: { siteId: site.id, framework: "CUSTOM", repoOwner: repo.owner, repoName: repo.repoName, branch: repo.branch, webhookId: repo.webhookId } });
+    await logActivity(user.id, "code.custom", `${user.name} added custom code to "${site.name}" (${repo.owner}/${repo.repoName})`);
+    revalidatePath(`/admin/sites/${site.id}`);
   });
 }

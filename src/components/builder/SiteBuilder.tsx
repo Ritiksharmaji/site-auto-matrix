@@ -8,7 +8,7 @@ import type { AutomationSettings } from "@/lib/automation";
 import { saveSiteAsBlueprint } from "@/app/actions/blueprints";
 import { BUTTON_OPTIONS, FONTS, FOOTER_OPTIONS, HEADER_OPTIONS, HERO_LAYOUTS, RADIUS_OPTIONS, SECTION_VARIANTS, SPACING_OPTIONS, STYLE_OPTIONS } from "@/modules/shared";
 import type { Brand, ModuleDef, SectionContent, Theme } from "@/modules/types";
-import { enableCustomCode } from "@/app/actions/code";
+import { convertToCode, enableCustomCode } from "@/app/actions/code";
 import { CodeTab, type CodeInfo, type DeployRow } from "./CodeSiteBuilder";
 import ContentEditor from "./ContentEditor";
 
@@ -542,8 +542,15 @@ function BuilderCodeTab({ site, code, codeBlocked, onChanged }: Props & { onChan
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [live]);
 
-  if (code) return <CodeTab site={site} code={code.code} deploys={code.deploys} building={building} />;
+  if (code)
+    return (
+      <div className="space-y-4">
+        <CodeTab site={site} code={code.code} deploys={code.deploys} building={building} />
+        <ConvertCard siteId={site.id} slug={site.slug} blocked={codeBlocked ?? null} />
+      </div>
+    );
   return (
+    <div className="space-y-4">
     <div className="card space-y-4">
       <div>
         <h3 className="font-semibold text-slate-900">Add custom code to this website</h3>
@@ -572,6 +579,47 @@ function BuilderCodeTab({ site, code, codeBlocked, onChanged }: Props & { onChan
         className="btn-primary"
       >
         {busy ? "Creating repository…" : "Add custom code"}
+      </button>
+    </div>
+    <ConvertCard siteId={site.id} slug={site.slug} blocked={codeBlocked ?? null} />
+    </div>
+  );
+}
+
+/** "Convert to code website": the current page becomes editable code in the site's repo. */
+function ConvertCard({ siteId, slug, blocked }: { siteId: string; slug: string; blocked: string | null }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  return (
+    <div className="card space-y-3">
+      <div>
+        <h3 className="font-semibold text-slate-900">Convert to code website</h3>
+        <p className="mt-1 text-sm text-slate-600">
+          Turns this website, exactly as it looks now, into code (<code className="rounded bg-slate-100 px-1">index.html</code>, <code className="rounded bg-slate-100 px-1">styles.css</code>, images) in the repository <span className="font-mono">site-{slug}</span>. Open it in the browser or VS Code and change anything.
+        </p>
+      </div>
+      <ul className="list-disc space-y-1 pl-5 text-xs text-slate-500">
+        <li>The live site stays exactly the same after converting.</li>
+        <li>From then on it&apos;s edited in code: the Sections, Design and Content tabs and the client&apos;s text editing no longer apply. Enquiries, automation and analytics keep working.</li>
+        <li>The builder version is kept: <b>Switch back to builder</b> restores it.</li>
+      </ul>
+      {blocked && <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">{blocked}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      <button
+        disabled={busy || !!blocked}
+        onClick={async () => {
+          if (!window.confirm("Convert this website to code? It will look the same, but from now on it's edited in code (you can switch back later).")) return;
+          setBusy(true);
+          setError("");
+          const res = await convertToCode(siteId);
+          setBusy(false);
+          if (!res.ok) setError(res.error ?? "Something went wrong");
+          else router.refresh();
+        }}
+        className="btn-secondary"
+      >
+        {busy ? "Converting… (about 20 seconds)" : "Convert to code website"}
       </button>
     </div>
   );

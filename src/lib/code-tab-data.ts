@@ -18,6 +18,7 @@ export async function codeTabData(siteId: string) {
       vscodeUrl: vscodeCloneLink(project.repoOwner, project.repoName),
       branch: project.branch,
       githubReady: githubConfig().ready,
+      convertedFrom: project.previousModuleKey,
       devCommand: project.framework === "HTML" ? "npx serve ." : project.framework === "CUSTOM" ? "" : "npm install && npm run dev",
     },
     deploys: project.deploys.map((d) => ({

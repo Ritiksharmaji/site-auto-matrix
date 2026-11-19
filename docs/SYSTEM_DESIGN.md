@@ -213,6 +213,7 @@ siteScope(user)  → sites whose client is inside clientScope(user)
 | Code tab: deploys, roll back, build again, invite a developer | ✅ | ✅ own clients' code sites | ❌ (portal shows the site and its enquiries) |
 | Code Studio (edit and commit in the browser) | ✅ | ✅ own clients' code sites | ❌ |
 | Add custom code to a builder website | ✅ | ⚠️ if `canCreateCodeSites` | ❌ (keeps editing content as before) |
+| Convert a builder website to code / switch back | ✅ | ⚠️ if `canCreateCodeSites` (own clients) | ❌ |
 | Reassign a client to another member | ✅ | ❌ | ❌ |
 | Delete client | ✅ | ⚠️ if `canDeleteClients` | ❌ |
 | Create client logins | ✅ | ✅ own clients | ❌ |
@@ -428,7 +429,7 @@ erDiagram
 - **Money in paise.** Amounts are stored as integers, so there are no floating-point rounding errors.
 - **Indexes** on `ownerId`, `siteId`, `status` and `createdAt` support the scoped list queries.
 
-Migrations live in `prisma/migrations/`: `init`, `phase2_automation_crm_uploads`, `phase3_billing_analytics`, `enquiry_extra_fields`, `saved_blueprints`, `code_sites` and `custom_code`.
+Migrations live in `prisma/migrations/`: `init`, `phase2_automation_crm_uploads`, `phase3_billing_analytics`, `enquiry_extra_fields`, `saved_blueprints`, `code_sites`, `custom_code` and `convert_to_code`.
 
 ---
 
@@ -736,3 +737,19 @@ A builder site can have a `CodeProject` with framework **`CUSTOM`** (repo from `
 | `sections/before-<key>.html`, `after-<key>.html` | Passed to `SiteRenderer` as `customSections` and rendered around that section in a `.site-custom-html` wrapper |
 
 Admin-panel previews are on the platform origin. There, HTML sections go through `stripActiveHtml()` (removes `<script>`, `<iframe>`/`<object>`/`<embed>`/`<base>`/`<meta>`/`<link>`, `on*=` handlers and `javascript:` URLs), and `custom.js` isn't loaded. So code written for a customer site can't run in the admin panel. The four demo sites were verified pixel-identical after this change.
+
+### 18.3 Converting a builder website to code
+
+`convertToCode` (`src/app/actions/code.ts`):
+
+1. **Export** (`src/lib/site-export.ts`). The page is requested from this same server with the site's own Host header, so it's exactly what visitors see; drafts are read with the user's session. Then:
+   - Next.js runtime scripts, preloads and React markers are removed (the page is fully server-rendered, and only JSON-LD is kept).
+   - Every stylesheet and inline `<style>` is concatenated, in document order, into `styles.css`.
+   - Uploads, stock photos, artwork, favicon and `/_next/static/media` fonts are downloaded into `assets/`, and their URLs rewritten in HTML, `srcset` and CSS.
+   - The server-action form becomes `<form data-onekampus-form>`, handled by `code-templates/export/onekampus.js`, which posts to `/api/public/enquiries` with extra questions labelled by `aria-label`. The hidden error line goes first, so the form's spacing doesn't change.
+   - `formatHtml()` puts block-level tags on their own indented lines. Only whitespace between block elements is added, which browsers ignore, and the exports of all demo sites were verified pixel-identical.
+2. **Commit:** into the existing custom-code repo (earlier custom-code versions are deleted, because they can't be served as a code website), or a new `site-<slug>` repo with a webhook. Binary files are uploaded as blobs, and the commit replaces the whole tree.
+3. **Publish:** the exported files are installed as a deploy straight away and made live, and `Site.moduleKey` becomes `code`. `CodeProject.previousModuleKey` keeps the builder module. Content, theme and sections are left untouched in the database.
+4. **Switch back:** `moduleKey` is restored, and the `CodeProject`, its deploys and its stored builds are removed (the GitHub repo is kept).
+
+The middleware's "is this a code site?" cache lives on `globalThis`, so the server action and the middleware (separate bundles in one process) share it, and the change takes effect on the next request.

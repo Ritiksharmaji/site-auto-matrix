@@ -61,13 +61,18 @@ export async function createRepo(name: string, description: string) {
 }
 
 /** Replaces the repo's contents with these files in one commit on `branch`. */
-export async function commitFiles(owner: string, repo: string, branch: string, files: { path: string; content: string }[], message: string) {
+export async function commitFiles(owner: string, repo: string, branch: string, files: { path: string; content: string; encoding?: "utf-8" | "base64" }[], message: string) {
   const ref = await gh<{ object: { sha: string } }>(`/repos/${owner}/${repo}/git/ref/heads/${branch}`);
   const parent = ref.object.sha;
-  const tree = await gh<{ sha: string }>(`/repos/${owner}/${repo}/git/trees`, {
-    method: "POST",
-    json: { tree: files.map((f) => ({ path: f.path, mode: "100644", type: "blob", content: f.content })) },
-  });
+  // Binary files (images, fonts) are uploaded as blobs first; text goes inline.
+  const entries = [];
+  for (const f of files) {
+    if (f.encoding === "base64") {
+      const blob = await gh<{ sha: string }>(`/repos/${owner}/${repo}/git/blobs`, { method: "POST", json: { content: f.content, encoding: "base64" } });
+      entries.push({ path: f.path, mode: "100644", type: "blob", sha: blob.sha });
+    } else entries.push({ path: f.path, mode: "100644", type: "blob", content: f.content });
+  }
+  const tree = await gh<{ sha: string }>(`/repos/${owner}/${repo}/git/trees`, { method: "POST", json: { tree: entries } });
   const commit = await gh<{ sha: string }>(`/repos/${owner}/${repo}/git/commits`, {
     method: "POST",
     json: { message, tree: tree.sha, parents: [parent] },

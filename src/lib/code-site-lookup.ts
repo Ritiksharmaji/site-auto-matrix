@@ -4,7 +4,10 @@ import { db } from "./db";
 // middleware on every client-site request, so answers are cached for a short time.
 
 const TTL_MS = 15_000;
-const cache = new Map<string, { slug: string | null; until: number }>();
+// Kept on globalThis: the middleware and the server actions are separate bundles in the
+// same process, and converting a site must clear the middleware's copy immediately.
+const g = globalThis as unknown as { __codeSiteLookup?: Map<string, { slug: string | null; until: number }> };
+const cache = (g.__codeSiteLookup ??= new Map());
 
 /** The slug of the code website for this key, or null for builder sites / unknown keys. */
 export async function codeSiteSlug(key: string): Promise<string | null> {

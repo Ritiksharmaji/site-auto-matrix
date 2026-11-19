@@ -18,7 +18,7 @@ One Next.js app that creates and hosts many websites (schools, companies, …) f
 
 🧩 **Custom code on builder websites:** add `custom.css`, `custom.js` and extra HTML blocks to any builder site (e.g. ADVERA) from its **Code** tab. The builder and client editing keep working ([APPLICATION_FLOW.md §6E](docs/APPLICATION_FLOW.md#6e-custom-code-on-builder-websites)).
 
-🔁 **Convert to code website:** turn an existing builder site (e.g. ADVERA) into editable HTML/CSS in its repo, looking pixel-identical, then change anything in Code Studio or VS Code. **Switch back to builder** is always available ([APPLICATION_FLOW.md §6F](docs/APPLICATION_FLOW.md#6f-convert-a-builder-website-to-code)).
+🔁 **Convert to code website:** turn an existing builder site (e.g. ADVERA) into a **React (Vite)** or **Next.js** project in its repo (one component per section, same look), then change anything in Code Studio or VS Code. **Switch back to builder** is always available ([APPLICATION_FLOW.md §6F](docs/APPLICATION_FLOW.md#6f-convert-a-builder-website-to-code)).
 
 📸 **Regenerate the screenshots** (dev server running): `npm run docs:screenshots` · **Validate blueprints:** `npm run check:blueprints`
 

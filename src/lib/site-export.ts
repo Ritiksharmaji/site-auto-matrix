@@ -52,15 +52,6 @@ function nameFor(urlPath: string, type: string) {
   return `${stem}-${hash}${ext}`;
 }
 
-/** README, workflow and .gitignore for an exported site, with its name and address filled in. */
-export async function exportRepoFiles(vars: { name: string; url: string }): Promise<ExportFile[]> {
-  const root = path.join(process.cwd(), "code-templates", "export");
-  const fill = (t: string) => t.replaceAll("__NAME__", vars.name.replace(/[<>"`$\\]/g, "")).replaceAll("__URL__", vars.url);
-  return Promise.all(
-    ["README.md", ".gitignore", ".github/workflows/onekampus-deploy.yml"].map(async (f) => ({ path: f, content: fill(await readFile(path.join(root, f), "utf8")) })),
-  );
-}
-
 /** The onekampus.js shipped with exported sites: form → Enquiries (incl. extra questions), page views → Analytics. */
 export async function exportScript() {
   return readFile(path.join(process.cwd(), "code-templates", "export", "onekampus.js"), "utf8");

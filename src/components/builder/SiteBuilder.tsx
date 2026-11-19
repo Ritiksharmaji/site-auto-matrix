@@ -591,13 +591,30 @@ function ConvertCard({ siteId, slug, blocked }: { siteId: string; slug: string; 
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [target, setTarget] = useState<"REACT" | "NEXTJS">("REACT");
   return (
     <div className="card space-y-3">
       <div>
         <h3 className="font-semibold text-slate-900">Convert to code website</h3>
         <p className="mt-1 text-sm text-slate-600">
-          Turns this website, exactly as it looks now, into code (<code className="rounded bg-slate-100 px-1">index.html</code>, <code className="rounded bg-slate-100 px-1">styles.css</code>, images) in the repository <span className="font-mono">site-{slug}</span>. Open it in the browser or VS Code and change anything.
+          Turns this website, exactly as it looks now, into a React or Next.js project (one component per section, the contact form, styles and images) in the repository <span className="font-mono">site-{slug}</span>. Open it in the browser or VS Code and change anything.
         </p>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {([
+          ["REACT", "React (Vite)", "src/sections/*.jsx · instant preview in Code Studio"],
+          ["NEXTJS", "Next.js", "App Router, exported as static pages"],
+        ] as const).map(([value, label, hint]) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setTarget(value)}
+            className={`rounded-lg border p-3 text-left ${target === value ? "border-indigo-500 bg-indigo-50 ring-2 ring-indigo-200" : "border-slate-200 hover:border-slate-300"}`}
+          >
+            <span className="block text-sm font-semibold text-slate-900">{label}</span>
+            <span className="block text-xs text-slate-500">{hint}</span>
+          </button>
+        ))}
       </div>
       <ul className="list-disc space-y-1 pl-5 text-xs text-slate-500">
         <li>The live site stays exactly the same after converting.</li>
@@ -609,17 +626,17 @@ function ConvertCard({ siteId, slug, blocked }: { siteId: string; slug: string; 
       <button
         disabled={busy || !!blocked}
         onClick={async () => {
-          if (!window.confirm("Convert this website to code? It will look the same, but from now on it's edited in code (you can switch back later).")) return;
+          if (!window.confirm(`Convert this website to a ${target === "NEXTJS" ? "Next.js" : "React"} project? It will look the same, but from now on it's edited in code (you can switch back later).`)) return;
           setBusy(true);
           setError("");
-          const res = await convertToCode(siteId);
+          const res = await convertToCode(siteId, target);
           setBusy(false);
           if (!res.ok) setError(res.error ?? "Something went wrong");
           else router.refresh();
         }}
         className="btn-secondary"
       >
-        {busy ? "Converting… (about 20 seconds)" : "Convert to code website"}
+        {busy ? "Converting… (about 20 seconds)" : `Convert to ${target === "NEXTJS" ? "Next.js" : "React"}`}
       </button>
     </div>
   );

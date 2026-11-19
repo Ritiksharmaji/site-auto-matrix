@@ -738,18 +738,30 @@ A builder site can have a `CodeProject` with framework **`CUSTOM`** (repo from `
 
 Admin-panel previews are on the platform origin. There, HTML sections go through `stripActiveHtml()` (removes `<script>`, `<iframe>`/`<object>`/`<embed>`/`<base>`/`<meta>`/`<link>`, `on*=` handlers and `javascript:` URLs), and `custom.js` isn't loaded. So code written for a customer site can't run in the admin panel. The four demo sites were verified pixel-identical after this change.
 
-### 18.3 Converting a builder website to code
+### 18.3 Converting a builder website to code (React or Next.js)
 
-`convertToCode` (`src/app/actions/code.ts`):
+`convertToCode(siteId, "REACT" | "NEXTJS")` (`src/app/actions/code.ts`):
 
 1. **Export** (`src/lib/site-export.ts`). The page is requested from this same server with the site's own Host header, so it's exactly what visitors see; drafts are read with the user's session. Then:
-   - Next.js runtime scripts, preloads and React markers are removed (the page is fully server-rendered, and only JSON-LD is kept).
-   - Every stylesheet and inline `<style>` is concatenated, in document order, into `styles.css`.
-   - Uploads, stock photos, artwork, favicon and `/_next/static/media` fonts are downloaded into `assets/`, and their URLs rewritten in HTML, `srcset` and CSS.
-   - The server-action form becomes `<form data-onekampus-form>`, handled by `code-templates/export/onekampus.js`, which posts to `/api/public/enquiries` with extra questions labelled by `aria-label`. The hidden error line goes first, so the form's spacing doesn't change.
-   - `formatHtml()` puts block-level tags on their own indented lines. Only whitespace between block elements is added, which browsers ignore, and the exports of all demo sites were verified pixel-identical.
-2. **Commit:** into the existing custom-code repo (earlier custom-code versions are deleted, because they can't be served as a code website), or a new `site-<slug>` repo with a webhook. Binary files are uploaded as blobs, and the commit replaces the whole tree.
-3. **Publish:** the exported files are installed as a deploy straight away and made live, and `Site.moduleKey` becomes `code`. `CodeProject.previousModuleKey` keeps the builder module. Content, theme and sections are left untouched in the database.
-4. **Switch back:** `moduleKey` is restored, and the `CodeProject`, its deploys and its stored builds are removed (the GitHub repo is kept).
+   - Next.js runtime scripts and preloads are removed.
+   - All styles are concatenated in order.
+   - Uploads, photos, artwork, favicon and fonts are downloaded into `assets/`.
+   - The server-action form becomes a plain form marked `data-onekampus-form`.
+2. **To a project** (`src/lib/site-to-code.ts`). The exported HTML is parsed into a small tree and printed as JSX:
+   - attribute names: `className`, `htmlFor`, camelCase SVG/ARIA-safe names
+   - `style` strings become objects (CSS variables kept), `defaultValue` for form fields, `precedence` for the fonts stylesheet
+   - block-level children go on separate lines, and inline content stays on one line, so spacing is preserved
+
+   Each child of `<main>` becomes `sections/<Name>.jsx`, plus `Header`/`Footer`. The form becomes `<EnquiryForm formType className>` (a client component posting to `/api/public/enquiries`).
+   - **React:** a Vite project, with head tags in `index.html`.
+   - **Next.js:** App Router with `output: "export"`. Head tags are rendered inside `<body>` in `app/layout.jsx` and React 19 moves them into `<head>` (an explicit `<head>` clashes with the tags Next.js adds, causing a hydration error).
+   - Assets go to `public/assets/`.
+3. **Commit:** into the site's existing custom-code repo (earlier custom-code versions are deleted), or a new `site-<slug>` repo with a webhook. Binary files are uploaded as blobs, and the commit replaces the whole tree.
+4. **Publish:** the plain export is installed and made live immediately, so there's no downtime. GitHub then builds the React / Next.js project, and its artifact replaces it. `Site.moduleKey` becomes `code`, and `CodeProject.previousModuleKey` keeps the builder module. Builder content and theme stay in the database.
+5. **Switch back:** `moduleKey` is restored, and the `CodeProject`, its deploys and its stored builds are removed (the GitHub repo is kept).
+
+**Verified:**
+- ADVERA and Nexora built as React and as Next.js projects, then served, match the live sites. The only differences are sub-pixel anti-aliasing on two text lines, because React SSR splits text nodes with `<!-- -->` and the JSX keeps the text whole.
+- No hydration or console errors.
 
 The middleware's "is this a code site?" cache lives on `globalThis`, so the server action and the middleware (separate bundles in one process) share it, and the change takes effect on the next request.

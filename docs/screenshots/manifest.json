@@ -756,14 +756,14 @@
     "finalUrl": "/admin/sites/<siteId>"
   },
   {
-    "file": "09-convert-to-code/01-converted-code-tab.png",
-    "title": "Converted website \u2013 Code tab with deploys and Switch back to builder",
+    "file": "09-convert-to-code/01-convert-react-or-nextjs.png",
+    "title": "Builder website \u2013 Code tab: Convert to code website (React or Next.js)",
     "url": "/admin/sites/<siteId>",
     "finalUrl": "/admin/sites/<siteId>"
   },
   {
-    "file": "09-convert-to-code/02-converted-in-code-studio.png",
-    "title": "Converted website's exported code (index.html, styles.css, assets) in Code Studio with instant preview",
+    "file": "09-convert-to-code/02-converted-react-in-code-studio.png",
+    "title": "Converted React project in Code Studio \u2013 sections as components, instant preview of an edit",
     "url": "/admin/sites/<siteId>",
     "finalUrl": "/admin/sites/<siteId>"
   }

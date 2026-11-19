@@ -10,7 +10,8 @@ import { zipSync } from "fflate";
 import { buildDir, buildOnDisk, createCodeRepo, installBuild, liveCustomCode, makeLive, removeSiteBuilds, signPreviewToken } from "@/lib/code-sites";
 import { forgetCodeSiteLookups } from "@/lib/code-site-lookup";
 import { siteBaseDomain } from "@/lib/hosts";
-import { exportRepoFiles, exportSite } from "@/lib/site-export";
+import { exportSite } from "@/lib/site-export";
+import { siteToCode, type CodeTarget } from "@/lib/site-to-code";
 import { SESSION_COOKIE } from "@/lib/session";
 import { db } from "@/lib/db";
 import { addCollaborator, commitFiles, createRepo, createWebhook, dispatchDeploy, githubConfig } from "@/lib/github";
@@ -114,7 +115,7 @@ export async function enableCustomCode(siteId: string) {
  * (created if needed) and makes that version live at once (no "coming soon" gap).
  * The builder data is kept for "Switch back to builder".
  */
-export async function convertToCode(siteId: string) {
+export async function convertToCode(siteId: string, target: CodeTarget = "REACT") {
   return guarded(async () => {
     const user = await getCurrentUser();
     if (!user || user.role === "CLIENT") throw new Error("Not allowed");
@@ -123,16 +124,16 @@ export async function convertToCode(siteId: string) {
     const site = await db.site.findFirst({ where: { id: siteId, ...siteScope(user) }, include: { codeProject: true } });
     if (!site) throw new Error("Website not found");
     if (!getModule(site.moduleKey)) throw new Error("This website is already a code website.");
+    if (target !== "REACT" && target !== "NEXTJS") throw new Error("Choose React or Next.js.");
 
     // 1. Export the page exactly as visitors see it (drafts are read with the user's session).
     const session = (await cookies()).get(SESSION_COOKIE)?.value;
     const custom = await liveCustomCode(site.id);
     const customJs = custom?.hasJs ? await readFile(path.join(buildDir(site.id, custom.deployId), "custom.js"), "utf8") : null;
     const url = siteUrl(site);
-    const files = [
-      ...(await exportSite({ host: `${site.slug}.${siteBaseDomain()}`, siteName: site.name, url, cookie: session ? `${SESSION_COOKIE}=${session}` : undefined, customJs })),
-      ...(await exportRepoFiles({ name: site.name, url })),
-    ];
+    // The page as plain files (published at once) and as a React / Next.js project (the repo).
+    const exported = await exportSite({ host: `${site.slug}.${siteBaseDomain()}`, siteName: site.name, url, cookie: session ? `${SESSION_COOKIE}=${session}` : undefined, customJs });
+    const files = await siteToCode(exported, target, { name: site.name, url });
 
     // 2. Commit it: into the existing custom-code repo, or a new one.
     let project = site.codeProject;
@@ -146,7 +147,7 @@ export async function convertToCode(siteId: string) {
       }
       const webhookId = await createWebhook(repo.owner.login, repo.name, `https://${platformHost()}/api/github/webhook`);
       project = await db.codeProject.create({
-        data: { siteId: site.id, framework: "HTML", repoOwner: repo.owner.login, repoName: repo.name, branch: repo.default_branch || "main", webhookId, previousModuleKey: site.moduleKey },
+        data: { siteId: site.id, framework: target, repoOwner: repo.owner.login, repoName: repo.name, branch: repo.default_branch || "main", webhookId, previousModuleKey: site.moduleKey },
       });
     }
     const commitSha = await commitFiles(project.repoOwner, project.repoName, project.branch, files, "Converted from the website builder");
@@ -157,19 +158,20 @@ export async function convertToCode(siteId: string) {
       await removeSiteBuilds(site.id);
     }
 
-    // 3. Publish this exact version now; GitHub's own build of the same commit follows.
-    const zip = zipSync(Object.fromEntries(files.filter((f) => !f.path.startsWith(".github/")).map((f) => [f.path, f.encoding === "base64" ? new Uint8Array(Buffer.from(f.content, "base64")) : new TextEncoder().encode(f.content)])));
+    // 3. Publish the identical plain-file version now; GitHub's build of the React / Next.js
+    //    project (same look) replaces it in 1–2 minutes.
+    const zip = zipSync(Object.fromEntries(exported.map((f) => [f.path, f.encoding === "base64" ? new Uint8Array(Buffer.from(f.content, "base64")) : new TextEncoder().encode(f.content)])));
     const deploy = await db.deploy.create({
       data: { projectId: project.id, runId: `convert-${site.id}-${Date.now()}`, runUrl: `https://github.com/${project.repoOwner}/${project.repoName}/commit/${commitSha}`, commitSha, commitMessage: "Converted from the website builder", author: user.name },
     });
     await db.deploy.update({ where: { id: deploy.id }, data: { ...(await installBuild(site.id, deploy.id, zip, "HTML")), finishedAt: new Date() } });
     await db.$transaction([
-      db.codeProject.update({ where: { id: project.id }, data: { framework: "HTML", previousModuleKey: site.moduleKey } }),
+      db.codeProject.update({ where: { id: project.id }, data: { framework: target, previousModuleKey: site.moduleKey } }),
       db.site.update({ where: { id: site.id }, data: { moduleKey: "code" } }),
     ]);
     await makeLive(project.id, deploy.id);
     forgetCodeSiteLookups();
-    await logActivity(user.id, "code.convert", `${user.name} converted "${site.name}" to a code website (${project.repoOwner}/${project.repoName})`);
+    await logActivity(user.id, "code.convert", `${user.name} converted "${site.name}" to a ${target === "NEXTJS" ? "Next.js" : "React"} code website (${project.repoOwner}/${project.repoName})`);
     revalidatePath(`/admin/sites/${site.id}`);
   });
 }

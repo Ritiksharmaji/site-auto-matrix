@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { inviteDeveloper, redeploy, rollback } from "@/app/actions/code";
+import { inviteDeveloper, redeploy, rollback, switchBackToBuilder } from "@/app/actions/code";
 import RecentEnquiries, { type RecentEnquiry } from "@/components/crm/RecentEnquiries";
 import type { AutomationSettings } from "@/lib/automation";
 import { AutomationTab, SettingsTab } from "./SiteBuilder";
@@ -32,6 +32,8 @@ type Props = {
     branch: string;
     githubReady: boolean;
     devCommand: string;
+    /** Module of the builder version, when this site was converted from the builder. */
+    convertedFrom?: string | null;
   };
   previewUrl: string;
   deploys: DeployRow[];
@@ -215,6 +217,22 @@ export function CodeTab({ site, code, deploys, building }: Pick<Props, "site" | 
           </button>
         </div>
       </div>
+
+      {code.convertedFrom && (
+        <div className="card space-y-2">
+          <h3 className="font-semibold text-slate-900">Switch back to builder</h3>
+          <p className="text-sm text-slate-500">This website was converted from the website builder. Switching back makes the builder version live again, exactly as it was before converting. Code changes made since then aren&apos;t carried over (the repository stays on GitHub).</p>
+          <button
+            disabled={!!busy}
+            onClick={() => {
+              if (window.confirm("Switch this website back to the builder version? Changes made in code since converting won't be on the website.")) run("back", () => switchBackToBuilder(site.id), "Switched back to the builder.");
+            }}
+            className="btn-secondary"
+          >
+            {busy === "back" ? "Switching…" : "Switch back to builder"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

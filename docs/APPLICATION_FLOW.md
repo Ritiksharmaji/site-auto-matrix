@@ -8,6 +8,7 @@ This guide explains, step by step, how the platform works: who uses it, what eac
 - **Ready-made websites (blueprints) and the page-structure designer:** [§6B](#6b-starting-from-a-blueprint-ready-made-websites) and [§7 Step 2](#step-2--design).
 - **Code websites (React / Next.js / HTML written in VS Code, deployed by pushing to GitHub):** [§6C](#6c-code-websites-built-in-vs-code). Edit them in VS Code on a laptop, or in **Code Studio**, VS Code's editor inside the admin panel: [§6D](#6d-code-studio-vs-code-in-the-browser).
 - **Custom code on builder websites** (extra CSS, JS and HTML blocks on sites like ADVERA, while the builder keeps working): [§6E](#6e-custom-code-on-builder-websites).
+- **Convert a builder website into a code website** (the existing page becomes editable code in its repo): [§6F](#6f-convert-a-builder-website-to-code).
 
 ---
 
@@ -609,6 +610,58 @@ Websites without custom code look and work exactly as before.
 
 ---
 
+## 6F. Convert a builder website to code
+
+When a customer's existing builder website (e.g. ADVERA) needs bigger changes, convert it into a **React (Vite)** or **Next.js** project. **The website as it is today** becomes real code (one component per section) committed to its repository, so VS Code (laptop or browser) opens the existing site and you can change anything.
+
+```mermaid
+flowchart LR
+    B["Builder website<br/>(live)"] -->|"Code tab → Convert<br/>React or Next.js"| E["Export the live page"]
+    E --> R[("Repo site-slug<br/>React / Next.js project")]
+    E --> L["Identical plain copy published at once"]
+    R --> G["GitHub builds the project<br/>(1–2 min, same look)"] --> L2["Live: React / Next.js build"]
+    R --> V["Open in window / Open in laptop VS Code<br/>edit → Commit & deploy / push"]
+    V --> G
+    L2 -.->|"Switch back to builder"| B
+```
+
+| React (Vite) | Next.js | What it is |
+|---|---|---|
+| `src/App.jsx` | `app/page.jsx` | The page: header, every section in order, footer |
+| `src/sections/*.jsx` | `sections/*.jsx` | **One component per section** (Hero, Services, About, …) |
+| `src/components/Header.jsx`, `Footer.jsx` | `components/Header.jsx`, `Footer.jsx` | Header (logo + menu) and footer |
+| `src/components/EnquiryForm.jsx` | `components/EnquiryForm.jsx` | The contact form → Enquiries (alerts, auto-reply, extra questions) |
+| `src/styles.css` | `app/globals.css` | All styling |
+| `index.html` | `app/layout.jsx` | Page title, description, sharing tags, fonts |
+| `public/assets/` | `public/assets/` | Every image and font the page uses |
+
+**Step 1: Convert.** Open the website in the builder → **Code** tab → choose **React (Vite)** or **Next.js** → **Convert to React / Next.js** → confirm. It takes about 20 seconds.
+
+![Convert to code website: choose React or Next.js](screenshots/09-convert-to-code/01-convert-react-or-nextjs.png)
+
+*Convert to code website: choose React or Next.js*
+
+What happens:
+1. An identical plain copy goes live straight away, so visitors see no change and no downtime.
+2. GitHub builds the React / Next.js project and replaces it with the same look in about 1–2 minutes.
+3. Both were checked against the live demo sites and ADVERA. They're identical, apart from invisible anti-aliasing on a couple of text lines.
+
+**Step 2: Edit.** The site is now a code website (React or Next.js). Its Code tab has **Open in window** and **Open in laptop VS Code** (`npm install` and `npm run dev`). In Code Studio, React projects show an **instant preview** of your edits before you deploy.
+
+![The converted React project in Code Studio: sections as components, instant preview of an edit](screenshots/09-convert-to-code/02-converted-react-in-code-studio.png)
+
+*The converted React project in Code Studio: sections as components, instant preview of an edit*
+
+**What changes after converting**
+- The website is edited **in code**. The builder's Sections, Design and Content tabs and the client's text editing in the portal no longer apply (the portal shows the site and its enquiries).
+- **Unchanged:** the address, custom domain, HTTPS, the contact form and Enquiries (including extra questions), automation (emails, WhatsApp, auto-reply), analytics and billing.
+- **Switch back to builder** (Code tab) restores the builder version exactly as it was before converting. Code changes made after converting aren't carried back, and the repository stays on GitHub.
+- Custom code added earlier (§6E) is carried into the project: its styles and HTML blocks are in the components, and `custom.js` is in `public/`.
+
+Converting needs the **Can create code websites** permission and GitHub connected.
+
+---
+
 ## 7. Building the website (the builder)
 
 Open **Websites → (a site)**. The left side has tabs, the right side shows a **live preview** (desktop or mobile) that reloads after each save.
@@ -1049,6 +1102,7 @@ Structured data (users, clients, permissions, invoices) uses normal tables with 
 | Code websites: repo creation, builds, serving, rollback | `src/lib/code-sites.ts`, `src/lib/github.ts`, `src/app/api/github/webhook/`, `src/app/code-sites/[slug]/[[...path]]/`, `src/app/actions/code.ts`, `src/components/builder/CodeSiteBuilder.tsx` |
 | Code website starter templates | `code-templates/react`, `code-templates/nextjs`, `code-templates/html` |
 | Custom code on builder sites | `code-templates/custom/`, `liveCustomCode()` in `src/lib/code-sites.ts`, `src/app/sites/[site]/page.tsx`, `src/app/sites/[site]/site-custom/[file]/`, `enableCustomCode` in `src/app/actions/code.ts`, Code tab in `SiteBuilder.tsx` |
+| Convert to code website / switch back | `src/lib/site-export.ts` (export of the live page), `src/lib/site-to-code.ts` (HTML → JSX, React / Next.js project), `code-templates/export/`, `convertToCode` / `switchBackToBuilder` in `src/app/actions/code.ts` |
 | Code Studio (VS Code in the browser) | `src/app/studio/[id]/`, `src/components/studio/` (CodeStudio, MonacoEditor, preview), `src/app/actions/studio.ts`, preview shell in `src/app/code-sites/[slug]/[[...path]]/route.ts` |
 | Public form and tracking API for code websites | `src/app/api/public/enquiries/`, `src/app/api/track/`, `src/lib/enquiries.ts` |
 | Blueprint photos and icons | `public/blueprints/photos/` (list and Unsplash IDs: `scripts/blueprint-photos.txt`), feature icons: `src/lib/art.ts`, `src/app/api/art/[kind]/` |
@@ -1101,6 +1155,7 @@ Each check below was performed by signing in as that role and opening the page. 
 | Code websites: create, Code tab, settings, permission, live site, client view | [06-code-websites](./screenshots/06-code-websites/) |
 | Code Studio: editor, instant preview, packages, changes, commit, conflict | [07-code-studio](./screenshots/07-code-studio/) |
 | Custom code on builder websites | [08-custom-code](./screenshots/08-custom-code/) |
+| Convert to code website | [09-convert-to-code](./screenshots/09-convert-to-code/) |
 
 ![Activity log (Super Admin only): who did what and when](screenshots/02-super-admin/22-activity.png)
 
@@ -1231,6 +1286,5 @@ The planned "Build on server" button is covered by Code Studio: its **Commit & d
 
 Still planned:
 - **Full Next.js with server features** (API routes, server rendering). Each site would need its own container (~150 MB each), so a 2 GB server.
-- **Converting a builder website into a full code website** (keeps its look and content, then edited only in code). Small changes are already possible with custom code (§6E).
 - **Editing blueprints in Code Studio.**
 - **Instant preview for Next.js** in the browser.

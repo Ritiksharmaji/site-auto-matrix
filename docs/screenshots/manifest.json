@@ -754,5 +754,17 @@
     "title": "Code Studio on a builder website's custom code",
     "url": "/admin/sites/<siteId>",
     "finalUrl": "/admin/sites/<siteId>"
+  },
+  {
+    "file": "09-convert-to-code/01-convert-react-or-nextjs.png",
+    "title": "Builder website \u2013 Code tab: Convert to code website (React or Next.js)",
+    "url": "/admin/sites/<siteId>",
+    "finalUrl": "/admin/sites/<siteId>"
+  },
+  {
+    "file": "09-convert-to-code/02-converted-react-in-code-studio.png",
+    "title": "Converted React project in Code Studio \u2013 sections as components, instant preview of an edit",
+    "url": "/admin/sites/<siteId>",
+    "finalUrl": "/admin/sites/<siteId>"
   }
 ]

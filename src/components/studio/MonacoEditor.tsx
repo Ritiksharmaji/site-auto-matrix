@@ -57,6 +57,8 @@ export default function MonacoEditor({ path, value, onChange }: { path: string; 
         automaticLayout: true,
         renderWhitespace: "selection",
         bracketPairColorization: { enabled: true },
+        // Website text often has – “ ” etc.; don't flag them as suspicious characters.
+        unicodeHighlight: { ambiguousCharacters: false, invisibleCharacters: false },
         "semanticHighlighting.enabled": true,
       }}
     />

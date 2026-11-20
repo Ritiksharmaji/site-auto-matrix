@@ -280,19 +280,21 @@ enum DeployStatus {
 
 /// A code website: its source lives in a GitHub repo, edited in VS Code and built by GitHub Actions.
 model CodeProject {
-  id           String        @id @default(cuid())
-  siteId       String        @unique
-  site         Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  framework    CodeFramework
-  repoOwner    String
-  repoName     String
-  branch       String        @default("main")
-  webhookId    Int?
+  id                String        @id @default(cuid())
+  siteId            String        @unique
+  site              Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  framework         CodeFramework
+  repoOwner         String
+  repoName          String
+  branch            String        @default("main")
+  webhookId         Int?
   /// The deploy currently served to visitors
-  liveDeployId String?
-  deploys      Deploy[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  liveDeployId      String?
+  /// Set when a builder site was converted to code: its module, for "Switch back to builder"
+  previousModuleKey String?
+  deploys           Deploy[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   @@unique([repoOwner, repoName])
 }
